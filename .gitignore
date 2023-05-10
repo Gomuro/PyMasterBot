@@ -1,0 +1,13 @@
+
+*.pyc
+pycache/
+*.log
+
+
+venv/
+
+
+data/
+.idea/
+
+bot_token.txt
