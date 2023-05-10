@@ -3,24 +3,37 @@ import subprocess
 import os
 import telebot
 
+from utils.KeyBoard.key_board import create_keyboard
+
 # set the file path for the token
-FILE_IMPORT = 'data/bot_token.txt'
+FILE_NAME = 'data/bot_token.txt'
 
 # read the token from the file
-with open(FILE_IMPORT, 'r', encoding='utf-8') as file:
+with open(FILE_NAME, 'r', encoding='utf-8') as file:
     TOKEN = file.read().strip()
 
 # create a telebot instance using the token
 bot = telebot.TeleBot(TOKEN)
 
 
-# Send a welcome message
+# handle the /start command
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    """send a welcome message when the /start command is received"""
-    bot.reply_to(message, "Привіт, я бот, який навчить вас Python!"
-                          "Наразі я можу тільки перевірити ваш синтаксис,\n"
-                          "але незабаром мій функціонал буде разширено.")
+def start(message):
+    """
+       Send a welcome message to the user with a keyboard for further interaction.
+
+       Args:
+           message (telebot.types.Message): The message object that triggered the function.
+
+       Returns:
+           None
+    """
+    keyboard = create_keyboard()
+    bot.send_message("Привіт! Я бот для взаємодії з користувачами. "
+                     "Якщо вам потрібна допомога, використовуйте "
+                     "клавіатуру нижче.",
+                     str(message.chat.id),
+                     reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['check_syntax'])
@@ -67,11 +80,33 @@ def check_syntax(message):
                                           f"\n{check_syntax_error}")
 
 
+# обробник для клавіш
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    """send a message indicating that the bot cannot process the message"""
-    bot.reply_to(message, ("Цей бот ще не навчився обробляти такі повідомлення. \n"
-                           "Спробуйте /check_syntax і далі ваш код для перевірки синтаксису."))
+    """
+    This function takes a Telegram message as an argument
+    and uses the message text to generate a reply.
+    If the message text matches one of the predefined options,
+    a corresponding reply is sent to the user.
+    If not, a keyboard with options is displayed.
+
+    Args:
+    message (telegram.Message): A Telegram message object.
+
+    Returns:
+    None
+    """
+    if message.text == 'Пошук по документації':
+        bot.reply_to(message, 'Ви натиснули кнопку Пошук по документації')
+    elif message.text == 'Уроки':
+        bot.reply_to(message, 'Ви натиснули кнопку Уроки')
+    elif message.text == 'Запит на підказку':
+        bot.reply_to(message, 'Ви натиснули кнопку Запит на підказку')
+    elif message.text == 'Допомога по боту':
+        bot.reply_to(message, 'Наш бот має такі команди: /help')
+    else:
+        keyboard = create_keyboard()
+        bot.reply_to(message, 'Виберіть опцію з клавіатури нижче', reply_markup=keyboard)
 
 
 # start polling for new messages
