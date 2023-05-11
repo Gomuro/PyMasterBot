@@ -2,8 +2,9 @@
 import subprocess
 import os
 import telebot
+from telebot import types
 
-from utils.KeyBoard.key_board import create_keyboard
+# from utils.KeyBoard.key_board import MainKeyboard, DocumentationKeyboard
 
 # set the file path for the token
 FILE_NAME = 'data/bot_token.txt'
@@ -16,24 +17,31 @@ with open(FILE_NAME, 'r', encoding='utf-8') as file:
 bot = telebot.TeleBot(TOKEN)
 
 
-# handle the /start command
+# create an instance of InlineKeyboardMarkup
+class Keyboard:
+    def __init__(self):
+        self.inline_keyboard = types.InlineKeyboardMarkup()
+        self.button_help = types.InlineKeyboardButton(text='Допомога',
+                                                      callback_data='/help')
+        self.button_syntax_check = types.InlineKeyboardButton(text='Перевірити синтаксис',
+                                                              callback_data='/check_syntax')
+        self.button_docs = types.InlineKeyboardButton(text='Документація',
+                                                      callback_data='/documentation')
+        self.inline_keyboard.row(self.button_help,
+                                 self.button_syntax_check,
+                                 self.button_docs
+                                 )
+
+    def get_keyboard(self):
+        return self.inline_keyboard
+
+
+inline_keyboard = Keyboard()
+
+
 @bot.message_handler(commands=['start'])
-def start(message):
-    """
-       Send a welcome message to the user with a keyboard for further interaction.
-
-       Args:
-           message (telebot.types.Message): The message object that triggered the function.
-
-       Returns:
-           None
-    """
-    keyboard = create_keyboard()
-    bot.send_message("Привіт! Я бот для взаємодії з користувачами. "
-                     "Якщо вам потрібна допомога, використовуйте "
-                     "клавіатуру нижче.",
-                     str(message.chat.id),
-                     reply_markup=keyboard)
+def start_handler(message):
+    bot.send_message(message.chat.id, "Welcome to my bot!", reply_markup=inline_keyboard.get_keyboard())
 
 
 @bot.message_handler(commands=['check_syntax'])
@@ -80,33 +88,50 @@ def check_syntax(message):
                                           f"\n{check_syntax_error}")
 
 
-# обробник для клавіш
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    """
-    This function takes a Telegram message as an argument
-    and uses the message text to generate a reply.
-    If the message text matches one of the predefined options,
-    a corresponding reply is sent to the user.
-    If not, a keyboard with options is displayed.
+@bot.message_handler(commands=['help'])
+def help_handler(message):
+    bot.send_message(message.chat.id,
+                     text="Я можу допомогти вам з цими командами:\n"
+                          "/help - допомога\n"
+                          "/check_syntax - перевірка синтаксису\n"
+                          "/documentation - документація",
+                     reply_markup=inline_keyboard.get_keyboard()
+                     )
 
-    Args:
-    message (telegram.Message): A Telegram message object.
 
-    Returns:
-    None
-    """
-    if message.text == 'Пошук по документації':
-        bot.reply_to(message, 'Ви натиснули кнопку Пошук по документації')
-    elif message.text == 'Уроки':
-        bot.reply_to(message, 'Ви натиснули кнопку Уроки')
-    elif message.text == 'Запит на підказку':
-        bot.reply_to(message, 'Ви натиснули кнопку Запит на підказку')
-    elif message.text == 'Допомога по боту':
-        bot.reply_to(message, 'Наш бот має такі команди: /help')
+@bot.message_handler(commands=['documentation'])
+def documentation_handler(message):
+    bot.send_message(message.chat.id,
+                     text="Якщо у вас є запитання щодо використання бота, "
+                          "скористайтеся командою /help",
+                     reply_markup=inline_keyboard.get_keyboard())
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query_handler(call):
+    if call.data == '/help':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id,
+                         text="Я можу допомогти вам з цими командами:\n"
+                              "/help - допомога\n"
+                              "/check_syntax - перевірка синтаксису\n"
+                              "/documentation - документація",
+                         reply_markup=inline_keyboard.get_keyboard()
+                         )
+
+
+    elif call.data == '/check_syntax':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id, text="Відправте код, який потрібно перевірити.",
+                         reply_markup=inline_keyboard.get_keyboard())
+    elif call.data == '/documentation':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id, text="Якщо у вас є запитання щодо використання бота, "
+                                                            "скористайтеся командою /help",
+                         reply_markup=inline_keyboard.get_keyboard())
+
     else:
-        keyboard = create_keyboard()
-        bot.reply_to(message, 'Виберіть опцію з клавіатури нижче', reply_markup=keyboard)
+        bot.answer_callback_query(callback_query_id=call.id, text="Такої команди не існує!")
 
 
 # start polling for new messages

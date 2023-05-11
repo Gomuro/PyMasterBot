@@ -1,76 +1,76 @@
-"""
-import  telebot module
-"""
+
+
+"""import necessary libraries"""
+import subprocess
+import os
 import telebot
+
+from telebot import types
+
+# set the file path for the token
+FILE_NAME = 'data/bot_token.txt'
+
+# read the token from the file
+with open(FILE_NAME, 'r', encoding='utf-8') as file:
+    TOKEN = file.read().strip()
+
+# create a telebot instance using the token
+bot = telebot.TeleBot(TOKEN)
 
 
 class Keyboard:
-    """
-    A class for creating custom keyboards for a Telegram bot.
+    def __init__(self, buttons=None):
+        self.buttons = buttons or []
 
-    :param row_width: the number of buttons per row (default 3)
-    :param resize_keyboard: whether the keyboard should be resized to fit the user's screen
-     (default True)
-    """
+    def add_button(self, text, command):
+        self.buttons.append(types.InlineKeyboardButton(text=text, callback_data=command))
 
-    def __init__(self, row_width=3, resize_keyboard=True):
-        self.keyboard = telebot.types.ReplyKeyboardMarkup(
-            row_width=row_width, resize_keyboard=resize_keyboard)
-
-    def add_button(self, text):
-        """
-        Add a single button to the keyboard.
-
-        :param text: the text displayed on the button
-        """
-        button = telebot.types.KeyboardButton(text=text)
-        self.keyboard.add(button)
-
-    def add_buttons(self, buttons):
-        """
-        Add multiple buttons to the keyboard.
-
-        :param buttons: a list of dictionaries representing the buttons,
-        where each dictionary contains the 'text' key
-        with the text displayed on the button
-        """
-        for button in buttons:
-            self.add_button(button['text'])
-
-    def clear(self):
-        """
-        Remove the keyboard.
-        """
-        self.keyboard = telebot.types.ReplyKeyboardRemove()
-
-    def get_keyboard(self):
-        """
-        Get the keyboard.
-
-        :return: the keyboard
-        """
-        return self.keyboard
+    def get_markup(self):
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        for button in self.buttons:
+            markup.add(button)
+        return markup
 
 
-def create_keyboard():
-    """
-    Creates and returns a custom keyboard with four buttons for the Telegram bot.
+keyboard = Keyboard()
+keyboard.add_button('Підказка', 'help')
+keyboard.add_button('Перевірити синтаксис', 'syntax_check')
+keyboard.add_button('Документація', 'documentation')
 
-    Returns:
-    telebot.types.ReplyKeyboardMarkup: A custom keyboard with four buttons.
-    """
-    keyboard = Keyboard()
 
-    # Define the text for each button
-    buttons = [
-        {'text': 'Пошук по документації'},
-        {'text': 'Перевірка синтаксису коду'},
-        {'text': 'Запит на підказку'},
-        {'text': 'Допомога по боту'},
-    ]
+# handle the /start command
+@bot.message_handler(commands=['start'])
+def start_handler(message):
+    bot.reply_to(message,
+                 "Вітаю! Я бот з корисною інформацією для програмістів. Використовуйте кнопки нижче для взаємодії зі мною.",
+                 reply_markup=keyboard.get_markup())
 
-    # Add each button to the keyboard
-    keyboard.add_buttons(buttons)
 
-    # Return the keyboard for use in the bot
-    return keyboard.get_keyboard()
+@bot.message_handler(commands=['help'])
+def help_handler(message):
+    bot.reply_to(message, "Тут можна знайти корисні команди для роботи з ботом.")
+
+
+@bot.message_handler(commands=['syntax_check'])
+def syntax_check_handler(message):
+    bot.reply_to(message, "Ви можете відправити мені свій код, а я перевірю його синтаксис.")
+
+
+@bot.message_handler(commands=['documentation'])
+def documentation_handler(message):
+    bot.reply_to(message, "Тут можна знайти документацію для певної теми.")
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    if call.data == 'help':
+        bot.answer_callback_query(callback_query_id=call.id, text="Тут можна знайти корисні команди для роботи з ботом.")
+    elif call.data == 'syntax_check':
+        bot.answer_callback_query(callback_query_id=call.id, text="Ви можете відправити мені свій код, а я перевірю його синтаксис.")
+    elif call.data == 'documentation':
+        bot.answer_callback_query(callback_query_id=call.id, text="Тут можна знайти документацію для певної теми.")
+
+
+# start polling for new messages
+if __name__ == '__main__':
+    bot.polling()
