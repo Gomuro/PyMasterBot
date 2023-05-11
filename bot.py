@@ -1,26 +1,25 @@
 """import necessary libraries"""
-import subprocess
 import os
+import subprocess
 import telebot
+from utils.KeyBoard.key_board import Keyboard
 
 # set the file path for the token
-FILE_IMPORT = 'data/bot_token.txt'
+FILE_NAME = 'data/bot_token.txt'
 
 # read the token from the file
-with open(FILE_IMPORT, 'r', encoding='utf-8') as file:
+with open(FILE_NAME, 'r', encoding='utf-8') as file:
     TOKEN = file.read().strip()
 
 # create a telebot instance using the token
 bot = telebot.TeleBot(TOKEN)
+inline_keyboard = Keyboard()
 
-
-# Send a welcome message
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    """send a welcome message when the /start command is received"""
-    bot.reply_to(message, "Привіт, я бот, який навчить вас Python!"
-                          "Наразі я можу тільки перевірити ваш синтаксис,\n"
-                          "але незабаром мій функціонал буде разширено.")
+def start_handler(message):
+    """ This decoration method allows to send welcome message """
+    bot.send_message(message.chat.id, "Welcome to my bot!",
+                     reply_markup=inline_keyboard.get_keyboard())
 
 
 @bot.message_handler(commands=['check_syntax'])
@@ -67,11 +66,55 @@ def check_syntax(message):
                                           f"\n{check_syntax_error}")
 
 
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    """send a message indicating that the bot cannot process the message"""
-    bot.reply_to(message, ("Цей бот ще не навчився обробляти такі повідомлення. \n"
-                           "Спробуйте /check_syntax і далі ваш код для перевірки синтаксису."))
+@bot.message_handler(commands=['help'])
+def help_handler(message):
+    """ This method allows to send designated message when the button been pressed"""
+    bot.send_message(message.chat.id,
+                     text="Я можу допомогти вам з цими командами:\n"
+                          "/help - допомога\n"
+                          "/check_syntax - перевірка синтаксису\n"
+                          "/documentation - документація",
+                     reply_markup=inline_keyboard.get_keyboard()
+                     )
+
+
+@bot.message_handler(commands=['documentation'])
+def documentation_handler(message):
+    """ This method allows to send designated message when the button been pressed"""
+    bot.send_message(message.chat.id,
+                     text="Якщо у вас є запитання щодо використання бота, "
+                          "скористайтеся командою /help",
+                     reply_markup=inline_keyboard.get_keyboard())
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query_handler(call):
+    """ This method allows to send designated message when the button been pressed"""
+    if call.data == '/help':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id,
+                         text="Я можу допомогти вам з цими командами:\n"
+                              "/help - допомога\n"
+                              "/check_syntax - перевірка синтаксису\n"
+                              "/documentation - документація",
+                         reply_markup=inline_keyboard.get_keyboard()
+                         )
+
+
+    elif call.data == '/check_syntax':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id,
+                         text="Відправте код, який потрібно перевірити.",
+                         reply_markup=inline_keyboard.get_keyboard())
+    elif call.data == '/documentation':
+        bot.answer_callback_query(callback_query_id=call.id)
+        bot.send_message(chat_id=call.message.chat.id,
+                         text=("Якщо у вас є запитання щодо використання бота, "
+                               "скористайтеся командою /help"),
+                         reply_markup=inline_keyboard.get_keyboard())
+
+    else:
+        bot.answer_callback_query(callback_query_id=call.id, text="Такої команди не існує!")
 
 
 # start polling for new messages
