@@ -1,8 +1,10 @@
-"""Import module"""
+"""import necessary libraries"""
 import subprocess
 import time
 import re
 import telebot
+
+from utils.KeyBoard.key_board import Keyboard
 
 # set the file path for the token
 FILE_NAME = 'data/bot_token.txt'
@@ -13,6 +15,7 @@ with open(FILE_NAME, 'r', encoding = 'utf-8') as file:
 
 # create a telebot instance using the token
 bot = telebot.TeleBot(TOKEN)
+inline_keyboard = Keyboard()
 
 
 # handle the /start command
@@ -25,7 +28,8 @@ def start(message):
     """
     bot.send_message(message.chat.id,
                      "Привіт! Я бот який може перевірити ваш код.\n"
-                     "Напишіть одним повідомленням /check_code - ваш код.",)
+                     "Напишіть одним повідомленням /check_code - ваш код.",
+                     reply_markup = inline_keyboard.get_keyboard())
 
 
 @bot.message_handler(commands = ['check_code'])
@@ -100,6 +104,57 @@ def check_syntax(message):
         bot.send_message(message.chat.id, f"Виникла помилка при перевірці синтаксису:"
                                           f"\n{check_syntax_error}")
         return check_syntax_error
+
+
+@bot.message_handler(commands = ['help'])
+def help_handler(message):
+    """ This method allows to send designated message when the button been pressed"""
+    bot.send_message(message.chat.id,
+                     text = "Я можу допомогти вам з цими командами:\n"
+                            "/help - допомога\n"
+                            "/check_syntax - перевірка синтаксису\n"
+                            "/documentation - документація",
+                     reply_markup = inline_keyboard.get_keyboard()
+                     )
+
+
+@bot.message_handler(commands = ['documentation'])
+def documentation_handler(message):
+    """ This method allows to send designated message when the button been pressed"""
+    bot.send_message(message.chat.id,
+                     text = "Якщо у вас є запитання щодо використання бота, "
+                            "скористайтеся командою /help",
+                     reply_markup = inline_keyboard.get_keyboard())
+
+
+@bot.callback_query_handler(func = lambda call: True)
+def callback_query_handler(call):
+    """ This method allows to send designated message when the button been pressed"""
+    if call.data == '/help':
+        bot.answer_callback_query(callback_query_id = call.id)
+        bot.send_message(chat_id = call.message.chat.id,
+                         text = "Я можу допомогти вам з цими командами:\n"
+                                "/help - допомога\n"
+                                "/check_syntax - перевірка синтаксису\n"
+                                "/documentation - документація",
+                         reply_markup = inline_keyboard.get_keyboard()
+                         )
+
+
+    elif call.data == '/check_syntax':
+        bot.answer_callback_query(callback_query_id = call.id)
+        bot.send_message(chat_id = call.message.chat.id,
+                         text = "Відправте код, який потрібно перевірити.",
+                         reply_markup = inline_keyboard.get_keyboard())
+    elif call.data == '/documentation':
+        bot.answer_callback_query(callback_query_id = call.id)
+        bot.send_message(chat_id = call.message.chat.id,
+                         text = ("Якщо у вас є запитання щодо використання бота, "
+                                 "скористайтеся командою /help"),
+                         reply_markup = inline_keyboard.get_keyboard())
+
+    else:
+        bot.answer_callback_query(callback_query_id = call.id, text = "Такої команди не існує!")
 
 
 # start polling for new messages

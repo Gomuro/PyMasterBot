@@ -1,76 +1,25 @@
-"""
-import  telebot module
-"""
-import telebot
-
+"""This module allows to implement inline keyboard into Telegram Bot """
+from telebot import types
 
 class Keyboard:
-    """
-    A class for creating custom keyboards for a Telegram bot.
+    """ This class creates an instance of InlineKeyboardMarkup """
 
-    :param row_width: the number of buttons per row (default 3)
-    :param resize_keyboard: whether the keyboard should be resized to fit the user's screen
-     (default True)
-    """
-
-    def __init__(self, row_width=3, resize_keyboard=True):
-        self.keyboard = telebot.types.ReplyKeyboardMarkup(
-            row_width=row_width, resize_keyboard=resize_keyboard)
-
-    def add_button(self, text):
-        """
-        Add a single button to the keyboard.
-
-        :param text: the text displayed on the button
-        """
-        button = telebot.types.KeyboardButton(text=text)
-        self.keyboard.add(button)
-
-    def add_buttons(self, buttons):
-        """
-        Add multiple buttons to the keyboard.
-
-        :param buttons: a list of dictionaries representing the buttons,
-        where each dictionary contains the 'text' key
-        with the text displayed on the button
-        """
-        for button in buttons:
-            self.add_button(button['text'])
-
-    def clear(self):
-        """
-        Remove the keyboard.
-        """
-        self.keyboard = telebot.types.ReplyKeyboardRemove()
+    def __init__(self):
+        self.inline_keyboard = types.InlineKeyboardMarkup()
+        self.button_help = types.InlineKeyboardButton(text='Допомога',
+                                                      callback_data='/help')
+        self.button_syntax_check = types.InlineKeyboardButton(text='Перевірити синтаксис',
+                                                              callback_data='/check_syntax')
+        self.button_docs = types.InlineKeyboardButton(text='Документація',
+                                                      callback_data='/documentation')
+        self.inline_keyboard.row(self.button_help,
+                                 self.button_syntax_check,
+                                 self.button_docs
+                                 )
 
     def get_keyboard(self):
-        """
-        Get the keyboard.
-
-        :return: the keyboard
-        """
-        return self.keyboard
+        """ This method returns keyboard"""
+        return self.inline_keyboard
 
 
-def create_keyboard():
-    """
-    Creates and returns a custom keyboard with four buttons for the Telegram bot.
-
-    Returns:
-    telebot.types.ReplyKeyboardMarkup: A custom keyboard with four buttons.
-    """
-    keyboard = Keyboard()
-
-    # Define the text for each button
-    buttons = [
-        {'text': 'Пошук по документації'},
-        {'text': 'Перевірка синтаксису коду'},
-        {'text': 'Запит на підказку'},
-        {'text': 'Допомога по боту'},
-    ]
-
-    # Add each button to the keyboard
-    keyboard.add_buttons(buttons)
-
-    # Return the keyboard for use in the bot
-    return keyboard.get_keyboard()
+inline_keyboard = Keyboard()
