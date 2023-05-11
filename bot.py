@@ -1,6 +1,5 @@
 """import necessary libraries"""
 import subprocess
-import time
 import re
 import telebot
 
@@ -38,7 +37,6 @@ def check_code(message):
     :param message: create a temporary file and write the code into it
     :return: send message to user
     """
-    time.sleep(1)
     try:
         code = message.text.split(maxsplit = 1)[1].strip()
     except IndexError:
@@ -53,7 +51,7 @@ def check_code(message):
     pep8_output = check_style('tmp.py')
 
     # Check syntax
-    syntax_errors = check_syntax(message)
+    syntax_errors = check_syntax('tmp.py')
 
     result = ""
 
@@ -63,17 +61,17 @@ def check_code(message):
         result += "Код не має синтаксичних помилок.\n"
 
     if pep8_output:
-        cleaned_output = re.sub(r'tmp\.py:\d+:\d+: ', '', pep8_output)
-        result += f"У вашому коді помилка PEP-8:\n{cleaned_output}"
+        cleaned_output = re.sub(r'\*.*?\*\* Module tmp\ntmp.py:\d+:\d+: ', '', pep8_output)
+        result += f"\nУ вашому коді помилка PEP-8:\n{cleaned_output}"
     else:
-        result += "Код не має помилок PEP-8."
+        result += "\nКод не має помилок PEP-8."
 
     bot.send_message(message.chat.id, result)
 
 
 def check_style(message):
     """Compare this snippet from data/bot_token.txt:"""
-    result = subprocess.run(['pycodestyle', message],
+    result = subprocess.run(['pylint', message],
                             stdout = subprocess.PIPE,
                             stderr = subprocess.PIPE,
                             check = False)  # check=False to not raise an exception
@@ -82,7 +80,7 @@ def check_style(message):
 
 
 def check_syntax(message):
-    """Check syntax of the code and return the output"""
+    """Compare this snippet from tmp.py:"""
     try:
         # create a subprocess to run python command with the file
         with subprocess.Popen(['python', 'tmp.py'], stdin = subprocess.PIPE,
@@ -112,7 +110,7 @@ def help_handler(message):
     bot.send_message(message.chat.id,
                      text = "Я можу допомогти вам з цими командами:\n"
                             "/help - допомога\n"
-                            "/check_syntax - перевірка синтаксису\n"
+                            "/check_code - перевірка синтаксису\n"
                             "/documentation - документація",
                      reply_markup = inline_keyboard.get_keyboard()
                      )
@@ -135,16 +133,15 @@ def callback_query_handler(call):
         bot.send_message(chat_id = call.message.chat.id,
                          text = "Я можу допомогти вам з цими командами:\n"
                                 "/help - допомога\n"
-                                "/check_syntax - перевірка синтаксису\n"
+                                "/check_code - перевірка синтаксису\n"
                                 "/documentation - документація",
                          reply_markup = inline_keyboard.get_keyboard()
                          )
 
-
-    elif call.data == '/check_syntax':
+    elif call.data == '/check_code':
         bot.answer_callback_query(callback_query_id = call.id)
         bot.send_message(chat_id = call.message.chat.id,
-                         text = "Відправте код, який потрібно перевірити.",
+                         text = "Введіть код, який потрібно перевірити.",
                          reply_markup = inline_keyboard.get_keyboard())
     elif call.data == '/documentation':
         bot.answer_callback_query(callback_query_id = call.id)
@@ -159,4 +156,4 @@ def callback_query_handler(call):
 
 # start polling for new messages
 if __name__ == '__main__':
-    bot.polling()
+    bot.polling(none_stop = True, timeout = 60)
