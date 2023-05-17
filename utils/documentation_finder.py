@@ -1,39 +1,44 @@
-import telebot
-import requests
-from bs4 import BeautifulSoup
+"""
+search_documentation handler function
+"""
+import pydoc
 
-def search_documentation(message):
+
+def search_documentation(message, bot):
+    """
+    This function searches the documentation
+    :param message:
+    :param bot:
+    :return:
+    """
     query = message.text.strip()
+    print(message.text)
+    if query.find("documentation") != -1:
+        query = message.text.strip()
+        query = query[len("/documentation"):].strip()
+
     if not query:
         bot.reply_to(message, "Будь ласка, введіть ключове слово для пошуку")
-        return
-    url = f"https://docs.python.org/3/search.html?q={query}"
+        return  # Вирівняти з блоком if
 
-    response = requests.get(url)
+    try:
+        # Use pydoc to get the documentation
+        doc = pydoc.render_doc(query)
 
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html parser")
-        first_result = soup.find('dt', class_= "search").find('a')
-        if first_result:
-            documentation_url = first_result['href']
-            bot.send_message(message.chat.id, f"Ось посилання на документацію Python: {documentation_url}")
-        else:
-            bot.send_message(message.chat.id, "На жаль, не знайдено результатів для даного запиту.")
-    else:
-        bot.send_message(message.chat.id, "Виникла помилка при отриманні документації.")
+        if not doc:
+            bot.send_message(message.chat.id,
+                             "На жаль, не знайдено документації для даного запиту."
+                             )
+            return
 
+        # Remove the content after (...)
+        index = doc.find("(...)")
+        if index != -1:
+            doc = doc[index + len("(...)"):]
 
-
-
-
-
-
-
-
-
-
-with open(FILE_NAME, 'r', encoding='utf-8') as file:
-    TOKEN = file.read().strip()
-
-# create a telebot instance using the token
-bot = telebot.TeleBot(TOKEN)
+        # Format the documentation
+        formatted_doc = f"<b>{query} Documentation:</b>\n\n{doc}"
+        bot.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
+    except Exception as err:  # rewrite the error exception
+        bot.send_message(message.chat.id, "Виникла помилка при пошуку або перекладі документації.")
+        print(f"Error: {str(err)}")
