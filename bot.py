@@ -1,9 +1,13 @@
-"""Imports"""
+"""import necessary libraries"""
 import subprocess
 import re
 import telebot
 
 from utils.KeyBoard.key_board import Keyboard
+from utils.Handlers.help_button_handler import help_handler
+from utils.Handlers.documentation_button_handler import documentation_handler
+from utils.Handlers.callback_query_handler import callback_query_handler
+from utils.Handlers.check_syntax_handler import check_syntax
 
 from utils.documentation_finder import search_documentation
 
@@ -46,6 +50,7 @@ class Bot:
         return self.bot
 
 
+
 bot = Bot('data/bot_token.txt')
 bot.run()
 
@@ -56,7 +61,6 @@ MODE_MAIN_MENU = "main_menu"
 
 
 @telebot_instance.message_handler(commands=['start'])
-   
 def start_handler(message):
     """
     This method sends the welcome message
@@ -68,6 +72,30 @@ def start_handler(message):
     
 
 
+
+
+@bot.message_handler(commands=['check_syntax'])
+def check_syntax_handler(message):
+    """This handler allows to send designated message when the button been pressed"""
+    check_syntax(bot, message)
+
+
+@bot.message_handler(commands=['help'])
+def handle_help(message):
+    """This handler allows to send designated message when the button been pressed"""
+    help_handler(message, bot, inline_keyboard)
+
+
+@bot.message_handler(commands=['documentation'])
+def handle_documentation(message):
+    """This handler allows to send designated message when the button been pressed"""
+    documentation_handler(message, bot, inline_keyboard)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def handle_callback_query(call):
+    """This handler allows to use callback query with pressing designated inline keyboard buttons"""
+    callback_query_handler(call, bot, inline_keyboard)
 
 
 @telebot_instance.message_handler(commands = ['check_code'])
@@ -142,20 +170,7 @@ def check_syntax(message):
         telebot_instance.send_message(message.chat.id, f"Виникла помилка при перевірці синтаксису:"
                                                        f"\n{check_syntax_error}")
 
-@telebot_instance.message_handler(commands=['help'])
-def help_handler(message):
-    """
-    This method sends the help message
-    :param message:
-    :return:
-    """
-    telebot_instance.send_message(message.chat.id,
-                                  text="Я можу допомогти вам з цими командами:\n"
-                                       "/help - допомога\n"
-                                       "/check_syntax - перевірка синтаксису\n"
-                                       "/documentation - документація",
-                                  reply_markup=bot.inline_keyboard.get_keyboard()
-                                  )
+
 
 
 @telebot_instance.message_handler(commands=['documentation'])
@@ -217,6 +232,8 @@ def display_current_mode(message):
 
 
 
+
+bot.callback_query_handler(func=lambda call: True)(callback_query_handler)
 
 # start polling for new messages
 if __name__ == '__main__':
