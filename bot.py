@@ -1,37 +1,76 @@
-"""import necessary libraries"""
+"""Imports"""
 import subprocess
 import re
 import telebot
 
 from utils.KeyBoard.key_board import Keyboard
 
-# set the file path for the token
-FILE_NAME = 'data/bot_token.txt'
-
-# read the token from the file
-with open(FILE_NAME, 'r', encoding = 'utf-8') as file:
-    TOKEN = file.read().strip()
-
-# create a telebot instance using the token
-bot = telebot.TeleBot(TOKEN)
-inline_keyboard = Keyboard()
+from utils.documentation_finder import search_documentation
 
 
-# handle the /start command
-@bot.message_handler(commands = ['start'])
-def start(message):
+
+
+class Bot:
     """
-    Send a welcome message to the user with a keyboard for further interaction.
-    Args: message (telebot.types.Message): The message object that triggered the function.
-    Returns: None
+    This class implements the bot
     """
-    bot.send_message(message.chat.id,
-                     "Привіт! Я бот який може перевірити ваш код.\n"
-                     "Напишіть одним повідомленням /check_code - ваш код.",
-                     reply_markup = inline_keyboard.get_keyboard())
+
+    def __init__(self, token_file):
+        self.inline_keyboard = None
+        self.bot = None
+        self.token_file = token_file
+        self.current_mode = "main_menu"  # Початковий режим
 
 
-@bot.message_handler(commands = ['check_code'])
+
+    def run(self):
+        """
+        This method runs the bot
+        :return:
+        """
+        # read the token from the file
+        with open(self.token_file, 'r', encoding='utf-8') as file:
+            token = file.read().strip()
+
+
+        # create a telebot instance using the token
+        self.bot = telebot.TeleBot(token)
+
+        # create an instance of InlineKeyboardMarkup
+        self.inline_keyboard = Keyboard()
+
+    def get_bot(self):
+        """
+        This method returns the bot
+        """
+        return self.bot
+
+
+bot = Bot('data/bot_token.txt')
+bot.run()
+
+telebot_instance = bot.get_bot()
+
+MODE_DOCUMENTATION = "documentation"
+MODE_MAIN_MENU = "main_menu"
+
+
+@telebot_instance.message_handler(commands=['start'])
+   
+def start_handler(message):
+    """
+    This method sends the welcome message
+    :param message:
+    :return:
+    """
+    telebot_instance.send_message(message.chat.id, "Welcome to my bot!",
+                              reply_markup=bot.inline_keyboard.get_keyboard())
+    
+
+
+
+
+@telebot_instance.message_handler(commands = ['check_code'])
 def check_code(message):
     """
     :param message: create a temporary file and write the code into it
@@ -51,7 +90,8 @@ def check_code(message):
     pep8_output = check_style('tmp.py')
 
     # Check syntax
-    syntax_errors = check_syntax('tmp.py')
+    syntax_errors = check_syntax(message)
+
 
     result = ""
 
@@ -66,7 +106,8 @@ def check_code(message):
     else:
         result += "\nКод не має помилок PEP-8."
 
-    bot.send_message(message.chat.id, result)
+
+    telebot_instance.send_message(message.chat.id, result)
 
 
 def check_style(message):
@@ -94,66 +135,92 @@ def check_syntax(message):
         if error[1]:
             # remove the unnecessary from the error message
             error = error[1].decode().split('\n')[-2]
-            return error
-        return None
 
+          
     except subprocess.CalledProcessError as check_syntax_error:
         # if there is an error while running the subprocess, send it as a message to the user
-        bot.send_message(message.chat.id, f"Виникла помилка при перевірці синтаксису:"
-                                          f"\n{check_syntax_error}")
-        return check_syntax_error
+        telebot_instance.send_message(message.chat.id, f"Виникла помилка при перевірці синтаксису:"
+                                                       f"\n{check_syntax_error}")
 
-
-@bot.message_handler(commands = ['help'])
+@telebot_instance.message_handler(commands=['help'])
 def help_handler(message):
-    """ This method allows to send designated message when the button been pressed"""
-    bot.send_message(message.chat.id,
-                     text = "Я можу допомогти вам з цими командами:\n"
-                            "/help - допомога\n"
-                            "/check_code - перевірка синтаксису\n"
-                            "/documentation - документація",
-                     reply_markup = inline_keyboard.get_keyboard()
-                     )
+    """
+    This method sends the help message
+    :param message:
+    :return:
+    """
+    telebot_instance.send_message(message.chat.id,
+                                  text="Я можу допомогти вам з цими командами:\n"
+                                       "/help - допомога\n"
+                                       "/check_syntax - перевірка синтаксису\n"
+                                       "/documentation - документація",
+                                  reply_markup=bot.inline_keyboard.get_keyboard()
+                                  )
 
 
-@bot.message_handler(commands = ['documentation'])
+@telebot_instance.message_handler(commands=['documentation'])
 def documentation_handler(message):
-    """ This method allows to send designated message when the button been pressed"""
-    bot.send_message(message.chat.id,
-                     text = "Якщо у вас є запитання щодо використання бота, "
-                            "скористайтеся командою /help",
-                     reply_markup = inline_keyboard.get_keyboard())
+    """
+    use the search_documentation function
+    :param message:
+    :return:
+    """
+    bot.current_mode = MODE_DOCUMENTATION
+    search_documentation(message, telebot_instance)
 
 
-@bot.callback_query_handler(func = lambda call: True)
+@telebot_instance.callback_query_handler(func=lambda call: True)
 def callback_query_handler(call):
-    """ This method allows to send designated message when the button been pressed"""
+    """
+    This method handles the callback query
+    :param call:
+    :return:
+    """
     if call.data == '/help':
-        bot.answer_callback_query(callback_query_id = call.id)
-        bot.send_message(chat_id = call.message.chat.id,
-                         text = "Я можу допомогти вам з цими командами:\n"
-                                "/help - допомога\n"
-                                "/check_code - перевірка синтаксису\n"
-                                "/documentation - документація",
-                         reply_markup = inline_keyboard.get_keyboard()
-                         )
-
-    elif call.data == '/check_code':
-        bot.answer_callback_query(callback_query_id = call.id)
-        bot.send_message(chat_id = call.message.chat.id,
-                         text = "Введіть код, який потрібно перевірити.",
-                         reply_markup = inline_keyboard.get_keyboard())
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Я можу допомогти вам з цими командами:\n"
+                                           "/help - допомога\n"
+                                           "/check_syntax - перевірка синтаксису\n"
+                                           "/documentation - документація",
+                                      reply_markup=bot.inline_keyboard.get_keyboard()
+                                      )
+    elif call.data == '/check_syntax':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Відправте код, який потрібно перевірити.",
+                                      reply_markup=bot.inline_keyboard.get_keyboard()
+                                      )
     elif call.data == '/documentation':
-        bot.answer_callback_query(callback_query_id = call.id)
-        bot.send_message(chat_id = call.message.chat.id,
-                         text = ("Якщо у вас є запитання щодо використання бота, "
-                                 "скористайтеся командою /help"),
-                         reply_markup = inline_keyboard.get_keyboard())
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Введіть назву модуля, функції або класу, "
+                                           "\nдля якого потрібно знайти документацію.",
+                                      reply_markup=bot.inline_keyboard.get_keyboard()
+                                      )
+        bot.current_mode = MODE_DOCUMENTATION
 
-    else:
-        bot.answer_callback_query(callback_query_id = call.id, text = "Такої команди не існує!")
+
+# Додано новий обробник повідомлень для відображення поточного режиму
+@telebot_instance.message_handler(func=lambda message: True)
+def display_current_mode(message):
+    """
+    This method displays the current mode
+    :param message:
+    :return:
+    """
+    if bot.current_mode == MODE_MAIN_MENU:
+        telebot_instance.send_message(message.chat.id, "Знаходитесь в головному меню.")
+    elif bot.current_mode == MODE_DOCUMENTATION:
+        telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі документації.")
+        search_documentation(message, telebot_instance)
+
+
 
 
 # start polling for new messages
 if __name__ == '__main__':
-    bot.polling(none_stop = True, timeout = 60)
+
+
+    telebot_instance.polling(none_stop = True, timeout = 60)
+
