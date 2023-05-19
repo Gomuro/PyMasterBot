@@ -67,15 +67,15 @@ def log_message(command, code, text):
 
     if not os.path.exists(log_file):
         with open(log_file, 'w', encoding = 'utf-8') as file:
-            json.dump(log_data, file)
+            json.dump({'data': [log_data]}, file, ensure_ascii = False, indent = 4)
     else:
         with open(log_file, 'r', encoding = 'utf-8') as file:
             try:
                 existing_data = json.load(file)
             except json.JSONDecodeError:
-                existing_data = {'data': []}
+                existing_data = {}
 
-        existing_data['data'].append(log_data)
+        existing_data.setdefault('data', []).append(log_data)
 
         with open(log_file, 'w', encoding = 'utf-8') as file:
             json.dump(existing_data, file, ensure_ascii = False, indent = 4)
@@ -109,6 +109,7 @@ def check_code(message):
         code = message.text.split(maxsplit = 1)[1].strip()
     except IndexError:
         text = 'Будь ласка, вкажіть код для перевірки.'
+        log_message('/check_code', "", text,)
         bot.send_message(message.chat.id, text = text)
         return
 
