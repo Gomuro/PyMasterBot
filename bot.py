@@ -20,6 +20,7 @@ class Bot:
         self.token_file = token_file
         self.current_mode = MODE_MAIN_MENU
 
+
     def run(self):
         """
         This method runs the bot

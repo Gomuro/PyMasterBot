@@ -47,6 +47,5 @@ def search_documentation(message, telebot_instance):
                "або перекладі документації."
         log_message('/documentation', "", text)
         telebot_instance.send_message(message.chat.id,
-                                      text = "Виникла помилка при пошуку\n"
-                                             "або перекладі документації.")
+                                      text = text)
         print(f"Error: {str(err)}")

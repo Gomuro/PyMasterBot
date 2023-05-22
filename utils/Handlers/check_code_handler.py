@@ -18,6 +18,7 @@ def check_code(message, telebot_instance):
         try:
             code = message.text.split(maxsplit=1)[1].strip()
         except IndexError:
+
             text = 'Будь ласка, вкажіть код для перевірки.'
             log_message('/check_code', "", text)
             telebot_instance.send_message(message.chat.id, text = text)
