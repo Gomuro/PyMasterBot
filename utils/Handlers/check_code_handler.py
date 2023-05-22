@@ -2,6 +2,10 @@
 import subprocess
 import re
 
+from utils.bot_logger import log_message
+
+TMP_FILE = 'tmp.py'
+
 
 def check_code(message, telebot_instance):
     """
@@ -14,18 +18,18 @@ def check_code(message, telebot_instance):
         try:
             code = message.text.split(maxsplit=1)[1].strip()
         except IndexError:
-            telebot_instance.send_message(message.chat.id, "Будь ласка, вкажіть код для перевірки.")
+
+            text = 'Будь ласка, вкажіть код для перевірки.'
+            log_message('/check_code', "", text)
+            telebot_instance.send_message(message.chat.id, text = text)
             return
 
     # Create a temporary file and write the code into it
-    with open('tmp.py', 'w', encoding='utf-8') as checked_file:
+    with open(TMP_FILE, 'w', encoding = 'utf-8') as checked_file:
         checked_file.write(code + "\n")
 
-    # Check syntax
-    syntax_errors = check_syntax('tmp.py')
-
-    # Check PEP8 style
-    pep8_output = check_style('tmp.py')
+    pep8_output = check_style()
+    syntax_errors = check_syntax()
 
     result = ""
 
@@ -36,52 +40,45 @@ def check_code(message, telebot_instance):
 
     if pep8_output:
         cleaned_output = re.sub(r'\*.*?\*\* Module tmp\ntmp.py:\d+:\d+: ', '', pep8_output)
-        result += f"\nУ вашому коді помилка PEP-8:\n{cleaned_output}"
-    else:
-        result += "\nКод не має помилок PEP-8."
+        cleaned_output = re.sub(r'tmp.py:\d+:\d+: ', '', cleaned_output)
+
+        pep8_errors = re.findall(r'\w+:\s.*', cleaned_output)
+        if pep8_errors:
+            result += "\nУ вашому коді помилки PEP-8:\n"
+            result += '\n'.join(pep8_errors)
+        else:
+            result += "\nКод не має помилок PEP-8."
+
+    log_message('/check_code', code, result)
 
     telebot_instance.send_message(message.chat.id, result)
 
 
-def check_style(file_path):
-    """
-    This method checks PEP8 style
-    :param file_path:
-    :return:
-    """
-    result = subprocess.run(['pylint', file_path],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            check=False)  # check=False to not raise an exception
+def check_style():
+    """Compare this snippet from data/bot_token.txt:"""
+    result = subprocess.run(['pylint', TMP_FILE],
+                            stdout = subprocess.PIPE,
+                            stderr = subprocess.PIPE,
+                            check = False)  # check=False to not raise an exception
     output = result.stdout.decode('utf-8') + result.stderr.decode('utf-8')
-    return output if output else None
+    cleaned_output = output.replace(
+        '------------------------------------------------------------------', '')
+
+    return cleaned_output.strip() if cleaned_output else None
 
 
-def check_syntax(file_path):
-    """
-    This method checks syntax
-    :param file_path:
-    :return:
-    """
-    try:
-        # Create a subprocess to run the python command with the file
-        process = subprocess.Popen(['python', file_path],
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   shell=False)
-        # Write the code to the subprocess stdin and close it
-        _, error = process.communicate()
-
-        # If there is an error, send it as a message to the user
-        if error:
-            # Remove unnecessary information from the error message
-            error = error.decode().split('\n')[-2]
-            return error
-
-    except subprocess.CalledProcessError as check_syntax_error:
-        # If there is an error while running the subprocess, send it as a message to the user
-        return f"Виникла помилка при перевірці синтаксису:\n{check_syntax_error}"
-
-    # Return None if no errors occurred
+def check_syntax():
+    """Compare this snippet from tmp.py:"""
+    # create a subprocess to run python command with the file
+    with subprocess.Popen(['python', TMP_FILE], stdin = subprocess.PIPE,
+                          stdout = subprocess.PIPE,
+                          stderr = subprocess.PIPE,
+                          shell = False) as process:
+        # write the code to the subprocess stdin and close it
+        error = process.communicate()
+    # if there is an error, send it as a message to the user
+    if error[1]:
+        # remove the unnecessary from the error message
+        error = error[1].decode().split('\n')[-2]
+        return error
     return None

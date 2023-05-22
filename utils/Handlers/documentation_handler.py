@@ -1,7 +1,7 @@
-"""
-search_documentation handler function
-"""
+"""search_documentation handler function"""
 import pydoc
+
+from utils.bot_logger import log_message
 
 
 def search_documentation(message, telebot_instance):
@@ -16,7 +16,6 @@ def search_documentation(message, telebot_instance):
         query = message.text.strip()
         query = query[len("/documentation"):].strip()
 
-
     if not query:
         telebot_instance.reply_to(message, "Будь ласка, введіть ключове слово для пошуку")
 
@@ -27,9 +26,11 @@ def search_documentation(message, telebot_instance):
         doc = pydoc.render_doc(query)
 
         if not doc:
+            text = "На жаль, не знайдено документації для даного запиту."
+            log_message('/documentation', "", text)
             telebot_instance.send_message(message.chat.id,
-                             "На жаль, не знайдено документації для даного запиту."
-                             )
+                                          text = text
+                                          )
             return
 
         # Remove the content after (...)
@@ -39,9 +40,12 @@ def search_documentation(message, telebot_instance):
 
         # Format the documentation
         formatted_doc = f"<b>{query} Documentation:</b>\n\n{doc}"
-        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
+        log_message('/documentation', "", formatted_doc)
+        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode = "HTML")
     except Exception as err:  # rewrite the error exception
+        text = "Виникла помилка при пошуку\n" \
+               "або перекладі документації."
+        log_message('/documentation', "", text)
         telebot_instance.send_message(message.chat.id,
-                                      "Виникла помилка при пошуку\n"
-                                      "або перекладі документації.")
+                                      text = text)
         print(f"Error: {str(err)}")

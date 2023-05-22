@@ -18,7 +18,8 @@ class Bot:
         self.inline_keyboard = None
         self.bot = None
         self.token_file = token_file
-        self.current_mode = "main_menu"  # Початковий режим
+        self.current_mode = MODE_MAIN_MENU
+
 
     def run(self):
         """
@@ -77,7 +78,7 @@ def check_syntax_handler(message):
 @telebot_instance.message_handler(commands=['help'])
 def handle_help(message):
     """This handler allows to send designated message when the button been pressed"""
-    help_handler(message, bot, bot.inline_keyboard)
+    help_handler(message, telebot_instance, bot.inline_keyboard)
 
 
 @telebot_instance.message_handler(commands=['documentation'])
