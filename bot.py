@@ -68,30 +68,6 @@ def start_handler(message):
                                   reply_markup=bot.inline_keyboard.get_keyboard())
 
 
-@telebot_instance.message_handler(commands=['check_code'])
-def check_syntax_handler(message):
-    """This handler allows to send designated message when the button been pressed"""
-    bot.current_mode = MODE_CHECK_CODE
-    check_code(message, telebot_instance)
-
-
-@telebot_instance.message_handler(commands=['help'])
-def handle_help(message):
-    """This handler allows to send designated message when the button been pressed"""
-    help_handler(message, telebot_instance, bot.inline_keyboard)
-
-
-@telebot_instance.message_handler(commands=['documentation'])
-def documentation_handler(message):
-    """
-    use the search_documentation function
-    :param message:
-    :return:
-    """
-    bot.current_mode = MODE_DOCUMENTATION
-    search_documentation(message, telebot_instance)
-
-
 @telebot_instance.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
     """This handler allows to use callback query with pressing designated inline keyboard buttons"""
