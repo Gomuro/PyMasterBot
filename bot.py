@@ -7,6 +7,7 @@ from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.help_handler import help_handler
 from utils.KeyBoard.key_board import Keyboard
 from utils.Modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE
+from utils.bot_logger import log_message
 
 
 class Bot:
@@ -17,6 +18,7 @@ class Bot:
     def __init__(self, token_file):
         self.inline_keyboard = None
         self.bot = None
+        self.chat_id = None
         self.token_file = token_file
         self.current_mode = MODE_MAIN_MENU
 
@@ -27,19 +29,15 @@ class Bot:
         :return:
         """
         # read the token from the file
-        with open(self.token_file, 'r', encoding='utf-8') as file:
+        with open(self.token_file, 'r', encoding = 'utf-8') as file:
             token = file.read().strip()
-
         # create a telebot instance using the token
         self.bot = telebot.TeleBot(token)
-
         # create an instance of InlineKeyboardMarkup
         self.inline_keyboard = Keyboard()
 
     def get_bot(self):
-        """
-        This method returns the bot
-        """
+        """This method returns the bot"""
         return self.bot
 
     def set_current_mode(self, mode):
@@ -50,6 +48,9 @@ class Bot:
         """
         self.current_mode = mode
 
+    def delete_message(self, chat_id, message_id):
+        telebot_instance.delete_message(chat_id, message_id)
+
 
 bot = Bot('data/bot_token.txt')
 bot.run()
@@ -57,42 +58,21 @@ bot.run()
 telebot_instance = bot.get_bot()
 
 
-@telebot_instance.message_handler(commands=['start'])
+@telebot_instance.message_handler(commands = ['start'])
 def start_handler(message):
     """
     This method sends the welcome message
     :param message:
     :return:
     """
-    telebot_instance.send_message(message.chat.id, "Welcome to my bot!",
-                                  reply_markup=bot.inline_keyboard.get_keyboard())
+    start_command = '/start'
+    text = "Welcome to my bot!"
+    log_message(message, start_command, '', text)
+    telebot_instance.send_message(message.chat.id, text = text,
+                                  reply_markup = bot.inline_keyboard.get_keyboard())
 
 
-@telebot_instance.message_handler(commands=['check_code'])
-def check_syntax_handler(message):
-    """This handler allows to send designated message when the button been pressed"""
-    bot.current_mode = MODE_CHECK_CODE
-    check_code(message, telebot_instance)
-
-
-@telebot_instance.message_handler(commands=['help'])
-def handle_help(message):
-    """This handler allows to send designated message when the button been pressed"""
-    help_handler(message, telebot_instance, bot.inline_keyboard)
-
-
-@telebot_instance.message_handler(commands=['documentation'])
-def documentation_handler(message):
-    """
-    use the search_documentation function
-    :param message:
-    :return:
-    """
-    bot.current_mode = MODE_DOCUMENTATION
-    search_documentation(message, telebot_instance)
-
-
-@telebot_instance.callback_query_handler(func=lambda call: True)
+@telebot_instance.callback_query_handler(func = lambda call: True)
 def handle_callback_query(call):
     """This handler allows to use callback query with pressing designated inline keyboard buttons"""
     if call.data.find(MODE_DOCUMENTATION) != -1:
@@ -105,7 +85,7 @@ def handle_callback_query(call):
 
 
 # Додано новий обробник повідомлень для відображення поточного режиму
-@telebot_instance.message_handler(func=lambda message: True)
+@telebot_instance.message_handler(func = lambda message: True)
 def display_current_mode(message):
     """
     This method displays the current mode
@@ -122,8 +102,8 @@ def display_current_mode(message):
         check_code(message, telebot_instance)
 
 
-telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_handler)
+telebot_instance.callback_query_handler(func = lambda call: True)(callback_query_handler)
 
 # start polling for new messages
 if __name__ == '__main__':
-    telebot_instance.polling(none_stop=True, timeout=60)
+    telebot_instance.polling(none_stop = True, timeout = 60)

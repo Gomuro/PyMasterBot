@@ -5,28 +5,26 @@ import re
 from utils.bot_logger import log_message
 
 TMP_FILE = 'tmp.py'
-
+CHECK_CODE_COMMAND = '/check_code'
 
 def check_code(message, telebot_instance):
     """
-    :param telebot_instance: instance of telebot
-    :param message: create a temporary file and write the code into it
-    :return: send message to user
+    This method allows to send designated message when the button been pressed
     """
-    code = message.text.strip()
-    if code.startswith("/check_code"):
+    user_input = message.text.strip()
+    if user_input.startswith(CHECK_CODE_COMMAND):
         try:
-            code = message.text.split(maxsplit=1)[1].strip()
+            user_input = message.text.split(maxsplit=1)[1].strip()
         except IndexError:
 
             text = 'Будь ласка, вкажіть код для перевірки.'
-            log_message('/check_code', "", text)
+            log_message(message, CHECK_CODE_COMMAND, user_input, text)
             telebot_instance.send_message(message.chat.id, text = text)
             return
 
     # Create a temporary file and write the code into it
     with open(TMP_FILE, 'w', encoding = 'utf-8') as checked_file:
-        checked_file.write(code + "\n")
+        checked_file.write(user_input + "\n")
 
     pep8_output = check_style()
     syntax_errors = check_syntax()
@@ -49,7 +47,7 @@ def check_code(message, telebot_instance):
         else:
             result += "\nКод не має помилок PEP-8."
 
-    log_message('/check_code', code, result)
+    log_message(message, CHECK_CODE_COMMAND, user_input, result)
 
     telebot_instance.send_message(message.chat.id, result)
 
@@ -68,7 +66,7 @@ def check_style():
 
 
 def check_syntax():
-    """Compare this snippet from tmp.py:"""
+    """Compare this snippet from data/bot_token.txt:"""
     # create a subprocess to run python command with the file
     with subprocess.Popen(['python', TMP_FILE], stdin = subprocess.PIPE,
                           stdout = subprocess.PIPE,

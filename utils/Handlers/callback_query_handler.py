@@ -4,6 +4,8 @@
 def callback_query_handler(call, telebot_instance, inline_keyboard):
     """This method allows to send designated message when the button is pressed"""
 
+    telebot_instance.delete_message(call.message.chat.id, call.message.message_id)
+
     if call.data == '/help':
         telebot_instance.answer_callback_query(callback_query_id=call.id)
         telebot_instance.send_message(chat_id=call.message.chat.id,
