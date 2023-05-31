@@ -1,6 +1,6 @@
-import pytest
+from unittest.mock import Mock, patch
 
-from utils.Handlers.check_code_handler import check_code
+from utils.Handlers.documentation_handler import search_documentation
 
 
 class TelebotMock:
@@ -10,64 +10,56 @@ class TelebotMock:
     def send_message(self, chat_id, text):
         self.sent_messages.append((chat_id, text))
 
+    def reply_to(self, message, text):
+        self.sent_messages.append((message.chat.id, text))
 
-def test_check_code_valid_code():
+
+def test_search_documentation_empty_query():
     telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code print('Hello, world!')", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
+    message = Mock()
+    message.text = "/documentation"
+    search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the first sent message, which should contain the result for valid code
+    # Add assertion for the content of the sent message, which should contain the expected response for an empty query
 
 
-def test_check_code_syntax_error():
+def test_search_documentation_no_keyword():
     telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code print('Hello, world!'", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
+    message = Mock()
+    message.text = "/some_other_command some_function"
+    search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the second sent message, which should contain the syntax error message
+    # Add assertion for the content of the sent message, which should contain the expected response for a query
+    # without the "documentation" keyword
 
 
-def test_check_code_pep8_errors():
+def test_search_documentation_valid_function():
     telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code x = 5\nprint(x)", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
+    message = Mock()
+    message.text = "/documentation some_function"
+    search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the third sent message, which should contain the PEP-8 error messages
+    # Add assertion for the content of the sent message, which should contain the expected documentation string for
+    # the valid function name
 
 
-def test_check_code_no_errors():
+def test_search_documentation_nonexistent_function():
     telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code a = 1\nb = 2\nprint(a + b)", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
+    message = Mock()
+    message.text = "/documentation non_existent_function"
+    search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the fourth sent message, which should indicate no syntax errors or PEP-8 errors
+    # Add assertion for the content of the sent message, which should contain the expected response for a
+    # non-existent function name
 
 
-def test_check_code_empty_code():
+def test_search_documentation_error_retrieving():
     telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
+    message = Mock()
+    message.text = "/documentation some_function"
+    # Mock the pydoc.render_doc function to raise an exception
+    with patch('pydoc.render_doc', side_effect=Exception("Error retrieving documentation")):
+        search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the fifth sent message, which should prompt the user to provide code
-
-
-def test_check_code_comments_only():
-    telebot_instance = TelebotMock()
-
-    message = type("Message", (object,), {"text": "/check_code # This is a comment\n# Another comment", "chat": type("Chat", (object,), {"id": "chat_id"})})
-    check_code(message, telebot_instance)
-
-    assert len(telebot_instance.sent_messages) == 1
-    # Add assertions for the content of the sixth sent message, which should indicate no syntax errors or PEP-8 errors
-
-
+    # Add assertion for the content of the sent message, which should contain the expected response for an error
+    # during documentation retrieval
