@@ -45,6 +45,7 @@ class AbstractDatabase(ABC):
     def add_lesson(self, topic, description, status):
         pass
 
+    @abstractmethod
     def add_lesson_progress(self, user_id, lesson_id):
         pass
 
@@ -52,6 +53,7 @@ class AbstractDatabase(ABC):
     def add_points(self, user_id, points):
         pass
 
+    @abstractmethod
     def add_admin_role(self, user_id):
         pass
 

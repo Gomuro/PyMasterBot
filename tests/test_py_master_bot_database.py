@@ -124,13 +124,12 @@ def test_get_leaderboard():
 
 def test_get_lessons_by_status():
     database = PyMasterBotDatabase()
-    database.add_lesson("Math", "Introduction to Algebra", "Lesson content", "S")
+    database.add_lesson("Math", "Introduction to Algebra", "Lesson content", "free")
     database.add_lesson("Science", "Introduction to Physics", "Lesson content", "paid")
     database.add_lesson("History", "Introduction to World History", "Lesson content", "free")
 
     lessons = database.get_lessons_by_status("free")
     paid_lessons = database.get_lessons_by_status("paid")
-
 
     assert lessons[0].id == 7
     assert lessons[1].id == 9
@@ -150,5 +149,3 @@ def test_get_user_by_id():
     assert user.id == user_id
     assert user.name == name
     assert user.username == username
-
-
