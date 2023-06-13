@@ -1,5 +1,6 @@
 """Imports"""
 import telebot
+import os
 
 from database.py_master_bot_database import PyMasterBotDatabase
 from utils.Handlers.add_admin_handler import add_admin_function
@@ -7,8 +8,8 @@ from utils.Handlers.add_lesson_handler import add_lesson_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
-from utils.Handlers.help_handler import help_handler
 from utils.KeyBoard.key_board import InlineKeyboard
+from dotenv import load_dotenv
 
 from utils.Modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
 
@@ -18,11 +19,11 @@ class Bot:
     This class implements the bot
     """
 
-    def __init__(self, token_file):
+    def __init__(self, token):
         self.inline_keyboard = None
         self.bot = None
         self.chat_id = None
-        self.token_file = token_file
+        self.token = token
         self.current_mode = MODE_MAIN_MENU
 
     def run(self):
@@ -30,9 +31,8 @@ class Bot:
         This method runs the bot
         :return:
         """
-        # read the token from the file
-        with open(self.token_file, 'r', encoding = 'utf-8') as file:
-            token = file.read().strip()
+        load_dotenv()
+        token = os.getenv('TOKEN')
         # create a telebot instance using the token
         self.bot = telebot.TeleBot(token)
         # create an instance of InlineKeyboardMarkup
