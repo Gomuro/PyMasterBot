@@ -1,11 +1,19 @@
 from abc import ABC, abstractmethod
 
+import os
 import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Date, JSON
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
 Base = sqlalchemy.orm.declarative_base()
 
+load_dotenv()
+DB_HOST = os.getenv('DB_HOST')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
 
 class User(Base):
     __tablename__ = 'users'
@@ -152,7 +160,7 @@ class AbstractDatabase(ABC):
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
-        self.engine = create_engine('postgresql://Username:Password@localhost:Port/DatabaseName')
+        self.engine = create_engine(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
