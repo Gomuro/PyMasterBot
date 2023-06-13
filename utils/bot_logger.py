@@ -3,7 +3,7 @@ import logging
 import os
 import json
 import datetime
-
+import inspect
 
 RELATIVE_PATH = 'data/logs'
 ABSOLUTE_PATH = os.path.abspath(RELATIVE_PATH)
@@ -26,11 +26,12 @@ def setup_logging():
     return logger
 
 
-def log_message(command, code, text):
+def log_message(message, command, user_input, text):
     """
     Logs the message details to a JSON log file.
 
     Args:
+        message (Message): The message that triggered the logging.
         command (str): The command that triggered the logging.
         code (str): The code associated with the log message.
         text (str): The text message to be logged.
@@ -39,12 +40,19 @@ def log_message(command, code, text):
         None
     """
     timestamp = datetime.datetime.now()
+    frame = inspect.currentframe().f_back
+    file_name = inspect.getframeinfo(frame).filename
+    line_number = inspect.getframeinfo(frame).lineno
 
     log_data = {
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        'user_id': message.chat.id,
+        'username': message.from_user.username,
         'command': command,
-        'code': code,
+        'input_message': user_input,
         'response': text,
+        'source_file': file_name,
+        'source_line': line_number
     }
 
     log_file = os.path.join(ABSOLUTE_PATH, datetime.datetime.now().strftime(LOG_FILE_FORMAT))

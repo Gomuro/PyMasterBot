@@ -3,6 +3,7 @@ import pydoc
 
 from utils.bot_logger import log_message
 
+DOCUMENTATION_COMMAND = "/documentation"
 
 def search_documentation(message, telebot_instance):
     """
@@ -11,23 +12,24 @@ def search_documentation(message, telebot_instance):
     :param message:
     :return:
     """
-    query = message.text.strip()
-    if query.find("documentation") != -1:
-        query = message.text.strip()
-        query = query[len("/documentation"):].strip()
+    user_input = message.text.strip()
+    if user_input.find("documentation") != -1:
+        user_input = message.text.strip()
+        user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
 
-    if not query:
-        telebot_instance.reply_to(message, "Будь ласка, введіть ключове слово для пошуку")
-
+    if not user_input:
+        text = "Будь ласка, введіть ключове слово для пошуку документації."
+        log_message(message, DOCUMENTATION_COMMAND, user_input, text)
+        telebot_instance.send_message(message.chat.id, text = text)
         return  # Вирівняти з блоком if
 
     try:
         # Use pydoc to get the documentation
-        doc = pydoc.render_doc(query)
+        doc = pydoc.render_doc(user_input)
 
         if not doc:
             text = "На жаль, не знайдено документації для даного запиту."
-            log_message('/documentation', "", text)
+            log_message(message, DOCUMENTATION_COMMAND, user_input, text)
             telebot_instance.send_message(message.chat.id,
                                           text = text
                                           )
@@ -39,13 +41,13 @@ def search_documentation(message, telebot_instance):
             doc = doc[index + len("(...)"):]
 
         # Format the documentation
-        formatted_doc = f"<b>{query} Documentation:</b>\n\n{doc}"
-        log_message('/documentation', "", formatted_doc)
+        formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{doc}"
+        log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
         telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode = "HTML")
     except Exception as err:  # rewrite the error exception
         text = "Виникла помилка при пошуку\n" \
                "або перекладі документації."
-        log_message('/documentation', "", text)
+        log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id,
                                       text = text)
         print(f"Error: {str(err)}")

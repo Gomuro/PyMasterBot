@@ -10,3 +10,6 @@ data/
 .idea/
 
 bot_token.txt
+
+!/.env
+.env
