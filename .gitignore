@@ -13,3 +13,5 @@ bot_token.txt
 
 !/.env
 .env
+
+tmp.py
