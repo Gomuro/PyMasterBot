@@ -15,6 +15,7 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -83,15 +84,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def delete_lessons_with_status(self, status):
-        pass
-
-    @abstractmethod
     def delete_user(self, user_id):
-        pass
-
-    @abstractmethod
-    def delete_users_with_status(self, status):
         pass
 
     @abstractmethod
@@ -104,10 +97,6 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_lessons_by_topic(self, topic):
-        pass
-
-    @abstractmethod
-    def get_lessons_grouped_by_topic(self):
         pass
 
     @abstractmethod
@@ -136,10 +125,6 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def is_admin(self, user_id):
-        pass
-
-    @abstractmethod
-    def remove_admin_role(self, user_id):
         pass
 
     @abstractmethod
@@ -213,23 +198,11 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             self.session.delete(lesson)
             self.session.commit()
 
-    def delete_lessons_with_status(self, status):
-        lessons = self.session.query(Lesson).filter_by(status=status).all()
-        for lesson in lessons:
-            self.session.delete(lesson)
-        self.session.commit()
-
     def delete_user(self, user_id):
         user = self.get_user_by_id(user_id)
         if user:
             self.session.delete(user)
             self.session.commit()
-
-    def delete_users_with_status(self, status):
-        users = self.session.query(User).filter_by(status=status).all()
-        for user in users:
-            self.session.delete(user)
-        self.session.commit()
 
     def get_leaderboard(self):
         leaderboard = self.session.query(User).order_by(User.score.desc()).all()
@@ -242,15 +215,6 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_lessons_by_topic(self, topic):
         lessons = self.session.query(Lesson).filter_by(topic=topic).all()
         return lessons
-
-    def get_lessons_grouped_by_topic(self):
-        topics = {}
-        lessons = self.session.query(Lesson).all()
-        for lesson in lessons:
-            if lesson.topic not in topics:
-                topics[lesson.topic] = []
-            topics[lesson.topic].append(lesson)
-        return topics
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()
@@ -280,12 +244,6 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         user = self.get_user_by_id(user_id)
         if user:
             return user.role == "admin"
-
-    def remove_admin_role(self, user_id):
-        user = self.get_user_by_id(user_id)
-        if user:
-            user.role = "user"
-            self.session.commit()
 
     def update_user_paid_until(self, user_id, paid_until):
         user = self.get_user_by_id(user_id)
