@@ -10,7 +10,7 @@ from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.help_handler import help_handler
 from utils.KeyBoard.key_board import InlineKeyboard
 
-from utils.Modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
+from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
 
 
 class Bot:
