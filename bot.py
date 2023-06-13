@@ -1,12 +1,16 @@
 """Imports"""
 import telebot
 
+from database.py_master_bot_database import PyMasterBotDatabase
+from utils.Handlers.add_admin_handler import add_admin_function
+from utils.Handlers.add_lesson_handler import add_lesson_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.help_handler import help_handler
-from utils.KeyBoard.key_board import Keyboard
-from utils.Modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE
+from utils.KeyBoard.key_board import InlineKeyboard
+
+from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
 
 
 class Bot:
@@ -19,7 +23,6 @@ class Bot:
         self.bot = None
         self.token_file = token_file
         self.current_mode = MODE_MAIN_MENU
-
 
     def run(self):
         """
@@ -34,7 +37,7 @@ class Bot:
         self.bot = telebot.TeleBot(token)
 
         # create an instance of InlineKeyboardMarkup
-        self.inline_keyboard = Keyboard()
+        self.inline_keyboard = InlineKeyboard()
 
     def get_bot(self):
         """
@@ -53,6 +56,11 @@ class Bot:
 
 bot = Bot('data/bot_token.txt')
 bot.run()
+bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
+bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
+bot.inline_keyboard.add_button("Допомога", callback_data="/help")
+
+bot_db = PyMasterBotDatabase()
 
 telebot_instance = bot.get_bot()
 
@@ -64,32 +72,36 @@ def start_handler(message):
     :param message:
     :return:
     """
-    telebot_instance.send_message(message.chat.id, "Welcome to my bot!",
-                                  reply_markup=bot.inline_keyboard.get_keyboard())
+    if not bot_db.check_user_exists(message.chat.id):
+        bot_db.add_user(message.chat.id, message.chat.first_name, message.chat.username)
+        telebot_instance.send_message(message.chat.id, f"Welcome to my bot,{message.chat.first_name}!",
+                                      reply_markup=bot.inline_keyboard.get_keyboard())
+
+    else:
+        telebot_instance.send_message(message.chat.id, f"Welcome back,{message.chat.first_name}!",
+                                      reply_markup=bot.inline_keyboard.get_keyboard())
 
 
-@telebot_instance.message_handler(commands=['check_code'])
-def check_syntax_handler(message):
-    """This handler allows to send designated message when the button been pressed"""
-    bot.current_mode = MODE_CHECK_CODE
-    check_code(message, telebot_instance)
-
-
-@telebot_instance.message_handler(commands=['help'])
-def handle_help(message):
-    """This handler allows to send designated message when the button been pressed"""
-    help_handler(message, telebot_instance, bot.inline_keyboard)
-
-
-@telebot_instance.message_handler(commands=['documentation'])
-def documentation_handler(message):
+@telebot_instance.message_handler(commands=['add_lesson'])
+def add_lesson_handler(message):
     """
-    use the search_documentation function
+    This method adds a lesson
     :param message:
     :return:
     """
-    bot.current_mode = MODE_DOCUMENTATION
-    search_documentation(message, telebot_instance)
+    if message.text.find("/add_lesson") != -1:
+        add_lesson_function(telebot_instance, message)
+
+
+@telebot_instance.message_handler(commands=['add_admin'])
+def add_admin_handler(message):
+    """
+    This method adds a lesson
+    :param message:
+    :return:
+    """
+    if message.text.find("/add_admin") != -1:
+        add_admin_function(telebot_instance, message)
 
 
 @telebot_instance.callback_query_handler(func=lambda call: True)
@@ -120,6 +132,8 @@ def display_current_mode(message):
     elif bot.current_mode == MODE_CHECK_CODE:
         telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі перевірки коду.")
         check_code(message, telebot_instance)
+    elif bot.current_mode == MODE_LESSON:
+        telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі заняття.")
 
 
 telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_handler)
