@@ -60,7 +60,6 @@ bot = Bot('data/bot_token.txt')
 bot.run()
 bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
-bot.inline_keyboard.add_button("Допомога", callback_data="/help")
 
 bot_db = PyMasterBotDatabase()
 
