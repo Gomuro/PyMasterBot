@@ -2,6 +2,7 @@
 import pydoc
 
 from utils.bot_logger import log_message
+from utils.Handlers.help_functions import delete_previous_messages
 
 DOCUMENTATION_COMMAND = "/documentation"
 
@@ -14,7 +15,7 @@ def search_documentation(message, telebot_instance):
     :return:
     """
 
-    telebot_instance.delete_message(message.chat.id, message.message_id - 1)
+    delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()
     if user_input.find("documentation") != -1:

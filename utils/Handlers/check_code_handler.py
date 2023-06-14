@@ -3,15 +3,17 @@ import subprocess
 import re
 
 from utils.bot_logger import log_message
+from utils.Handlers.help_functions import delete_previous_messages
 
 TMP_FILE = 'tmp.py'
 CHECK_CODE_COMMAND = '/check_code'
+
 
 def check_code(message, telebot_instance):
     """
     This method allows to send designated message when the button been pressed
     """
-    telebot_instance.delete_message(message.chat.id, message.message_id - 1)
+    delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()
     if user_input.startswith(CHECK_CODE_COMMAND):
