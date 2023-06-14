@@ -11,6 +11,3 @@ def delete_previous_messages(message, telebot_instance):
             telebot_instance.delete_message(message.chat.id, message.message_id - 1)
     except Exception as e:
         print("An unexpected error occurred:", e)
-
-
-
