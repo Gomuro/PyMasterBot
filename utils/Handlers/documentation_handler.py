@@ -5,6 +5,7 @@ from utils.bot_logger import log_message
 
 DOCUMENTATION_COMMAND = "/documentation"
 
+
 def search_documentation(message, telebot_instance):
     """
     This function searches the documentation
@@ -12,6 +13,9 @@ def search_documentation(message, telebot_instance):
     :param message:
     :return:
     """
+
+    telebot_instance.delete_message(message.chat.id, message.message_id - 1)
+
     user_input = message.text.strip()
     if user_input.find("documentation") != -1:
         user_input = message.text.strip()

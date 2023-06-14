@@ -11,6 +11,8 @@ def check_code(message, telebot_instance):
     """
     This method allows to send designated message when the button been pressed
     """
+    telebot_instance.delete_message(message.chat.id, message.message_id - 1)
+
     user_input = message.text.strip()
     if user_input.startswith(CHECK_CODE_COMMAND):
         try:
