@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, Column, Integer, String, Date, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Date, JSON, BigInteger
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
@@ -19,7 +19,7 @@ DB_NAME = os.getenv('DB_NAME')
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     name = Column(String)
     username = Column(String)
     status = Column(String)
