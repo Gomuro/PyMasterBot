@@ -18,7 +18,7 @@ def check_code(message, telebot_instance):
         except IndexError:
 
             text = 'Будь ласка, вкажіть код для перевірки.'
-            log_message(message, CHECK_CODE_COMMAND, user_input, text)
+            # log_message(message, CHECK_CODE_COMMAND, user_input, text)
             telebot_instance.send_message(message.chat.id, text = text)
             return
 
@@ -47,7 +47,7 @@ def check_code(message, telebot_instance):
         else:
             result += "\nКод не має помилок PEP-8."
 
-    log_message(message, CHECK_CODE_COMMAND, user_input, result)
+    #log_message(message, CHECK_CODE_COMMAND, user_input, result)
 
     telebot_instance.send_message(message.chat.id, result)
 
