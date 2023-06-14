@@ -15,6 +15,7 @@ def search_documentation(message, telebot_instance):
     :return:
     """
 
+
     delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()

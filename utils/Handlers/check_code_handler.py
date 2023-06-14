@@ -13,6 +13,7 @@ def check_code(message, telebot_instance):
     """
     This method allows to send designated message when the button been pressed
     """
+
     delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()
