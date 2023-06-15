@@ -20,6 +20,10 @@ enabling users to search for documentation directly within the bot's chat interf
 🟠 Installation:
 To use the `documentation_handler.py` module, you need to follow these steps to set up and install the necessary
 dependencies:
+    Installation:
+
+    To use the `documentation_handler.py` module, you need to follow these steps to set up and install the necessary
+     dependencies:
 
    1. Make sure you have Python installed on your system (version 3 or above). You can download Python from the
     official website: https://www.python.org/downloads/
