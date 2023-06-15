@@ -103,7 +103,20 @@ Please refer to the official documentation of the Pydoc and Telebot libraries fo
 APIs and usage.
 
 
-🔵 Contribution:
+🔵 Problem-solving:
+There are several possible problems and errors that may occur. Here are some tips and tricks to fix these problems:
+
+    1. Unsatisfactory import: Ensure that all required modules and packages are imported correctly.
+    2. Errors in reading the message: Make sure you are getting the message text from the "message.text"
+    variable correctly.
+    3. Bugs in error handling: The search_documentation function has an except block that catches any exceptions and
+    outputs an error message.
+    4. Checking the connection to the Telegram Bot API: Make sure you have a valid API token for your bot and that
+    you have an active connection to the Telegram Bot API. Make sure the bot has the right to send messages and
+    access the required functionality.
+
+
+🟣 Contribution:
 
 Contributions to the `documentation_handler.py` module are welcome! If you would like to enhance or improve
  the codebase, here are some guidelines to follow:
@@ -148,14 +161,19 @@ Your contributions are greatly appreciated!
 
 import pydoc
 
-from utils.bot_logger import log_message
+# from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
 
 DOCUMENTATION_COMMAND = "/documentation"
 
 
 def search_documentation(message, telebot_instance):
-
+    """
+    This function searches the documentation
+    :param telebot_instance:
+    :param message:
+    :return:
+    """
 
     delete_previous_messages(message, telebot_instance)
 
@@ -190,7 +208,7 @@ def search_documentation(message, telebot_instance):
         # Format the documentation
         formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{doc}"
         # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
-        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode = "HTML")
+        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
     except Exception as err:  # rewrite the error exception
         text = "Виникла помилка при пошуку\n" \
                "або перекладі документації."
