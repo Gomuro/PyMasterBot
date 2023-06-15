@@ -15,7 +15,9 @@ def add_lesson_function(bot, message):
 
     # Ask the user for the lesson topic
     bot.send_message(chat_id, "Enter the lesson topic:")
-    bot.register_next_step_handler(message, process_topic, bot)  # Pass bot as an argument
+    bot.register_next_step_handler(
+        message, process_topic, bot
+    )  # Pass bot as an argument
 
 
 def process_topic(message, bot):  # Add bot as a parameter
@@ -33,7 +35,9 @@ def process_topic(message, bot):  # Add bot as a parameter
         return
     # Ask the user for the lesson description
     bot.send_message(chat_id, "Enter the lesson description:")
-    bot.register_next_step_handler(message, process_description, topic, bot)  # Use the original_message
+    bot.register_next_step_handler(
+        message, process_description, topic, bot
+    )  # Use the original_message
 
 
 def process_description(message, topic, bot):
@@ -61,7 +65,9 @@ def process_text(message, topic, description, bot):
 
     # Ask the user for the lesson status
     bot.send_message(chat_id, "Enter the lesson status (free/paid/bonus):")
-    bot.register_next_step_handler(message, process_status, topic, description, text, bot)
+    bot.register_next_step_handler(
+        message, process_status, topic, description, text, bot
+    )
 
 
 def process_status(message, topic, description, text, bot):
@@ -79,7 +85,9 @@ def process_status(message, topic, description, text, bot):
 
     # Check if the provided status is valid
     if status not in ["free", "paid", "bonus"]:
-        bot.send_message(chat_id, "Invalid status. Please enter either 'free', 'paid', or 'bonus'.")
+        bot.send_message(
+            chat_id, "Invalid status. Please enter either 'free', 'paid', or 'bonus'."
+        )
         return
 
     # Add the lesson to the database with the provided status

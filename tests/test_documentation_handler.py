@@ -1,8 +1,7 @@
 import pytest
-from telebot import TeleBot
 from telebot.types import Message
 
-from utils.Handlers.documentation_handler import search_documentation
+from Handlers.documentation_handler import search_documentation
 
 
 class MockTeleBot:
@@ -30,7 +29,10 @@ def test_search_documentation(telebot_instance):
 
     # Check if a reply message was sent
     assert len(telebot_instance.replied_messages) == 1
-    assert telebot_instance.replied_messages[0] == (message, "Please enter a keyword to search")
+    assert telebot_instance.replied_messages[0] == (
+        message,
+        "Please enter a keyword to search",
+    )
 
     # Check if a message was sent
     assert len(telebot_instance.sent_messages) == 0
@@ -46,10 +48,12 @@ def test_search_documentation(telebot_instance):
     # Check if a message was sent with the formatted documentation
     assert len(telebot_instance.sent_messages) == 1
     assert telebot_instance.sent_messages[0][0] == message.chat.id
-    assert "<b>valid_function Documentation:</b>" in telebot_instance.sent_messages[0][1]
+    assert (
+        "<b>valid_function Documentation:</b>" in telebot_instance.sent_messages[0][1]
+    )
 
     # Add more test cases as needed
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main()
