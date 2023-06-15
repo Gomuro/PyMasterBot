@@ -13,6 +13,3 @@ def delete_previous_messages(message, telebot_instance):
 
     except Exception as e:
         print("An unexpected error occurred:", e)
-
-
-
