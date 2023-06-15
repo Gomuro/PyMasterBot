@@ -2,11 +2,12 @@
 import subprocess
 import re
 
-from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
 
 TMP_FILE = 'tmp.py'
 CHECK_CODE_COMMAND = '/check_code'
+
+callback_btn_are_exist = True
 
 
 def check_code(message, telebot_instance):
@@ -14,7 +15,15 @@ def check_code(message, telebot_instance):
     This method allows to send designated message when the button been pressed
     """
 
-    delete_previous_messages(message, telebot_instance)
+    global callback_btn_are_exist
+
+    if not callback_btn_are_exist:  # Check if callback buttons disappear
+        delete_previous_messages(message, telebot_instance)  # Delete previous 2 messages
+
+    if callback_btn_are_exist:  # Check if callback buttons are exists
+        telebot_instance.delete_message(message.chat.id, message.message_id - 1)  # Delete previous  message
+
+    callback_btn_are_exist = False
 
     user_input = message.text.strip()
     if user_input.startswith(CHECK_CODE_COMMAND):
@@ -24,11 +33,11 @@ def check_code(message, telebot_instance):
 
             text = 'Будь ласка, вкажіть код для перевірки.'
             # log_message(message, CHECK_CODE_COMMAND, user_input, text)
-            telebot_instance.send_message(message.chat.id, text = text)
+            telebot_instance.send_message(message.chat.id, text=text)
             return
 
     # Create a temporary file and write the code into it
-    with open(TMP_FILE, 'w', encoding = 'utf-8') as checked_file:
+    with open(TMP_FILE, 'w', encoding='utf-8') as checked_file:
         checked_file.write(user_input + "\n")
 
     pep8_output = check_style()
@@ -52,7 +61,7 @@ def check_code(message, telebot_instance):
         else:
             result += "\nКод не має помилок PEP-8."
 
-    #log_message(message, CHECK_CODE_COMMAND, user_input, result)
+    # log_message(message, CHECK_CODE_COMMAND, user_input, result)
 
     telebot_instance.send_message(message.chat.id, result)
 
@@ -60,9 +69,9 @@ def check_code(message, telebot_instance):
 def check_style():
     """Compare this snippet from data/bot_token.txt:"""
     result = subprocess.run(['pylint', TMP_FILE],
-                            stdout = subprocess.PIPE,
-                            stderr = subprocess.PIPE,
-                            check = False)  # check=False to not raise an exception
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            check=False)  # check=False to not raise an exception
     output = result.stdout.decode('utf-8') + result.stderr.decode('utf-8')
     cleaned_output = output.replace(
         '------------------------------------------------------------------', '')
@@ -73,10 +82,10 @@ def check_style():
 def check_syntax():
     """Compare this snippet from data/bot_token.txt:"""
     # create a subprocess to run python command with the file
-    with subprocess.Popen(['python', TMP_FILE], stdin = subprocess.PIPE,
-                          stdout = subprocess.PIPE,
-                          stderr = subprocess.PIPE,
-                          shell = False) as process:
+    with subprocess.Popen(['python', TMP_FILE], stdin=subprocess.PIPE,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          shell=False) as process:
         # write the code to the subprocess stdin and close it
         error = process.communicate()
     # if there is an error, send it as a message to the user

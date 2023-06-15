@@ -8,6 +8,8 @@ def delete_previous_messages(message, telebot_instance):
     from getting cluttered with unnecessary messages"""
     try:
         if telebot_instance:
-            telebot_instance.delete_message(message.chat.id, message.message_id - 1)
+            for index in range(1, 3):
+                telebot_instance.delete_message(message.chat.id, message.message_id - index)
+
     except Exception as e:
         print("An unexpected error occurred:", e)
