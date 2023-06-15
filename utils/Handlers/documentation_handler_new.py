@@ -26,10 +26,9 @@ def search_documentation(message, telebot_instance):
     The `documentation_handler.py` module serves as an intermediary between the Telegram bot and the Pydoc library,
      enabling users to search for documentation directly within the bot's chat interface.
 
-    """
 
-    """
     Installation:
+
     To use the `documentation_handler.py` module, you need to follow these steps to set up and install the necessary
      dependencies:
 
@@ -47,72 +46,109 @@ def search_documentation(message, telebot_instance):
     That's it! You have successfully set up the `documentation_handler.py` module and installed the necessary
     dependencies.
 
-    """
 
-    """
     Usage:
+
     To search for documentation using the `documentation_handler.py` module, follow these steps:
 
     1. Import the `documentation_handler` module into your Python script or bot project:
        from documentation_handler import search_documentation
-       
+
     2. Call the search_documentation function with the user's input as a parameter:
     search_documentation(user_input, telebot_instance)
-    
+
     user_input (string): The user's input specifying the documentation to search for.
     telebot_instance (Telebot instance): The instance of the Telebot library used for sending messages.
-    
+
     3. The function will search for the documentation using the Pydoc library and retrieve the relevant information.
-    
+
     4. The retrieved documentation will be sent as a message back to the user via the Telegram bot.
 
     Here's an example of using the search_documentation function:
     # Assume user_input and telebot_instance are defined
     search_documentation(user_input, telebot_instance)
-    
+
     Make sure to provide the appropriate user input and telebot instance when calling the function.
 
-    """
 
-    """
     API Documentation:
+
     The `documentation_handler.py` module provides access to the following APIs:
 
     1. Pydoc API:
-    
+
        `pydoc.render_doc(module)`: This API retrieves the documentation for a given module.
 
        Example usage:
        import pydoc
        doc = pydoc.render_doc(module_name)
-       
+
     This API is used in the search_documentation function to fetch the documentation for the user's input.
 
     2. Telebot API:
 
     telebot_instance.send_message(chat_id, text): This API sends a text message to the specified chat ID.
-    
+
     Example usage:
         telebot_instance.send_message(chat_id, text="print!")
-    
+
     This API is used in the search_documentation function to send the formatted documentation back to the user.
 
     3. Telebot API (Delete Message):
 
     telebot_instance.delete_message(chat_id, message_id): This API deletes a specific message in the chat.
-    
+
     Example usage:
     telebot_instance.delete_message(chat_id, message_id)
-    
+
     This API is used in the delete_previous_messages function to remove the previous messages before sending the
     documentation.
 
     Please refer to the official documentation of the Pydoc and Telebot libraries for more information on their
     APIs and usage.
 
+
+    Contribution:
+
+    Contributions to the `documentation_handler.py` module are welcome! If you would like to enhance or improve
+     the codebase, here are some guidelines to follow:
+
+    1. Fork the repository:
+       - Start by forking the repository to your GitHub account.
+
+    2. Create a new branch:
+       Create a new branch for your contributions. It is recommended to use a descriptive branch name that reflects
+        the nature of your changes.
+
+    3. Make your changes:
+       Implement your changes, enhancements, or bug fixes in the `documentation_handler.py` module.
+
+    4. Test your changes:
+       Before submitting a pull request, make sure to test your changes thoroughly.
+        Verify that the functionality is working as expected and that no new issues are introduced.
+
+    5. Commit and push:
+       Commit your changes and push them to your forked repository.
+
+    6. Submit a pull request:
+       Submit a pull request from your branch to the main repository. Provide a clear and concise description of
+        your changes, explaining the purpose and benefits.
+
+    7. Review and iterate:
+       The code maintainers will review your pull request, provide feedback, and suggest any necessary improvements.
+       Iterate on the changes until they are approved.
+
+    8. Contribution guidelines:
+       Follow any specific contribution guidelines or coding standards set by the project.
+       Ensure that your code is well-documented, follows best practices, and maintains code readability.
+       If your contribution includes new functionality, consider adding corresponding unit tests.
+
+    Thank you for considering contributing to the `documentation_handler.py` module.
+    Your contributions are greatly appreciated!
+
     """
 
-
+    # Rest of the code follows...
 
     delete_previous_messages(message, telebot_instance)
 
