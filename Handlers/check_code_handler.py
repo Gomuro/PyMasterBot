@@ -2,7 +2,7 @@
 import subprocess
 import re
 
-from utils.Handlers.help_functions import delete_previous_messages
+from Handlers.help_functions import delete_previous_messages
 from utils.bot_logger import log_message
 
 TMP_FILE = 'tmp.py'

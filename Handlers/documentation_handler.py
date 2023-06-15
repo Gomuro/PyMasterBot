@@ -2,7 +2,7 @@
 import pydoc
 
 from utils.bot_logger import log_message
-from utils.Handlers.help_functions import delete_previous_messages
+from Handlers.help_functions import delete_previous_messages
 
 DOCUMENTATION_COMMAND = "/documentation"
 
