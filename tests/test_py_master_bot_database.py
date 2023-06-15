@@ -87,9 +87,9 @@ def test_delete_user():
 # Тести для методу delete_users_with_status
 def test_delete_users_with_status():
     db = PyMasterBotDatabase()
-    db.add_user(8, "John", "john123", status="оплачено")
-    db.add_user(9, "Jane", "jane456", status="оплачено")
-    db.add_user(10, "Mike", "mike789", status="оплачено")
+    db.add_user(8, "John", "john123", status = "оплачено")
+    db.add_user(9, "Jane", "jane456", status = "оплачено")
+    db.add_user(10, "Mike", "mike789", status = "оплачено")
     db.add_user(11, "Emily", "emily123")
     db.add_user(12, "Alex", "alex456")
     db.add_user(13, "Sarah", "sarah789")
@@ -126,7 +126,9 @@ def test_get_lessons_by_status():
     database = PyMasterBotDatabase()
     database.add_lesson("Math", "Introduction to Algebra", "Lesson content", "free")
     database.add_lesson("Science", "Introduction to Physics", "Lesson content", "paid")
-    database.add_lesson("History", "Introduction to World History", "Lesson content", "free")
+    database.add_lesson(
+        "History", "Introduction to World History", "Lesson content", "free"
+    )
 
     lessons = database.get_lessons_by_status("free")
     paid_lessons = database.get_lessons_by_status("paid")

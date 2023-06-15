@@ -3,7 +3,7 @@ from telebot import types
 
 
 class KeyboardFactory(ABC):
-    """ Abstract factory for creating keyboards """
+    """Abstract factory for creating keyboards"""
 
     @abstractmethod
     def create_keyboard(self):
@@ -11,14 +11,14 @@ class KeyboardFactory(ABC):
 
 
 class InlineKeyboardFactory(KeyboardFactory):
-    """ Concrete factory for creating InlineKeyboard """
+    """Concrete factory for creating InlineKeyboard"""
 
     def create_keyboard(self):
         return InlineKeyboard()
 
 
 class Keyboard(ABC):
-    """ Abstract base class for keyboards """
+    """Abstract base class for keyboards"""
 
     @abstractmethod
     def get_keyboard(self):
@@ -30,7 +30,7 @@ class Keyboard(ABC):
 
 
 class InlineKeyboard(Keyboard):
-    """ Implementation of InlineKeyboard """
+    """Implementation of InlineKeyboard"""
 
     def __init__(self):
         self.inline_keyboard = types.InlineKeyboardMarkup()
@@ -39,6 +39,6 @@ class InlineKeyboard(Keyboard):
         return self.inline_keyboard
 
     def add_button(self, text, callback_data):
-        self.inline_keyboard.add(types.InlineKeyboardButton(text=text, callback_data=callback_data))
-
-
+        self.inline_keyboard.add(
+            types.InlineKeyboardButton(text=text, callback_data=callback_data)
+        )
