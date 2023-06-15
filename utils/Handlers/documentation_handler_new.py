@@ -74,6 +74,46 @@ def search_documentation(message, telebot_instance):
 
     """
 
+    """
+    API Documentation:
+    The `documentation_handler.py` module provides access to the following APIs:
+
+    1. Pydoc API:
+    
+       `pydoc.render_doc(module)`: This API retrieves the documentation for a given module.
+
+       Example usage:
+       import pydoc
+       doc = pydoc.render_doc(module_name)
+       
+    This API is used in the search_documentation function to fetch the documentation for the user's input.
+
+    2. Telebot API:
+
+    telebot_instance.send_message(chat_id, text): This API sends a text message to the specified chat ID.
+    
+    Example usage:
+        telebot_instance.send_message(chat_id, text="print!")
+    
+    This API is used in the search_documentation function to send the formatted documentation back to the user.
+
+    3. Telebot API (Delete Message):
+
+    telebot_instance.delete_message(chat_id, message_id): This API deletes a specific message in the chat.
+    
+    Example usage:
+    telebot_instance.delete_message(chat_id, message_id)
+    
+    This API is used in the delete_previous_messages function to remove the previous messages before sending the
+    documentation.
+
+    Please refer to the official documentation of the Pydoc and Telebot libraries for more information on their
+    APIs and usage.
+
+    """
+
+
+
     delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()
