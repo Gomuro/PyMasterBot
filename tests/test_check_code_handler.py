@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from utils.Handlers.documentation_handler import search_documentation
+from Handlers.documentation_handler import search_documentation
 
 
 class TelebotMock:
@@ -58,7 +58,9 @@ def test_search_documentation_error_retrieving():
     message = Mock()
     message.text = "/documentation some_function"
     # Mock the pydoc.render_doc function to raise an exception
-    with patch('pydoc.render_doc', side_effect=Exception("Error retrieving documentation")):
+    with patch(
+        "pydoc.render_doc", side_effect=Exception("Error retrieving documentation")
+    ):
         search_documentation(message, telebot_instance)
     assert len(telebot_instance.sent_messages) == 1
     # Add assertion for the content of the sent message, which should contain the expected response for an error

@@ -9,15 +9,15 @@ from dotenv import load_dotenv
 Base = sqlalchemy.orm.declarative_base()
 
 load_dotenv()
-DB_HOST = os.getenv('DB_HOST')
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_PORT = os.getenv('DB_PORT')
-DB_NAME = os.getenv('DB_NAME')
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(BigInteger, primary_key=True)
     name = Column(String)
@@ -30,7 +30,7 @@ class User(Base):
 
 
 class Lesson(Base):
-    __tablename__ = 'lessons'
+    __tablename__ = "lessons"
 
     id = Column(Integer, primary_key=True)
     topic = Column(String)
@@ -52,7 +52,7 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 
 class AbstractDatabase(ABC):
     @abstractmethod
-    def add_lesson(self, topic, description, status):
+    def add_lesson(self, topic, description, text, status):
         pass
 
     @abstractmethod
@@ -68,7 +68,17 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def add_user(self, user_id, name, username, status="не оплачено", paid_until=None, score=0, progress=[], role=None):
+    def add_user(
+        self,
+        user_id,
+        name,
+        username,
+        status="не оплачено",
+        paid_until=None,
+        score=0,
+        progress=[],
+        role=None,
+    ):
         pass
 
     @abstractmethod
@@ -145,13 +155,17 @@ class AbstractDatabase(ABC):
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
-        self.engine = create_engine(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+        self.engine = create_engine(
+            f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        )
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
 
     def add_lesson(self, topic, description, text, status):
-        new_lesson = Lesson(topic=topic, description=description, text=text, status=status)
+        new_lesson = Lesson(
+            topic=topic, description=description, text=text, status=status
+        )
         self.session.add(new_lesson)
         self.session.commit()
 
@@ -174,9 +188,24 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             user.role = "admin"
             self.session.commit()
 
-    def add_user(self, user_id, name, username, status="не оплачено", paid_until=None, score=0, progress=[],
-                 role="user"):
-        new_user = User(id=user_id, name=name, username=username, status=status, paid_until=paid_until)
+    def add_user(
+        self,
+        user_id,
+        name,
+        username,
+        status="не оплачено",
+        paid_until=None,
+        score=0,
+        progress=[],
+        role="user",
+    ):
+        new_user = User(
+            id=user_id,
+            name=name,
+            username=username,
+            status=status,
+            paid_until=paid_until,
+        )
         self.session.add(new_user)
         self.session.commit()
 

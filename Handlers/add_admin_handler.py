@@ -41,6 +41,3 @@ def process_admin_id(message, bot):
     bot_db.add_admin_role(admin_id)
 
     bot.send_message(chat_id, "Admin role added successfully.")
-
-
-
