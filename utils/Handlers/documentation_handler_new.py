@@ -1,4 +1,4 @@
-import inspect
+import pydoc
 
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -28,14 +28,15 @@ def search_documentation(message, telebot_instance):
         return  # Вирівняти з блоком if
 
     try:
-        # Use inspect to get the documentation
-        obj = eval(user_input)  # Evaluate the input string to get the object
-        doc = inspect.getdoc(obj)
+        # Use pydoc to get the documentation
+        doc = pydoc.render_doc(user_input)
 
         if not doc:
             text = "На жаль, не знайдено документації для даного запиту."
             # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
-            telebot_instance.send_message(message.chat.id, text=text)
+            telebot_instance.send_message(message.chat.id,
+                                          text=text
+                                          )
             return
 
         # Remove the content after (...)
@@ -51,5 +52,6 @@ def search_documentation(message, telebot_instance):
         text = "Виникла помилка при пошуку\n" \
                "або перекладі документації."
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
-        telebot_instance.send_message(message.chat.id, text=text)
+        telebot_instance.send_message(message.chat.id,
+                                      text=text)
         print(f"Error: {str(err)}")
