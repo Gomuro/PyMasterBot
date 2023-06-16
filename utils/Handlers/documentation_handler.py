@@ -48,13 +48,25 @@ def search_documentation(message, telebot_instance):
         if index != -1:
             doc = doc[index + len("(...)"):]
 
+        view_doc = ""
+        for i in doc.split("\n\n"):
+            if user_input+"(" in i:
+                view_doc += f"<i>Example of use {user_input}:</i>\n{i}\n\n"
+            else:
+                view_doc += f"<i>Description:</i>\n{i}"
+
+
+
+
         # Format the documentation
-        formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{doc}"
+        formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{view_doc}"
         # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
         telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
 
+
+
     except Exception as err:  # rewrite the error exception
-        text = "Виникла помилка при пошуку\n" \
+        text = "Виникла помилка при пошуку\n\n" \
                "або перекладі документації."
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)

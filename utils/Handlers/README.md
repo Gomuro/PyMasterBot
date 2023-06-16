@@ -4,18 +4,18 @@
 ### 🔴 Introduction:
 
 The `documentation_handler.py` module provides functionality for searching and retrieving documentation using the
-Pydoc library. It is designed to be used in a Telegram bot to provide users with easy access to documentation for
+`inspect` library. It is designed to be used in a Telegram bot to provide users with easy access to documentation for
 different Python modules, classes, functions, and methods.
 
 This module contains the following main components:
 
     ♦️ `search_documentation` function: This function takes a user's input and searches for relevant documentation using
-     the Pydoc library. It returns the documentation in a formatted manner.
+     the inspect library. It returns the documentation in a formatted manner.
 
     ♦️ `delete_previous_messages` function: This helper function is used to delete previous messages in order to keep
      the chat clean and prevent clutter.
 
-The `documentation_handler.py` module serves as an intermediary between the Telegram bot and the Pydoc library,
+The `documentation_handler.py` module serves as an intermediary between the Telegram bot and the `inspect` library,
 enabling users to search for documentation directly within the bot's chat interface.
 
 
@@ -56,7 +56,7 @@ To search for documentation using the `documentation_handler.py` module, follow 
 
     From the message (that is received as a function argument) a keyword is generated to search for the documentation.
 
-    3. The function will search for the documentation using the Pydoc library and retrieve the relevant information.
+    3. The function will search for the documentation using the `inspect` library and retrieve the relevant information.
 
     4. The retrieved documentation will be sent as a message back to the user via the Telegram bot.
 
@@ -72,15 +72,25 @@ Make sure to provide the appropriate user input and telebot instance when callin
 
 The `documentation_handler.py` module provides access to the following APIs:
 
-1. Pydoc API:
-   `pydoc.render_doc(module)`: This API retrieves the documentation for a given module. Example usage:
+1. Inspect API:
+`inspect.getdoc(module)`: This API retrieves the documentation for a given module. Example usage:
 ```bash
-import pydoc
-doc = pydoc.render_doc(module_name)
+import inspect
+doc = inspect.getdoc(module_name)
 ```
 This API is used in the search_documentation function to fetch the documentation for the user's input.
 
-2. Telebot API:
+2. Ast API:
+ `ast.parse(user_input, mode="eval")`: This API module to convert an input expression into a node (an AST node) 
+  and then compile it into a safe expression for execution. Example usage:
+```bash
+import ast
+doc = inspect.getdoc(module_name)
+```
+This API is used in the search_documentation function to limit the possibility of executing unsafe code in an 
+input expression.
+
+3. Telebot API:
     `telebot_instance.send_message(chat_id, text)`: This API sends a text message to the specified chat ID.
 Example usage:
 ```bash
@@ -88,7 +98,7 @@ telebot_instance.send_message(chat_id, text="print!")
 ```
 This API is used in the search_documentation function to send the formatted documentation back to the user.
 
-3. Telebot API (Delete Message):
+4. Telebot API (Delete Message):
 
     `telebot_instance.delete_message(chat_id, message_id)`: This API deletes a specific message in the chat.
     Example usage:
@@ -98,7 +108,7 @@ telebot_instance.delete_message(chat_id, message_id)
 This API is used in the delete_previous_messages function to remove the previous messages before sending the
     documentation.
 
-Please refer to the official documentation of the Pydoc and Telebot libraries for more information on their
+Please refer to the official documentation of the Inspect and Telebot libraries for more information on their
 APIs and usage.
 
 
