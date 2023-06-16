@@ -1,4 +1,5 @@
 import inspect
+import ast
 
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -8,10 +9,11 @@ DOCUMENTATION_COMMAND = "/documentation"
 
 def search_documentation(message, telebot_instance):
     """
-    This function searches the documentation
-    :param telebot_instance:
-    :param message:
-    :return:
+    This function provides functionality for searching and retrieving documentation using the Pydoc library.
+
+    :param telebot_instance: This is an object that represents your Telegram bot, created using the TeleBot class.
+    :param message: This is an object that represents the incoming message that the bot interacts with.
+    :return: This function uses return statements to terminate function execution in various situations
     """
 
     delete_previous_messages(message, telebot_instance)
@@ -29,7 +31,8 @@ def search_documentation(message, telebot_instance):
 
     try:
         # Use inspect to get the documentation
-        obj = eval(user_input)  # Evaluate the input string to get the object
+        node = ast.parse(user_input, mode="eval")
+        obj = eval(compile(node, filename="<string>", mode="eval"))
         doc = inspect.getdoc(obj)
 
         if not doc:
