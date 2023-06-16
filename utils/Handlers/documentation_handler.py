@@ -1,5 +1,6 @@
 import inspect
 import ast
+import builtins
 
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -16,10 +17,8 @@ def search_documentation(message, telebot_instance):
     :return: This function uses return statements to terminate function execution in various situations
     """
 
-    # Delete previous message
     delete_previous_messages(message, telebot_instance)
 
-    # A variable used to further process and search documentation for a user-entered keyword
     user_input = message.text.strip()
 
     if "documentation" in user_input:
@@ -29,7 +28,7 @@ def search_documentation(message, telebot_instance):
         text = "Будь ласка, введіть ключове слово для пошуку документації."
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)
-        return  # Вирівняти з блоком if
+        return
 
     try:
         # Use inspect to get the documentation
@@ -43,31 +42,15 @@ def search_documentation(message, telebot_instance):
             telebot_instance.send_message(message.chat.id, text=text)
             return
 
-        # Remove the content after (...)
-        index = doc.find("(...)")
-        if index != -1:
-            doc = doc[index + len("(...)"):]
+        if user_input in builtins.__dict__:
+            function = getattr(builtins, user_input)
+            docstring = function.__doc__
+            if docstring:
+                telebot_instance.send_message(message.chat.id, f"<b>Function: {user_input}</b>\n\n<i>Description: \n"
+                                                               f"   {docstring}</i>", parse_mode="HTML")
 
-        view_doc = ""
-        for i in doc.split("\n\n"):
-            if user_input+"(" in i:
-                view_doc += f"<i>Example of use {user_input}:</i>\n{i}\n\n"
-            else:
-                view_doc += f"<i>Description:</i>\n{i}"
-
-
-
-
-        # Format the documentation
-        formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{view_doc}"
+    except Exception as err:
+        text = "Виникла помилка при пошуку\n\nабо перекладі документації."
         # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
-        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
-
-
-
-    except Exception as err:  # rewrite the error exception
-        text = "Виникла помилка при пошуку\n\n" \
-               "або перекладі документації."
-        # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)
         print(f"Error: {str(err)}")
