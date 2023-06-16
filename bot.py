@@ -1,8 +1,8 @@
 """Imports"""
 
-from PyMasterBot.database.py_master_bot_database import PyMasterBotDatabase
+from database.py_master_bot_database import PyMasterBotDatabase
 from decorators import Bot
-from PyMasterBot.utils.Handlers.callback_query_handler import callback_query_handler
+from utils.Handlers.callback_query_handler import callback_query_handler
 
 bot = Bot('data/bot_token.txt')
 bot.run()

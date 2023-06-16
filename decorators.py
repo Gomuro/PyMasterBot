@@ -1,13 +1,13 @@
 import os
 import telebot
 from dotenv import load_dotenv
-from PyMasterBot.utils.Handlers.add_admin_handler import add_admin_function
-from PyMasterBot.utils.Handlers.add_lesson_handler import add_lesson_function
-from PyMasterBot.utils.Handlers.callback_query_handler import callback_query_handler
-from PyMasterBot.utils.Handlers.check_code_handler import check_code
-from PyMasterBot.utils.Handlers.documentation_handler import search_documentation
-from PyMasterBot.utils.KeyBoard.key_board import InlineKeyboard
-from PyMasterBot.utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON
+from utils.Handlers.add_admin_handler import add_admin_function
+from utils.Handlers.add_lesson_handler import add_lesson_function
+from utils.Handlers.callback_query_handler import callback_query_handler
+from utils.Handlers.check_code_handler import check_code
+from utils.Handlers.documentation_handler import search_documentation
+from utils.KeyBoard.key_board import InlineKeyboard
+from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON
 
 
 class Bot:
@@ -52,7 +52,7 @@ class Bot:
         """
         This method sends the welcome message
         """
-        from PyMasterBot.bot import bot_db
+        from bot import bot_db
         if not bot_db.check_user_exists(message.chat.id):
             bot_db.add_user(message.chat.id, message.chat.first_name, message.chat.username)
             self.bot.send_message(message.chat.id, f"Welcome to my bot, {message.chat.first_name}!",
