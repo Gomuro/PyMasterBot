@@ -1,12 +1,12 @@
 import os
 import telebot
 from dotenv import load_dotenv
-from utils.Handlers.add_admin_handler import add_admin_function
-from utils.Handlers.add_lesson_handler import add_lesson_function
-from utils.Handlers.callback_query_handler import callback_query_handler
-from utils.Handlers.check_code_handler import check_code
-from utils.Handlers.documentation_handler import search_documentation
-from utils.KeyBoard.key_board import InlineKeyboard
+from Handlers.add_admin_handler import add_admin_function
+from Handlers.add_lesson_handler import add_lesson_function
+from Handlers.callback_query_handler import callback_query_handler
+from Handlers.check_code_handler import check_code
+from Handlers.documentation_handler import search_documentation
+from utils.key_board import InlineKeyboard
 from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON
 
 
