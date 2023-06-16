@@ -16,11 +16,13 @@ def search_documentation(message, telebot_instance):
     :return: This function uses return statements to terminate function execution in various situations
     """
 
+    # Delete previous message
     delete_previous_messages(message, telebot_instance)
 
+    # A variable used to further process and search documentation for a user-entered keyword
     user_input = message.text.strip()
-    if user_input.find("documentation") != -1:
-        user_input = message.text.strip()
+
+    if "documentation" in user_input:
         user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
 
     if not user_input:
@@ -50,6 +52,7 @@ def search_documentation(message, telebot_instance):
         formatted_doc = f"<b>{user_input} Documentation:</b>\n\n{doc}"
         # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
         telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
+
     except Exception as err:  # rewrite the error exception
         text = "Виникла помилка при пошуку\n" \
                "або перекладі документації."
