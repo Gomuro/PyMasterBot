@@ -48,8 +48,7 @@ def search_documentation(message, telebot_instance):
         if index != -1:
             doc = doc[index + len("(...)"):]
 
-        link = f"https://docs.python.org/uk/3/genindex-{str(user_input)[0].upper()}.html"
-
+        link = f"https://docs.python.org/uk/3/search.html?q={str(user_input)}"
         view_doc = ""
         for i in doc.split("\n\n"):
             if user_input+"(" in i:
