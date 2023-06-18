@@ -8,7 +8,7 @@ from Handlers.callback_query_handler import callback_query_handler
 
 bot = Bot("data/bot_token.txt")
 bot.run()
-bot.inline_keyboard.add_button("Документация", callback_data="/documentation")
+bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
 
 bot_db = PyMasterBotDatabase()

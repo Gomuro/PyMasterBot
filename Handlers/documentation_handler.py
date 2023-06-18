@@ -21,7 +21,7 @@ def search_documentation(message, telebot_instance):
     delete_previous_messages(message, telebot_instance)
 
     # A variable used to further process and search documentation for a user-entered keyword
-    user_input = message.text.strip()
+    user_input = message.text.strip().lower()
 
     if "documentation" in user_input:
         user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
