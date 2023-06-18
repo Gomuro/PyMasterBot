@@ -89,13 +89,19 @@ class Bot:
         """
         This method displays the current mode
         """
+        # self.bot.delete_message(message.chat.id, message.message_id)
         if self.current_mode == MODE_MAIN_MENU:
-            self.bot.send_message(message.chat.id, "Вы находитесь в главном меню.")
+            self.bot.send_message(message.chat.id, "You are in the main menu mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
         elif self.current_mode == MODE_DOCUMENTATION:
-            self.bot.send_message(message.chat.id, "Вы находитесь в режиме документации.")
+            self.bot.delete_message(message.chat.id, message.message_id)
+            self.bot.send_message(message.chat.id, "You are in documentation mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
             search_documentation(message, self.bot)
         elif self.current_mode == MODE_CHECK_CODE:
-            self.bot.send_message(message.chat.id, "Вы находитесь в режиме проверки кода.")
+            self.bot.send_message(message.chat.id, "You are in check code mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
             check_code(message, self.bot)
         elif self.current_mode == MODE_LESSON:
-            self.bot.send_message(message.chat.id, "Вы находитесь в режиме занятия.")
+            self.bot.send_message(message.chat.id, "You are in lesson mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
