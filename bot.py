@@ -8,10 +8,11 @@ from utils.Handlers.add_lesson_handler import add_lesson_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
+from utils.Handlers.request_help_handler import help_request_handler
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 
-from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
+from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
 
 
 class Bot:
@@ -65,6 +66,7 @@ bot = Bot('data/bot_token.txt')
 bot.run()
 bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
+bot.reply_keyboard.add_button("Go to Python site")
 
 bot_db = PyMasterBotDatabase()
 
@@ -115,11 +117,13 @@ def handle_callback_query(call):
     """This handler allows to use callback query with pressing designated inline keyboard buttons"""
     if call.data.find(MODE_CHECK_CODE) != -1:
         bot.current_mode = MODE_CHECK_CODE
+    elif call.data.find(MODE_HELP) != -1:
+        bot.current_mode = MODE_HELP
     elif call.data.find(MODE_MAIN_MENU) != -1:
         bot.current_mode = MODE_MAIN_MENU
     else:
         bot.current_mode = MODE_DOCUMENTATION
-    callback_query_handler(call, telebot_instance, bot.inline_keyboard)
+    callback_query_handler(call, telebot_instance, bot.inline_keyboard, bot.reply_keyboard)
 
 
 # Додано новий обробник повідомлень для відображення поточного режиму
@@ -140,6 +144,9 @@ def display_current_mode(message):
         check_code(message, telebot_instance)
     elif bot.current_mode == MODE_LESSON:
         telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі заняття.")
+    elif bot.current_mode == MODE_HELP:
+        telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі надання допомоги.")
+        help_request_handler(message, telebot_instance)
 
     # Handle the "HELP" button separately
     if message.text == "HELP":
