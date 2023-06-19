@@ -8,7 +8,7 @@ from utils.Handlers.add_lesson_handler import add_lesson_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
-from utils.KeyBoard.key_board import InlineKeyboard
+from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 
 from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON
@@ -21,6 +21,7 @@ class Bot:
 
     def __init__(self, token):
         self.inline_keyboard = None
+        self.reply_keyboard = None
         self.bot = None
         self.chat_id = None
         self.token = token
@@ -37,6 +38,7 @@ class Bot:
         self.bot = telebot.TeleBot(token)
         # create an instance of InlineKeyboardMarkup
         self.inline_keyboard = InlineKeyboard()
+        self.reply_keyboard = ReplyKeyboard()
 
     def get_bot(self):
         """
@@ -60,6 +62,7 @@ bot = Bot('data/bot_token.txt')
 bot.run()
 bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
+bot.reply_keyboard.add_button("HELP")
 
 bot_db = PyMasterBotDatabase()
 
