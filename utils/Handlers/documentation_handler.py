@@ -69,3 +69,4 @@ def search_documentation(message, telebot_instance):
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)
         print(f"Error: {str(err)}")
+

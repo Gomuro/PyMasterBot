@@ -40,6 +40,9 @@ class Bot:
         self.inline_keyboard = InlineKeyboard()
         self.reply_keyboard = ReplyKeyboard()
 
+        # Add "HELP" button to the inline keyboard
+        self.inline_keyboard.add_button("HELP", callback_data="/help")
+
     def get_bot(self):
         """
         This method returns the bot
@@ -62,7 +65,6 @@ bot = Bot('data/bot_token.txt')
 bot.run()
 bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
-bot.reply_keyboard.add_button("HELP")
 
 bot_db = PyMasterBotDatabase()
 
@@ -111,12 +113,12 @@ def add_admin_handler(message):
 @telebot_instance.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
     """This handler allows to use callback query with pressing designated inline keyboard buttons"""
-    if call.data.find(MODE_DOCUMENTATION) != -1:
-        bot.current_mode = MODE_DOCUMENTATION
-    elif call.data.find(MODE_CHECK_CODE) != -1:
+    if call.data.find(MODE_CHECK_CODE) != -1:
         bot.current_mode = MODE_CHECK_CODE
     elif call.data.find(MODE_MAIN_MENU) != -1:
         bot.current_mode = MODE_MAIN_MENU
+    else:
+        bot.current_mode = MODE_DOCUMENTATION
     callback_query_handler(call, telebot_instance, bot.inline_keyboard)
 
 
@@ -138,6 +140,10 @@ def display_current_mode(message):
         check_code(message, telebot_instance)
     elif bot.current_mode == MODE_LESSON:
         telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі заняття.")
+
+    # Handle the "HELP" button separately
+    if message.text == "HELP":
+        telebot_instance.send_message(message.chat.id, "This is the help message.")
 
 
 telebot_instance.callback_query_handler(func = lambda call: True)(callback_query_handler)
