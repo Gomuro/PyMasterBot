@@ -1,6 +1,7 @@
 """ This module allows to run check_syntax function"""
 import subprocess
 import re
+import webbrowser
 
 from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -17,6 +18,14 @@ def check_code(message, telebot_instance):
     delete_previous_messages(message, telebot_instance)
 
     user_input = message.text.strip()
+
+    if user_input == "Go to Python site":
+        web_page_url = 'https://docs.python.org/3/'
+        telebot_instance.send_message(message.chat.id, f'Open a web page: {web_page_url}')
+        webbrowser.open('https://docs.python.org/3/')
+
+        return
+
     if user_input.startswith(CHECK_CODE_COMMAND):
         try:
             user_input = message.text.split(maxsplit=1)[1].strip()
