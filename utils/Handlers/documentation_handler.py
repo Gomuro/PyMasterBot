@@ -1,6 +1,5 @@
 import inspect
 import ast
-import webbrowser
 
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -25,12 +24,6 @@ def search_documentation(message, telebot_instance):
 
     if "documentation" in user_input:
         user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
-
-    if user_input == "Go to Python site":
-        web_page_url = 'https://docs.python.org/3/'
-        telebot_instance.send_message(message.chat.id, f'Open a web page: {web_page_url}')
-        webbrowser.open('https://docs.python.org/3/')
-        return
 
     if not user_input:
         text = "Будь ласка, введіть ключове слово для пошуку документації."
@@ -64,16 +57,13 @@ def search_documentation(message, telebot_instance):
                 view_doc += f"<i>Description:</i>\n{i}"
         view_doc += f"\n\nFor detailed information, follow the link {link} and select <b>{user_input}</b>"
 
-
         # Format the documentation
         formatted_doc = f"<b>{user_input.upper()} documentation:</b>\n\n{view_doc}"
         # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
         telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
-
 
     except Exception as err:  # rewrite the error exception
         text = "Виникла помилка при пошуку\nабо перекладі документації."
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)
         print(f"Error: {str(err)}")
-
