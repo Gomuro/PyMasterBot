@@ -2,7 +2,6 @@ import inspect
 import ast
 import webbrowser
 
-
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
 
@@ -26,12 +25,7 @@ def help_request_handler(message, telebot_instance):
         web_page_url = 'https://docs.python.org/3/'
         telebot_instance.send_message(message.chat.id, f'Open a web page: {web_page_url}')
         webbrowser.open('https://docs.python.org/3/')
-
-
-
-
-
-
+        return
 
     try:
         # Use inspect to get the documentation
@@ -53,12 +47,11 @@ def help_request_handler(message, telebot_instance):
         link = f"https://docs.python.org/uk/3/search.html?q={str(user_input)}"
         view_doc = ""
         for i in doc.split("\n\n"):
-            if user_input+"(" in i:
+            if user_input + "(" in i:
                 view_doc += f"<i>Writing example <b>{user_input}</b>:</i>\n{i}\n\n"
             else:
                 view_doc += f"<i>Description:</i>\n{i}"
         view_doc += f"\n\nFor detailed information, follow the link {link} and select <b>{user_input}</b>"
-
 
         # Format the documentation
         formatted_doc = f"<b>{user_input.upper()} documentation:</b>\n\n{view_doc}"
@@ -71,4 +64,3 @@ def help_request_handler(message, telebot_instance):
         # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
         telebot_instance.send_message(message.chat.id, text=text)
         print(f"Error: {str(err)}")
-
