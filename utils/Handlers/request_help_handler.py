@@ -1,5 +1,7 @@
 import inspect
 import ast
+import webbrowser
+
 
 # from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
@@ -23,7 +25,7 @@ def help_request_handler(message, telebot_instance):
     if user_input == "Go to Python site":
         web_page_url = 'https://docs.python.org/3/'
         telebot_instance.send_message(message.chat.id, f'Open a web page: {web_page_url}')
-
+        webbrowser.open('https://docs.python.org/3/')
 
 
 
