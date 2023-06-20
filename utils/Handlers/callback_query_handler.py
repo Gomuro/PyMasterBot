@@ -22,8 +22,9 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
     elif call.data == '/help':
         telebot_instance.answer_callback_query(callback_query_id=call.id)
         telebot_instance.send_message(chat_id=call.message.chat.id,
-                                      text="Enter your question or "
-                                           "click 'Go to Python site' button to visit the site",
+                                      text=f"Enter your question or\n"
+                                           "click <b>'Go to Python site'</b> button to visit the site",
+                                      parse_mode="HTML",
                                       reply_markup=reply_keyboard.get_keyboard())
 
     else:

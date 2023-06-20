@@ -73,7 +73,7 @@ bot_db = PyMasterBotDatabase()
 telebot_instance = bot.get_bot()
 
 
-@telebot_instance.message_handler(commands = ['start'])
+@telebot_instance.message_handler(commands=['start'])
 def start_handler(message):
     """
     This method sends the welcome message
@@ -127,7 +127,7 @@ def handle_callback_query(call):
 
 
 # Додано новий обробник повідомлень для відображення поточного режиму
-@telebot_instance.message_handler(func = lambda message: True)
+@telebot_instance.message_handler(func=lambda message: True)
 def display_current_mode(message):
     """
     This method displays the current mode
@@ -153,8 +153,8 @@ def display_current_mode(message):
         telebot_instance.send_message(message.chat.id, "This is the help message.")
 
 
-telebot_instance.callback_query_handler(func = lambda call: True)(callback_query_handler)
+telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_handler)
 
 # start polling for new messages
 if __name__ == '__main__':
-    telebot_instance.polling(none_stop = True, timeout = 60)
+    telebot_instance.polling(none_stop=True, timeout=60)

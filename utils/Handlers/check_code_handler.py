@@ -1,9 +1,8 @@
 """ This module allows to run check_syntax function"""
 import subprocess
 import re
-import webbrowser
 
-from utils.bot_logger import log_message
+# from utils.bot_logger import log_message
 from utils.Handlers.help_functions import delete_previous_messages
 
 TMP_FILE = 'tmp.py'
@@ -19,13 +18,6 @@ def check_code(message, telebot_instance):
 
     user_input = message.text.strip()
 
-    if user_input == "Go to Python site":
-        web_page_url = 'https://docs.python.org/3/'
-        telebot_instance.send_message(message.chat.id, f'Open a web page: {web_page_url}')
-        webbrowser.open('https://docs.python.org/3/')
-
-        return
-
     if user_input.startswith(CHECK_CODE_COMMAND):
         try:
             user_input = message.text.split(maxsplit=1)[1].strip()
@@ -33,11 +25,11 @@ def check_code(message, telebot_instance):
 
             text = 'Будь ласка, вкажіть код для перевірки.'
             # log_message(message, CHECK_CODE_COMMAND, user_input, text)
-            telebot_instance.send_message(message.chat.id, text = text)
+            telebot_instance.send_message(message.chat.id, text=text)
             return
 
     # Create a temporary file and write the code into it
-    with open(TMP_FILE, 'w', encoding = 'utf-8') as checked_file:
+    with open(TMP_FILE, 'w', encoding='utf-8') as checked_file:
         checked_file.write(user_input + "\n")
 
     pep8_output = check_style()
@@ -61,7 +53,7 @@ def check_code(message, telebot_instance):
         else:
             result += "\nКод не має помилок PEP-8."
 
-    #log_message(message, CHECK_CODE_COMMAND, user_input, result)
+    # log_message(message, CHECK_CODE_COMMAND, user_input, result)
 
     telebot_instance.send_message(message.chat.id, result)
 
@@ -69,9 +61,9 @@ def check_code(message, telebot_instance):
 def check_style():
     """Compare this snippet from data/bot_token.txt:"""
     result = subprocess.run(['pylint', TMP_FILE],
-                            stdout = subprocess.PIPE,
-                            stderr = subprocess.PIPE,
-                            check = False)  # check=False to not raise an exception
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            check=False)  # check=False to not raise an exception
     output = result.stdout.decode('utf-8') + result.stderr.decode('utf-8')
     cleaned_output = output.replace(
         '------------------------------------------------------------------', '')
@@ -82,10 +74,10 @@ def check_style():
 def check_syntax():
     """Compare this snippet from data/bot_token.txt:"""
     # create a subprocess to run python command with the file
-    with subprocess.Popen(['python', TMP_FILE], stdin = subprocess.PIPE,
-                          stdout = subprocess.PIPE,
-                          stderr = subprocess.PIPE,
-                          shell = False) as process:
+    with subprocess.Popen(['python', TMP_FILE], stdin=subprocess.PIPE,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          shell=False) as process:
         # write the code to the subprocess stdin and close it
         error = process.communicate()
     # if there is an error, send it as a message to the user
