@@ -39,6 +39,18 @@ class Lesson(Base):
     status = Column(String)
 
 
+class TestTask(Base):
+    __tablename__ = 'test_tasks'
+
+    id = Column(Integer, primary_key=True)
+    topic = Column(String)
+    question = Column(String)
+    var1 = Column(String)
+    var2 = Column(String)
+    var3 = Column(String)
+    right_answer = Column(String)
+
+
 class DatabaseFactory(ABC):
     @abstractmethod
     def create_database(self):
@@ -53,6 +65,10 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 class AbstractDatabase(ABC):
     @abstractmethod
     def add_lesson(self, topic, description, status):
+        pass
+
+    @abstractmethod
+    def add_test_task(self, topic, question, var1, var2, var3, right_answer):
         pass
 
     @abstractmethod
@@ -81,6 +97,10 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def delete_lesson(self, lesson_id):
+        pass
+
+    @abstractmethod
+    def delete_test_task(self, test_task_id):
         pass
 
     @abstractmethod
@@ -155,6 +175,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.add(new_lesson)
         self.session.commit()
 
+    def add_test_task(self, topic, question, var1, var2, var3, right_answer):
+        new_test_task = TestTask(topic=topic, question=question, var1=var1, var2=var2, var3=var3,
+                                 right_answer=right_answer)
+        self.session.add(new_test_task)
+        self.session.commit()
+
     def add_lesson_progress(self, user_id, lesson_id):
         user = self.get_user_by_id(user_id)
         if user:
@@ -196,6 +222,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         lesson = self.session.query(Lesson).filter_by(id=lesson_id).first()
         if lesson:
             self.session.delete(lesson)
+            self.session.commit()
+
+    def delete_test_task(self, test_task_id):
+        test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
+        if test_task:
+            self.session.delete(test_task)
             self.session.commit()
 
     def delete_user(self, user_id):

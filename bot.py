@@ -5,6 +5,7 @@ import os
 from database.py_master_bot_database import PyMasterBotDatabase
 from utils.Handlers.add_admin_handler import add_admin_function
 from utils.Handlers.add_lesson_handler import add_lesson_function
+from utils.Handlers.add_test_task_handler import add_test_task_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
@@ -110,6 +111,17 @@ def add_admin_handler(message):
     """
     if message.text.find("/add_admin") != -1:
         add_admin_function(telebot_instance, message)
+
+
+@telebot_instance.message_handler(commands=['add_test_task'])
+def add_test_task_handler(message):
+    """
+    This method adds a lesson
+    :param message:
+    :return:
+    """
+    if message.text.find("/add_test_task") != -1:
+        add_test_task_function(telebot_instance, message)
 
 
 @telebot_instance.callback_query_handler(func=lambda call: True)

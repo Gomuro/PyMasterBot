@@ -1,0 +1,116 @@
+from database.py_master_bot_database import PyMasterBotDatabase
+
+
+def add_test_task_function(bot, message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    # Check if the user is an admin
+    if not bot_db.is_admin(user_id):
+        bot.send_message(chat_id, "You are not an admin!")
+        return
+
+    # Ask the user for the test_task topic
+    bot.send_message(chat_id, "Enter the test_task topic:")
+    bot.register_next_step_handler(message, process_topic, bot)  # Pass bot as an argument
+
+
+def process_topic(message, bot):  # Add bot as a parameter
+    # Get the test_task topic from the user's message
+    topic = message.text
+    bot_db = PyMasterBotDatabase()
+    chat_id = message.chat.id
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Ask the user for the test_task description
+    bot.send_message(chat_id, "Enter the test_task question:")
+    bot.register_next_step_handler(message, process_question, topic, bot)  # Use the original_message
+
+
+def process_question(message, topic, bot):
+    chat_id = message.chat.id
+
+    # Get the test_task question from the user's message
+    question = message.text
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+    # Ask the user for the first answer option
+    bot.send_message(chat_id, "Enter the first answer option:")
+    bot.register_next_step_handler(message, process_first_answer, topic, question, bot)
+
+
+def process_first_answer(message, topic, question, bot):
+    chat_id = message.chat.id
+
+    # Get the first_answer text from the user's message
+    first_answer = message.text
+
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Ask the user for the second answer option
+    bot.send_message(chat_id, "Enter the second answer option:")
+    bot.register_next_step_handler(message, process_second_answer, topic, question, first_answer, bot)
+
+
+def process_second_answer(message, topic, question, first_answer, bot):
+    chat_id = message.chat.id
+
+    # Get the first_answer text from the user's message
+    second_answer = message.text
+
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Ask the user for the third answer option
+    bot.send_message(chat_id, "Enter the third answer option:")
+    bot.register_next_step_handler(message, process_third_answer, topic, question, first_answer, second_answer, bot)
+
+
+def process_third_answer(message, topic, question, first_answer, second_answer, bot):
+    chat_id = message.chat.id
+
+    # Get the first_answer text from the user's message
+    third_answer = message.text
+
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Ask the user for the right answer
+    bot.send_message(chat_id, "Enter the right answer:")
+    bot.register_next_step_handler(message, process_right_answer, topic, question,
+                                   first_answer, second_answer, third_answer, bot)
+
+
+def process_right_answer(message, topic, question, first_answer, second_answer, third_answer, bot):
+    chat_id = message.chat.id
+
+    # Get the first_answer text from the user's message
+    right_answer = message.text
+
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Check if the provided right_answer is valid
+    if right_answer not in [first_answer, second_answer, third_answer]:
+        bot.send_message(chat_id,
+                         f"There is no such answer option among the given ones.\nCancelled.")
+        return
+
+    # Add the lesson to the database with the provided status
+    bot_db.add_test_task(topic, question, first_answer, second_answer, third_answer, right_answer)
+
+    bot.send_message(chat_id, "Test_task added successfully.")
