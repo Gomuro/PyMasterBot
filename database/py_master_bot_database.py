@@ -5,6 +5,9 @@ import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Date, JSON, BigInteger
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from utils.Handlers.csv_importer import add_data_from_csv
+
+
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -300,3 +303,6 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         if user:
             user.role = role
             self.session.commit()
+
+    def add_data_from_csv(self, csv_filename):
+        add_data_from_csv(self.session, csv_filename, TestTask)

@@ -10,8 +10,11 @@ from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.request_help_handler import help_request_handler
+from utils.Handlers.csv_handler import handle_csv_file
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
+
+import uuid
 
 from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
 
@@ -166,6 +169,12 @@ def display_current_mode(message):
 
 
 telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_handler)
+
+
+@telebot_instance.message_handler(content_types=['document'])
+def handle_document(message):
+    handle_csv_file(telebot_instance, message)
+
 
 # start polling for new messages
 if __name__ == '__main__':
