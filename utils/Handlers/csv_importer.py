@@ -1,7 +1,9 @@
+"""
+This block contains helper functions that add CSV file into the Table in Database
+"""
 import csv
 import sqlalchemy
-from sqlalchemy import func
-
+from sqlalchemy import func, exc
 
 
 def add_data_from_csv(session, csv_filename, TestTask):
