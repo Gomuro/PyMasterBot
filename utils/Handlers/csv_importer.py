@@ -49,5 +49,7 @@ def add_data_from_csv(session, csv_filename, TestTask):
                 existing_lesson.topic = topic
                 existing_lesson.description = question
                 existing_lesson.text = var1
+                existing_lesson.text = var2
+                existing_lesson.text = var3
                 existing_lesson.status = right_answer
                 session.commit()
