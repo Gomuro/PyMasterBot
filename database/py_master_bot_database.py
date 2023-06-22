@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
-
 import os
 import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Date, JSON, BigInteger
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from utils.Handlers.csv_importer import add_data_from_csv
-
 
 
 Base = sqlalchemy.orm.declarative_base()
@@ -163,6 +161,10 @@ class AbstractDatabase(ABC):
         pass
 
     def update_user_role(self, user_id, role):
+        pass
+
+    @abstractmethod
+    def add_data_from_csv(self, csv_filename):
         pass
 
 

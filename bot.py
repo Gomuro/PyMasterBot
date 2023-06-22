@@ -14,8 +14,6 @@ from utils.Handlers.csv_handler import handle_csv_file
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 
-import uuid
-
 from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
 
 

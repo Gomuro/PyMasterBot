@@ -4,12 +4,19 @@ This block contains helper functions that processes the input CSV file
 import os
 import tempfile
 import uuid
-
 from database.py_master_bot_database import PyMasterBotDatabase
 from telebot import TeleBot
 
 
 def handle_csv_file(telebot_instance: TeleBot, message):
+    user_id = message.from_user.id
+    db = PyMasterBotDatabase()
+
+    # a block that allows only the administrator to add csv files to tables in the database
+    if not db.is_admin(user_id):
+        telebot_instance.reply_to(message, "У вас немає доступу для завантаження файлу CSV.")
+        return
+
     file = message.document
     file_extension = file.file_name.split('.')[-1]
     unique_filename = f"{str(uuid.uuid4())}.{file_extension}"  # Generate a unique filename
@@ -20,10 +27,11 @@ def handle_csv_file(telebot_instance: TeleBot, message):
         temp_filename = temp_file.name
         temp_file.write(downloaded_file)
 
-    db = PyMasterBotDatabase()
     # Обробка файлу CSV
     db.add_data_from_csv(temp_filename)
 
     os.remove(temp_filename)
 
     telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
+
+
