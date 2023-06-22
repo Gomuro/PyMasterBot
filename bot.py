@@ -14,8 +14,6 @@ from utils.Handlers.csv_handler import handle_csv_file
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 
-import uuid
-
 from utils.modes import MODE_DOCUMENTATION, MODE_MAIN_MENU, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
 
 
@@ -43,6 +41,7 @@ class Bot:
         self.bot = telebot.TeleBot(token)
         # create an instance of InlineKeyboardMarkup
         self.inline_keyboard = InlineKeyboard()
+        # create an instance of ReplyKeyboardMarkup
         self.reply_keyboard = ReplyKeyboard()
 
         # Add "HELP" button to the inline keyboard

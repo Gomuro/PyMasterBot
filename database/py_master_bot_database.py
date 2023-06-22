@@ -2,11 +2,10 @@ from abc import ABC, abstractmethod
 
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, Column, Integer, String, Date, JSON, BigInteger
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from utils.Handlers.csv_importer import add_data_from_csv
-
 
 
 Base = sqlalchemy.orm.declarative_base()
@@ -71,7 +70,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def add_test_task(self, topic, question, var1, var2, var3, right_answer):
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer):
         pass
 
     @abstractmethod
@@ -120,6 +119,12 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_lessons_by_topic(self, topic):
+        pass
+
+    def get_test_task_by_question(self, question):
+        pass
+
+    def get_test_task_last_id(self):
         pass
 
     @abstractmethod
@@ -178,9 +183,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.add(new_lesson)
         self.session.commit()
 
-    def add_test_task(self, topic, question, var1, var2, var3, right_answer):
-        new_test_task = TestTask(topic=topic, question=question, var1=var1, var2=var2, var3=var3,
-                                 right_answer=right_answer)
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer):
+        new_test_task = TestTask(id=task_id, topic=topic, question=question,
+                                 var1=var1, var2=var2, var3=var3, right_answer=right_answer)
         self.session.add(new_test_task)
         self.session.commit()
 
@@ -250,6 +255,14 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_lessons_by_topic(self, topic):
         lessons = self.session.query(Lesson).filter_by(topic=topic).all()
         return lessons
+
+    def get_test_task_by_question(self, question):
+        test_task = self.session.query(TestTask).filter_by(question=question).first()
+        return test_task
+
+    def get_test_task_last_id(self):
+        test_task_last_id = self.session.query(func.max(TestTask.id)).scalar() or 0
+        return test_task_last_id
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()
