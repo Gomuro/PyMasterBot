@@ -11,6 +11,7 @@ from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.request_help_handler import help_request_handler
 from utils.Handlers.csv_handler import handle_csv_file
+from utils.Handlers.add_level_handler import add_static_levels_function, add_level_function
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 
@@ -76,6 +77,7 @@ bot_db = PyMasterBotDatabase()
 telebot_instance = bot.get_bot()
 
 
+
 @telebot_instance.message_handler(commands=['start'])
 def start_handler(message):
     """
@@ -124,6 +126,17 @@ def add_test_task_handler(message):
     """
     if message.text.find("/add_test_task") != -1:
         add_test_task_function(telebot_instance, message)
+
+
+@telebot_instance.message_handler(commands=['add_level'])
+def add_level_handler(message):
+    """
+    This method adds a lesson
+    :param message:
+    :return:
+    """
+    if message.text.find("/add_level") != -1:
+        add_level_function(telebot_instance, message)
 
 
 @telebot_instance.callback_query_handler(func=lambda call: True)

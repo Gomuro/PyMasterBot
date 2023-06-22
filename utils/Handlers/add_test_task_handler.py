@@ -106,23 +106,23 @@ def process_right_answer(message, topic, question, first_answer, second_answer, 
     # Get the first_answer text from the user's message
     right_answer = message.text
 
-    # Create an instance of the database
-    bot_db = PyMasterBotDatabase()
-
     if message.text == "cancel":
         bot.send_message(chat_id, "Cancelled.")
         return
 
     # Check if the provided right_answer is valid
     if right_answer not in [first_answer, second_answer, third_answer]:
-        bot.send_message(chat_id,
-                         f"There is no such answer option among the given ones.\nCancelled.")
+        bot.send_message(chat_id, f"There is no such answer option among the given ones.\nCancelled.")
         return
 
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    # Task id definition
     last_number = bot_db.get_test_task_last_id()
     task_id = last_number + 1
 
-    # Add the lesson to the database with the provided status
+    # Add the test_task to the database with the provided status
     bot_db.add_test_task(task_id, topic, question, first_answer, second_answer, third_answer, right_answer)
 
     bot.send_message(chat_id, "Test_task added successfully.")
