@@ -26,6 +26,19 @@ def add_data_from_csv(session, csv_filename, TestTask):
             var3 = row[5]
             right_answer = row[6]
 
+            # Check if the row already exists in the database
+            existing_row = session.query(TestTask).filter_by(
+                topic=topic,
+                question=question,
+                var1=var1,
+                var2=var2,
+                var3=var3,
+                right_answer=right_answer
+            ).first()
+
+            if existing_row:
+                continue  # Skip adding the row if it already exists
+
             # Get the maximum number from the database
             last_number = session.query(func.max(TestTask.id)).scalar() or 0
 
