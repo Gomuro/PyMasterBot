@@ -128,7 +128,8 @@ def process_right_answer(message, topic, question, first_answer, second_answer, 
         markup.add(btn)
 
     # Ask the user for the level of task complexity
-    bot.send_message(chat_id, "Choose the level of task complexity:",
+    bot.send_message(chat_id, "Choose the level of task complexity\n"
+                              "or write 'cancel' to cancel the task addition:",
                      reply_markup=markup)
 
     bot.register_next_step_handler(message, process_level_relation, topic, question,
