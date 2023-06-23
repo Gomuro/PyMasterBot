@@ -25,6 +25,7 @@ def add_data_from_csv(session, csv_filename, TestTask):
             var2 = row[4]
             var3 = row[5]
             right_answer = row[6]
+            level_relation = row[7]
 
             # Check if the row already exists in the database
             existing_row = session.query(TestTask).filter_by(
@@ -33,7 +34,8 @@ def add_data_from_csv(session, csv_filename, TestTask):
                 var1=var1,
                 var2=var2,
                 var3=var3,
-                right_answer=right_answer
+                right_answer=right_answer,
+                level_relation=level_relation
             ).first()
 
             if existing_row:
@@ -51,7 +53,8 @@ def add_data_from_csv(session, csv_filename, TestTask):
                     var1=var1,
                     var2=var2,
                     var3=var3,
-                    right_answer=right_answer
+                    right_answer=right_answer,
+                    level_relation=level_relation
                 )
                 session.add(new_lesson)
                 session.commit()
@@ -65,4 +68,5 @@ def add_data_from_csv(session, csv_filename, TestTask):
                 existing_lesson.text = var2
                 existing_lesson.text = var3
                 existing_lesson.status = right_answer
+                existing_lesson.status = level_relation
                 session.commit()
