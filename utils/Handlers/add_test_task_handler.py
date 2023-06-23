@@ -1,3 +1,5 @@
+from telebot import types
+
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -72,7 +74,7 @@ def process_first_answer(message, topic, question, bot):
 def process_second_answer(message, topic, question, first_answer, bot):
     chat_id = message.chat.id
 
-    # Get the first_answer text from the user's message
+    # Get the second_answer text from the user's message
     second_answer = message.text
 
     if message.text == "cancel":
@@ -87,7 +89,7 @@ def process_second_answer(message, topic, question, first_answer, bot):
 def process_third_answer(message, topic, question, first_answer, second_answer, bot):
     chat_id = message.chat.id
 
-    # Get the first_answer text from the user's message
+    # Get the third_answer text from the user's message
     third_answer = message.text
 
     if message.text == "cancel":
@@ -103,7 +105,7 @@ def process_third_answer(message, topic, question, first_answer, second_answer, 
 def process_right_answer(message, topic, question, first_answer, second_answer, third_answer, bot):
     chat_id = message.chat.id
 
-    # Get the first_answer text from the user's message
+    # Get the right_answer text from the user's message
     right_answer = message.text
 
     if message.text == "cancel":
@@ -117,12 +119,42 @@ def process_right_answer(message, topic, question, first_answer, second_answer, 
 
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
+    levels = bot_db.get_all_levels()
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+
+    for level in levels:
+        btn = types.KeyboardButton(f"{level}")
+        markup.add(btn)
+
+    # Ask the user for the level of task complexity
+    bot.send_message(chat_id, "Choose the level of task complexity:",
+                     reply_markup=markup)
+
+    bot.register_next_step_handler(message, process_level_relation, topic, question,
+                                   first_answer, second_answer, third_answer, right_answer, bot)
+
+
+def process_level_relation(message, topic, question, first_answer, second_answer, third_answer,
+                           right_answer, bot):
+    chat_id = message.chat.id
+
+    # Get the level of task complexity from the user's message
+    level_relation = message.text
+
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
 
     # Task id definition
     last_number = bot_db.get_test_task_last_id()
     task_id = last_number + 1
 
     # Add the test_task to the database with the provided status
-    bot_db.add_test_task(task_id, topic, question, first_answer, second_answer, third_answer, right_answer)
+    bot_db.add_test_task(task_id, topic, question, first_answer, second_answer,
+                         third_answer, right_answer, level_relation)
 
     bot.send_message(chat_id, "Test_task added successfully.")

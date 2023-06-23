@@ -35,7 +35,7 @@ class Level(Base):
 
     id = Column(Integer)
     level_name = Column(String, primary_key=True)
-    #test_task = relationship("TestTask")  # connection with the 'test_tasks' table
+    test_task = relationship('TestTask')  # connection with the 'test_tasks' table
 
 
 class Lesson(Base):
@@ -58,7 +58,7 @@ class TestTask(Base):
     var2 = Column(String)
     var3 = Column(String)
     right_answer = Column(String)
-    #level_relation = Column(String, ForeignKey('levels.level_name'), default='easy')
+    level_relation = Column(String, ForeignKey('levels.level_name'))
 
 
 class DatabaseFactory(ABC):
@@ -78,7 +78,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer):
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
         pass
 
     @abstractmethod
@@ -154,6 +154,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_all_levels(self):
+        pass
+
+    @abstractmethod
     def get_total_lessons_count(self):
         pass
 
@@ -213,9 +217,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.add(new_lesson)
         self.session.commit()
 
-    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer):
-        new_test_task = TestTask(id=task_id, topic=topic, question=question,
-                                 var1=var1, var2=var2, var3=var3, right_answer=right_answer)
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+        new_test_task = TestTask(id=task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
+                                 right_answer=right_answer, level_relation=level_relation)
         self.session.add(new_test_task)
         self.session.commit()
 
@@ -314,6 +318,11 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_level_by_name(self, level_name):
         level = self.session.query(Level).filter_by(level_name=level_name).first()
         return level
+
+    def get_all_levels(self):
+
+        all_levels = self.session.query(Level).all()
+        return [level.level_name for level in all_levels]
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()
