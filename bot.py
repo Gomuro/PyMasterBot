@@ -11,7 +11,7 @@ from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.request_help_handler import help_request_handler
 from utils.Handlers.csv_handler import handle_csv_file
-from utils.Handlers.add_level_handler import add_static_levels_function, add_level_function
+from utils.Handlers.add_level_handler import add_level_function
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
 

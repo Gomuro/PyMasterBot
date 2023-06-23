@@ -1,16 +1,4 @@
 from database.py_master_bot_database import PyMasterBotDatabase
-from utils.Handlers.static_variables import static_levels
-
-
-def add_static_levels_function():
-    bot_db = PyMasterBotDatabase()
-
-    # Checking if levels exist
-    if bot_db.check_levels_exist():
-        return
-
-    for level in static_levels:
-        bot_db.add_level(level_name=level)
 
 
 def add_level_function(bot, message):
@@ -47,7 +35,10 @@ def process_level_name(message, bot):  # Add bot as a parameter
         bot.send_message(chat_id, "This level already exists.")
         return
 
+    # Level id definition
+    level_id = bot_db.get_level_last_id() + 1
+
     # Add the lesson to the database with the provided status
-    bot_db.add_level(level_name=level_name)
+    bot_db.add_level(level_id=level_id, level_name=level_name)
 
     bot.send_message(chat_id, "Level added successfully.")

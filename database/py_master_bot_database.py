@@ -82,7 +82,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def add_level(self, level_name):
+    def add_level(self, level_id, level_name):
         pass
 
     @abstractmethod
@@ -158,6 +158,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_level_last_id(self):
+        pass
+
+    @abstractmethod
     def get_total_lessons_count(self):
         pass
 
@@ -223,8 +227,8 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.add(new_test_task)
         self.session.commit()
 
-    def add_level(self, level_name):
-        new_level = Level(level_name=level_name)
+    def add_level(self, level_id, level_name):
+        new_level = Level(id=level_id, level_name=level_name)
         self.session.add(new_level)
         self.session.commit()
 
@@ -323,6 +327,10 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
         all_levels = self.session.query(Level).all()
         return [level.level_name for level in all_levels]
+
+    def get_level_last_id(self):
+        level_last_id = self.session.query(func.max(Level.id)).scalar() or 0
+        return level_last_id
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()
