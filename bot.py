@@ -139,6 +139,11 @@ def add_level_handler(message):
         add_level_function(telebot_instance, message)
 
 
+@telebot_instance.message_handler(content_types=['document'])
+def csv_tables_buttons(message):
+    handle_csv_file(telebot_instance, message, message.document)
+
+
 @telebot_instance.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
     """This handler allows to use callback query with pressing designated inline keyboard buttons"""
@@ -174,18 +179,12 @@ def display_current_mode(message):
     elif bot.current_mode == MODE_HELP:
         telebot_instance.send_message(message.chat.id, "Знаходитесь в режимі надання допомоги.")
         help_request_handler(message, telebot_instance)
-
     # Handle the "HELP" button separately
     if message.text == "HELP":
         telebot_instance.send_message(message.chat.id, "This is the help message.")
 
 
 telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_handler)
-
-
-@telebot_instance.message_handler(content_types=['document'])
-def handle_document(message):
-    handle_csv_file(telebot_instance, message)
 
 
 # start polling for new messages

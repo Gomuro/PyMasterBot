@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from utils.Handlers.csv_importer import add_data_from_csv
 
+from sqlalchemy import text
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -208,6 +209,14 @@ class AbstractDatabase(ABC):
     def add_data_from_csv(self, csv_filename):
         pass
 
+    @abstractmethod
+    def get_all_tables(self):
+        pass
+
+    @abstractmethod
+    def get_table_by_name(self, table_name):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -387,3 +396,19 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
     def add_data_from_csv(self, csv_filename):
         add_data_from_csv(self.session, csv_filename, TestTask)
+
+    def get_all_tables(self):
+        # get table names from database
+        query = text("SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name")
+        table_names = self.session.execute(query, {"schema_name": "public"}).fetchall()
+        table_names = [table[0] for table in table_names]
+        return table_names
+
+    def get_table_by_name(self, table_name):
+        # get table by name
+        query = text(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name AND table_name=:table_name")
+        result = self.session.execute(query, {"schema_name": "public", "table_name": table_name}).fetchone()
+        return result[0] if result else None
+
+
