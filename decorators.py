@@ -6,8 +6,11 @@ from Handlers.add_lesson_handler import add_lesson_function
 from Handlers.callback_query_handler import callback_query_handler
 from Handlers.check_code_handler import check_code
 from Handlers.documentation_handler import search_documentation
+from change_modes import BotProcessor
 from utils.key_board import InlineKeyboard
-from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON
+
+
+# from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON
 
 
 class Bot:
@@ -20,7 +23,7 @@ class Bot:
         self.bot = None
         self.chat_id = None
         self.token = token
-        self.current_mode = MODE_MAIN_MENU
+        self.bot_processor = BotProcessor()
 
     def run(self):
         """
@@ -39,12 +42,6 @@ class Bot:
         """
         return self.bot
 
-    def set_current_mode(self, mode):
-        """
-        This method sets the current mode
-        """
-        self.current_mode = mode
-
     def delete_message(self, chat_id, message_id):
         self.bot.delete_message(chat_id, message_id)
 
@@ -53,6 +50,7 @@ class Bot:
         This method sends the welcome message
         """
         from bot import bot_db
+        # print(self.bot_processor.get_current_mode())
         if not bot_db.check_user_exists(message.chat.id):
             bot_db.add_user(message.chat.id, message.chat.first_name, message.chat.username)
             self.bot.send_message(message.chat.id, f"Welcome to my bot, {message.chat.first_name}!",
@@ -66,6 +64,7 @@ class Bot:
         This method adds a lesson
         """
         if message.text.find("/add_lesson") != -1:
+            print(self.bot_processor.get_current_mode())
             add_lesson_function(self.bot, message)
 
     def add_admin_handler(self, message):
@@ -73,35 +72,30 @@ class Bot:
         This method adds an admin
         """
         if message.text.find("/add_admin") != -1:
+            print(self.bot_processor.get_current_mode())
             add_admin_function(self.bot, message)
 
     def handle_callback_query(self, call):
         """This handler allows using callback query with pressing designated inline keyboard buttons"""
-        if call.data.find(MODE_DOCUMENTATION) != -1:
-            self.current_mode = MODE_DOCUMENTATION
-        elif call.data.find(MODE_CHECK_CODE) != -1:
-            self.current_mode = MODE_CHECK_CODE
-        elif call.data.find(MODE_MAIN_MENU) != -1:
-            self.current_mode = MODE_MAIN_MENU
+        self.bot_processor.message_handler(call)  # Set the current mode
         callback_query_handler(call, self.bot, self.inline_keyboard)
 
     def display_current_mode(self, message):
         """
         This method displays the current mode
         """
-        # self.bot.delete_message(message.chat.id, message.message_id)
-        if self.current_mode == MODE_MAIN_MENU:
+        if self.bot_processor.is_mode_main_menu():
             self.bot.send_message(message.chat.id, "You are in the main menu mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
-        elif self.current_mode == MODE_DOCUMENTATION:
+        elif self.bot_processor.is_mode_documentation():
             self.bot.delete_message(message.chat.id, message.message_id)
             self.bot.send_message(message.chat.id, "You are in documentation mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             search_documentation(message, self.bot)
-        elif self.current_mode == MODE_CHECK_CODE:
+        elif self.bot_processor.is_mode_check_code():
             self.bot.send_message(message.chat.id, "You are in check code mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             check_code(message, self.bot)
-        elif self.current_mode == MODE_LESSON:
+        elif self.bot_processor.is_mode_lesson():
             self.bot.send_message(message.chat.id, "You are in lesson mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
