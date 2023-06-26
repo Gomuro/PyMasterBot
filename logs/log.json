@@ -1,0 +1,14 @@
+{
+    "data": [
+        {
+            "timestamp": "2023-06-26 21:13:38",
+            "user_id": 5047072266,
+            "username": "Yuliia_Sheiko_telegram",
+            "command": "/check_code",
+            "input_message": "print(\"\")",
+            "response": "Код не має синтаксичних помилок.\n\nУ вашому коді помилки PEP-8:\nC0114: Missing module docstring (missing-module-docstring)\r\nrun: 0.00/10, +0.00)",
+            "source_file": "D:\\For_work\\PyMasterBot\\Handlers\\check_code_handler.py",
+            "source_line": 66
+        }
+    ]
+}

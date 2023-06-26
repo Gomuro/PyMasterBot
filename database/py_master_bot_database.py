@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
-
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, Column, Integer, String, Date, JSON, BigInteger
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
+from Handlers.csv_importer import add_lessons_csv
+from Handlers.csv_importer import add_test_tasks_csv
+
+from sqlalchemy import text
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -29,6 +32,14 @@ class User(Base):
     role = Column(String)
 
 
+class Level(Base):
+    __tablename__ = 'levels'
+
+    id = Column(Integer)
+    level_name = Column(String, primary_key=True)
+    test_task = relationship('TestTask')  # connection with the 'test_tasks' table
+
+
 class Lesson(Base):
     __tablename__ = "lessons"
 
@@ -37,6 +48,19 @@ class Lesson(Base):
     description = Column(String)
     text = Column(String)
     status = Column(String)
+
+
+class TestTask(Base):
+    __tablename__ = 'test_tasks'
+
+    id = Column(Integer, primary_key=True)
+    topic = Column(String)
+    question = Column(String)
+    var1 = Column(String)
+    var2 = Column(String)
+    var3 = Column(String)
+    right_answer = Column(String)
+    level_relation = Column(String, ForeignKey('levels.level_name'))
 
 
 class DatabaseFactory(ABC):
@@ -53,6 +77,14 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 class AbstractDatabase(ABC):
     @abstractmethod
     def add_lesson(self, topic, description, text, status):
+        pass
+
+    @abstractmethod
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+        pass
+
+    @abstractmethod
+    def add_level(self, level_id, level_name):
         pass
 
     @abstractmethod
@@ -90,7 +122,19 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def check_levels_exist(self):
+        pass
+
+    @abstractmethod
     def delete_lesson(self, lesson_id):
+        pass
+
+    @abstractmethod
+    def delete_test_task(self, test_task_id):
+        pass
+
+    @abstractmethod
+    def delete_level(self, level_name):
         pass
 
     @abstractmethod
@@ -107,6 +151,30 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_lessons_by_topic(self, topic):
+        pass
+
+    @abstractmethod
+    def get_test_task_by_question(self, question):
+        pass
+
+    @abstractmethod
+    def get_test_task_last_id(self):
+        pass
+
+    @abstractmethod
+    def get_test_task_by_id(self, test_task_id):
+        pass
+
+    @abstractmethod
+    def get_level_by_name(self, level_name):
+        pass
+
+    @abstractmethod
+    def get_all_levels(self):
+        pass
+
+    @abstractmethod
+    def get_level_last_id(self):
         pass
 
     @abstractmethod
@@ -152,6 +220,22 @@ class AbstractDatabase(ABC):
     def update_user_role(self, user_id, role):
         pass
 
+    @abstractmethod
+    def add_lessons_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def add_test_tasks_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def get_all_tables(self):
+        pass
+
+    @abstractmethod
+    def get_table_by_name(self, table_name):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -167,6 +251,17 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             topic=topic, description=description, text=text, status=status
         )
         self.session.add(new_lesson)
+        self.session.commit()
+
+    def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+        new_test_task = TestTask(id=task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
+                                 right_answer=right_answer, level_relation=level_relation)
+        self.session.add(new_test_task)
+        self.session.commit()
+
+    def add_level(self, level_id, level_name):
+        new_level = Level(id=level_id, level_name=level_name)
+        self.session.add(new_level)
         self.session.commit()
 
     def add_lesson_progress(self, user_id, lesson_id):
@@ -221,10 +316,28 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             return True
         return False
 
+    def check_levels_exist(self):
+        levels = self.session.query(Level).exists()
+        if levels:
+            return True
+        return False
+
     def delete_lesson(self, lesson_id):
         lesson = self.session.query(Lesson).filter_by(id=lesson_id).first()
         if lesson:
             self.session.delete(lesson)
+            self.session.commit()
+
+    def delete_test_task(self, test_task_id):
+        test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
+        if test_task:
+            self.session.delete(test_task)
+            self.session.commit()
+
+    def delete_level(self, level_name):
+        level = self.session.query(Level).filter_by(level_name=level_name).first()
+        if level:
+            self.session.delete(level)
             self.session.commit()
 
     def delete_user(self, user_id):
@@ -244,6 +357,31 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_lessons_by_topic(self, topic):
         lessons = self.session.query(Lesson).filter_by(topic=topic).all()
         return lessons
+
+    def get_test_task_by_question(self, question):
+        test_task = self.session.query(TestTask).filter_by(question=question).first()
+        return test_task
+
+    def get_test_task_last_id(self):
+        test_task_last_id = self.session.query(func.max(TestTask.id)).scalar() or 0
+        return test_task_last_id
+
+    def get_test_task_by_id(self, test_task_id):
+        test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
+        return test_task
+
+    def get_level_by_name(self, level_name):
+        level = self.session.query(Level).filter_by(level_name=level_name).first()
+        return level
+
+    def get_all_levels(self):
+
+        all_levels = self.session.query(Level).all()
+        return [level.level_name for level in all_levels]
+
+    def get_level_last_id(self):
+        level_last_id = self.session.query(func.max(Level.id)).scalar() or 0
+        return level_last_id
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()
@@ -297,3 +435,25 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         if user:
             user.role = role
             self.session.commit()
+
+    def add_lessons_csv(self, csv_filename):
+        add_lessons_csv(self.session, csv_filename, Lesson)
+
+    def add_test_tasks_csv(self, csv_filename):
+        add_test_tasks_csv(self.session, csv_filename, TestTask)
+
+    def get_all_tables(self):
+        # get table names from database
+        query = text("SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name")
+        table_names = self.session.execute(query, {"schema_name": "public"}).fetchall()
+        table_names = [table[0] for table in table_names]
+        return table_names
+
+    def get_table_by_name(self, table_name):
+        # get table by name
+        query = text(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name AND table_name=:table_name")
+        result = self.session.execute(query, {"schema_name": "public", "table_name": table_name}).fetchone()
+        return result[0] if result else None
+
+
