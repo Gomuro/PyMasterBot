@@ -2,6 +2,7 @@
 pycache/
 *.logs
 
+logs/
 
 venv/
 
