@@ -118,12 +118,12 @@ def add_test_tasks_csv(session, csv_filename, TestTask):
                 session.rollback()
                 existing_lesson = session.query(TestTask).filter_by(id=number).first()
                 existing_lesson.topic = topic
-                existing_lesson.description = question
-                existing_lesson.text = var1
-                existing_lesson.text = var2
-                existing_lesson.text = var3
-                existing_lesson.status = right_answer
-                existing_lesson.status = level_relation
+                existing_lesson.question = question
+                existing_lesson.var1 = var1
+                existing_lesson.var2 = var2
+                existing_lesson.var3 = var3
+                existing_lesson.right_answer = right_answer
+                existing_lesson.level_relation = level_relation
                 session.commit()
 
 
