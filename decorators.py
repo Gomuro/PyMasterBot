@@ -129,7 +129,7 @@ class Bot:
 
         """This handler allows using callback query with pressing designated inline keyboard buttons"""
         self.bot_processor.message_handler(call)  # Set the current mode
-        callback_query_handler(call, self.bot, self.inline_keyboard)
+        callback_query_handler(call, self.bot, self.inline_keyboard,self.reply_keyboard)
 
     def display_current_mode(self, message):
         """
