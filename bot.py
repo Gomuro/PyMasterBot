@@ -11,7 +11,8 @@ from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
 from utils.Handlers.request_help_handler import help_request_handler
-from utils.Handlers.csv_handler import handle_csv_file
+from utils.Handlers.csv_handler import handle_csv_lessons
+from utils.Handlers.csv_handler import handle_csv_test_tasks
 from utils.Handlers.add_level_handler import add_level_function
 from utils.KeyBoard.key_board import InlineKeyboard, ReplyKeyboard
 from dotenv import load_dotenv
@@ -152,8 +153,14 @@ def add_level_handler(message):
 
 
 @telebot_instance.message_handler(content_types=['document'])
-def csv_tables_buttons(message):
-    handle_csv_file(telebot_instance, message, message.document)
+def csv_tables_names_lessons(message):
+    if message.document.file_name == 'lessons.csv':
+        handle_csv_lessons(telebot_instance, message, message.document)
+    elif message.document.file_name == 'test_tasks.csv':
+        handle_csv_test_tasks(telebot_instance, message, message.document)
+    elif message.document.file_name != 'lessons.csv' or 'test_tasks.csv':
+        telebot_instance.send_message(message.chat.id, "Будь ласка, відправте файл у форматі CSV з такою самою назвою"
+                                                       " як нава таблиці в Базі Даннх.")
 
 
 @telebot_instance.callback_query_handler(func=lambda call: True)

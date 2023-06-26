@@ -4,7 +4,8 @@ import sqlalchemy
 from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
-from utils.Handlers.csv_importer import add_data_from_csv
+from utils.Handlers.csv_importer import add_lessons_csv
+from utils.Handlers.csv_importer import add_test_tasks_csv
 
 from sqlalchemy import text
 
@@ -210,7 +211,11 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def add_data_from_csv(self, csv_filename):
+    def add_lessons_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def add_test_tasks_csv(self, csv_filename):
         pass
 
     @abstractmethod
@@ -402,8 +407,11 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             user.role = role
             self.session.commit()
 
-    def add_data_from_csv(self, csv_filename):
-        add_data_from_csv(self.session, csv_filename, TestTask)
+    def add_lessons_csv(self, csv_filename):
+        add_lessons_csv(self.session, csv_filename, Lesson)
+
+    def add_test_tasks_csv(self, csv_filename):
+        add_test_tasks_csv(self.session, csv_filename, TestTask)
 
     def get_all_tables(self):
         # get table names from database
