@@ -1,11 +1,15 @@
 import os
 import telebot
 from dotenv import load_dotenv
+
+from change_modes import BotProcessor
+
 from Handlers.add_admin_handler import add_admin_function
 from Handlers.add_lesson_handler import add_lesson_function
 from Handlers.callback_query_handler import callback_query_handler
 from Handlers.check_code_handler import check_code
 from Handlers.documentation_handler import search_documentation
+
 from utils.key_board import InlineKeyboard, ReplyKeyboard
 from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
 
@@ -15,7 +19,6 @@ from Handlers.request_help_handler import help_request_handler
 from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
 from Handlers.add_level_handler import add_level_function
-
 
 
 
@@ -29,8 +32,12 @@ class Bot:
         self.bot = None
         self.chat_id = None
         self.token = token
+
         self.current_mode = MODE_MAIN_MENU
         self.reply_keyboard = None
+
+        self.bot_processor = BotProcessor()
+
 
     def run(self):
         """
@@ -54,12 +61,6 @@ class Bot:
         """
         return self.bot
 
-    def set_current_mode(self, mode):
-        """
-        This method sets the current mode
-        """
-        self.current_mode = mode
-
     def delete_message(self, chat_id, message_id):
         self.bot.delete_message(chat_id, message_id)
 
@@ -68,6 +69,7 @@ class Bot:
         This method sends the welcome message
         """
         from bot import bot_db
+        # print(self.bot_processor.get_current_mode())
         if not bot_db.check_user_exists(message.chat.id):
             bot_db.add_user(message.chat.id, message.chat.first_name, message.chat.username)
             self.bot.send_message(message.chat.id, f"Welcome to my bot, {message.chat.first_name}!",
@@ -81,6 +83,7 @@ class Bot:
         This method adds a lesson
         """
         if message.text.find("/add_lesson") != -1:
+            print(self.bot_processor.get_current_mode())
             add_lesson_function(self.bot, message)
 
     def add_admin_handler(self, message):
@@ -88,6 +91,7 @@ class Bot:
         This method adds an admin
         """
         if message.text.find("/add_admin") != -1:
+            print(self.bot_processor.get_current_mode())
             add_admin_function(self.bot, message)
 
     def add_test_task_handler(self, message):
@@ -122,66 +126,38 @@ class Bot:
                                           " як нава таблиці в Базі Даннх.")
 
     def handle_callback_query(self, call):
-        """This handler allows using callback query with pressing designated inline keyboard buttons
-        if call.data.find(MODE_DOCUMENTATION) != -1:
-            self.current_mode = MODE_DOCUMENTATION
-        elif call.data.find(MODE_CHECK_CODE) != -1:
-            self.current_mode = MODE_CHECK_CODE
-        elif call.data.find(MODE_MAIN_MENU) != -1:
-            self.current_mode = MODE_MAIN_MENU
 
-        callback_query_handler(call, self.bot, self.inline_keyboard) """
-
-        if call.data.find(MODE_CHECK_CODE) != -1:
-            self.current_mode = MODE_CHECK_CODE
-        elif call.data.find(MODE_HELP) != -1:
-            self.current_mode = MODE_HELP
-        elif call.data.find(MODE_MAIN_MENU) != -1:
-            self.current_mode = MODE_MAIN_MENU
-        else:
-            self.current_mode = MODE_DOCUMENTATION
-        callback_query_handler(call, self.bot, self.inline_keyboard, self.reply_keyboard)
+        """This handler allows using callback query with pressing designated inline keyboard buttons"""
+        self.bot_processor.message_handler(call)  # Set the current mode
+        callback_query_handler(call, self.bot, self.inline_keyboard)
 
     def display_current_mode(self, message):
         """
         This method displays the current mode
-
-        # self.bot.delete_message(message.chat.id, message.message_id)
-        if self.current_mode == MODE_MAIN_MENU:
+        """
+        if self.bot_processor.is_mode_main_menu():
             self.bot.send_message(message.chat.id, "You are in the main menu mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
-        elif self.current_mode == MODE_DOCUMENTATION:
+        elif self.bot_processor.is_mode_documentation():
             self.bot.delete_message(message.chat.id, message.message_id)
             self.bot.send_message(message.chat.id, "You are in documentation mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             search_documentation(message, self.bot)
-        elif self.current_mode == MODE_CHECK_CODE:
+        elif self.bot_processor.is_mode_check_code():
             self.bot.send_message(message.chat.id, "You are in check code mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             check_code(message, self.bot)
-        elif self.current_mode == MODE_LESSON:
+        elif self.bot_processor.is_mode_lesson():
             self.bot.send_message(message.chat.id, "You are in lesson mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard())  """
-
-        if self.current_mode == MODE_MAIN_MENU:
-            self.bot.send_message(message.chat.id, "You are in the main menu mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard())
-        elif self.current_mode == MODE_DOCUMENTATION:
-            self.bot.delete_message(message.chat.id, message.message_id)
-            self.bot.send_message(message.chat.id, "You are in documentation mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard())
-            search_documentation(message, self.bot)
-        elif self.current_mode == MODE_CHECK_CODE:
-            self.bot.send_message(message.chat.id, "You are in check code mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard())
-            check_code(message, self.bot)
-        elif self.current_mode == MODE_LESSON:
-            self.bot.send_message(message.chat.id, "You are in lesson mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard())
-        elif self.current_mode == MODE_HELP:
-            self.bot.send_message(message.chat.id, "You are in the help mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard()) 
+        elif self.bot_processor.is_mode_help():
+            self.bot.send_message(message.chat.id, "You are in help mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             help_request_handler(message, self.bot)
+            
         # Handle the "HELP" button separately
         if message.text == "HELP":
-            self.bot.send_message(message.chat.id, "This is the help message.")
+            self.bot.send_message(message.chat.id, "This is the help message.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())           
+            
+           
