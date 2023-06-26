@@ -151,6 +151,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_test_task_by_id(self, test_task_id):
+        pass
+
+    @abstractmethod
     def get_level_by_name(self, level_name):
         pass
 
@@ -327,6 +331,10 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_test_task_last_id(self):
         test_task_last_id = self.session.query(func.max(TestTask.id)).scalar() or 0
         return test_task_last_id
+
+    def get_test_task_by_id(self, test_task_id):
+        test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
+        return test_task
 
     def get_level_by_name(self, level_name):
         level = self.session.query(Level).filter_by(level_name=level_name).first()

@@ -38,7 +38,7 @@ def process_level_name(message, bot):  # Add bot as a parameter
     # Level id definition
     level_id = bot_db.get_level_last_id() + 1
 
-    # Add the lesson to the database with the provided status
+    # Add the level to the database
     bot_db.add_level(level_id=level_id, level_name=level_name)
 
     bot.send_message(chat_id, "Level added successfully.")

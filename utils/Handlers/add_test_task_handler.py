@@ -15,12 +15,16 @@ def add_test_task_function(bot, message):
         bot.send_message(chat_id, "You are not an admin!")
         return
 
+    # Task id definition
+    last_number = bot_db.get_test_task_last_id()
+    task_id = last_number + 1
+
     # Ask the user for the test_task topic
     bot.send_message(chat_id, "Enter the test_task topic:")
-    bot.register_next_step_handler(message, process_topic, bot)  # Pass bot as an argument
+    bot.register_next_step_handler(message, process_topic, task_id, bot)  # Pass bot as an argument
 
 
-def process_topic(message, bot):  # Add bot as a parameter
+def process_topic(message, task_id, bot):  # Add bot as a parameter
     chat_id = message.chat.id
     # Get the test_task topic from the user's message
     topic = message.text
@@ -31,10 +35,10 @@ def process_topic(message, bot):  # Add bot as a parameter
 
     # Ask the user for the test_task description
     bot.send_message(chat_id, "Enter the test_task question:")
-    bot.register_next_step_handler(message, process_question, topic, bot)  # Use the original_message
+    bot.register_next_step_handler(message, process_question, task_id, topic, bot)  # Use the original_message
 
 
-def process_question(message, topic, bot):
+def process_question(message, task_id, topic, bot):
     chat_id = message.chat.id
 
     # Get the test_task question from the user's message
@@ -53,10 +57,10 @@ def process_question(message, topic, bot):
 
     # Ask the user for the first answer option
     bot.send_message(chat_id, "Enter the first answer option:")
-    bot.register_next_step_handler(message, process_first_answer, topic, question, bot)
+    bot.register_next_step_handler(message, process_first_answer, task_id, topic, question, bot)
 
 
-def process_first_answer(message, topic, question, bot):
+def process_first_answer(message, task_id, topic, question, bot):
     chat_id = message.chat.id
 
     # Get the first_answer text from the user's message
@@ -68,10 +72,10 @@ def process_first_answer(message, topic, question, bot):
 
     # Ask the user for the second answer option
     bot.send_message(chat_id, "Enter the second answer option:")
-    bot.register_next_step_handler(message, process_second_answer, topic, question, first_answer, bot)
+    bot.register_next_step_handler(message, process_second_answer, task_id, topic, question, first_answer, bot)
 
 
-def process_second_answer(message, topic, question, first_answer, bot):
+def process_second_answer(message, task_id, topic, question, first_answer, bot):
     chat_id = message.chat.id
 
     # Get the second_answer text from the user's message
@@ -81,12 +85,16 @@ def process_second_answer(message, topic, question, first_answer, bot):
         bot.send_message(chat_id, "Cancelled.")
         return
 
+    if second_answer == first_answer:
+        bot.send_message(chat_id, "The same answers are entered. Cancelled.")
+        return
+
     # Ask the user for the third answer option
     bot.send_message(chat_id, "Enter the third answer option:")
-    bot.register_next_step_handler(message, process_third_answer, topic, question, first_answer, second_answer, bot)
+    bot.register_next_step_handler(message, process_third_answer, task_id, topic, question, first_answer, second_answer, bot)
 
 
-def process_third_answer(message, topic, question, first_answer, second_answer, bot):
+def process_third_answer(message, task_id, topic, question, first_answer, second_answer, bot):
     chat_id = message.chat.id
 
     # Get the third_answer text from the user's message
@@ -96,13 +104,17 @@ def process_third_answer(message, topic, question, first_answer, second_answer, 
         bot.send_message(chat_id, "Cancelled.")
         return
 
+    if third_answer in (first_answer, second_answer):
+        bot.send_message(chat_id, "The same answers are entered. Cancelled.")
+        return
+
     # Ask the user for the right answer
     bot.send_message(chat_id, "Enter the right answer:")
-    bot.register_next_step_handler(message, process_right_answer, topic, question,
+    bot.register_next_step_handler(message, process_right_answer, task_id, topic, question,
                                    first_answer, second_answer, third_answer, bot)
 
 
-def process_right_answer(message, topic, question, first_answer, second_answer, third_answer, bot):
+def process_right_answer(message, task_id, topic, question, first_answer, second_answer, third_answer, bot):
     chat_id = message.chat.id
 
     # Get the right_answer text from the user's message
@@ -132,11 +144,11 @@ def process_right_answer(message, topic, question, first_answer, second_answer, 
                               "or write 'cancel' to cancel the task addition:",
                      reply_markup=markup)
 
-    bot.register_next_step_handler(message, process_level_relation, topic, question,
+    bot.register_next_step_handler(message, process_level_relation, task_id, topic, question,
                                    first_answer, second_answer, third_answer, right_answer, bot)
 
 
-def process_level_relation(message, topic, question, first_answer, second_answer, third_answer,
+def process_level_relation(message, task_id, topic, question, first_answer, second_answer, third_answer,
                            right_answer, bot):
     chat_id = message.chat.id
 
@@ -150,9 +162,8 @@ def process_level_relation(message, topic, question, first_answer, second_answer
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
 
-    # Task id definition
-    last_number = bot_db.get_test_task_last_id()
-    task_id = last_number + 1
+    # Delete a test task with the same number to prevent a conflict
+    bot_db.delete_test_task(task_id)
 
     # Add the test_task to the database with the provided status
     bot_db.add_test_task(task_id, topic, question, first_answer, second_answer,

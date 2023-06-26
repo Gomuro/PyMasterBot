@@ -6,6 +6,7 @@ from database.py_master_bot_database import PyMasterBotDatabase
 from utils.Handlers.add_admin_handler import add_admin_function
 from utils.Handlers.add_lesson_handler import add_lesson_function
 from utils.Handlers.add_test_task_handler import add_test_task_function
+from utils.Handlers.change_test_task_handler import change_test_task_function
 from utils.Handlers.callback_query_handler import callback_query_handler
 from utils.Handlers.check_code_handler import check_code
 from utils.Handlers.documentation_handler import search_documentation
@@ -120,12 +121,23 @@ def add_admin_handler(message):
 @telebot_instance.message_handler(commands=['add_test_task'])
 def add_test_task_handler(message):
     """
-    This method adds a lesson
+    This method adds a test_task
     :param message:
     :return:
     """
     if message.text.find("/add_test_task") != -1:
         add_test_task_function(telebot_instance, message)
+
+
+@telebot_instance.message_handler(commands=['change_test_task'])
+def change_test_task_handler(message):
+    """
+    This method changes a test_task
+    :param message:
+    :return:
+    """
+    if message.text.find("/change_test_task") != -1:
+        change_test_task_function(telebot_instance, message)
 
 
 @telebot_instance.message_handler(commands=['add_level'])
