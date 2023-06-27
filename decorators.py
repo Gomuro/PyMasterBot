@@ -9,17 +9,17 @@ from Handlers.add_lesson_handler import add_lesson_function
 from Handlers.callback_query_handler import callback_query_handler
 from Handlers.check_code_handler import check_code
 from Handlers.documentation_handler import search_documentation
-
-from utils.key_board import InlineKeyboard, ReplyKeyboard
-from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP
-
 from Handlers.add_test_task_handler import add_test_task_function
 from Handlers.change_test_task_handler import change_test_task_function
+from Handlers.choose_test_task_handler import choose_test_task_function
 from Handlers.request_help_handler import help_request_handler
 from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
 from Handlers.add_level_handler import add_level_function
 
+
+from utils.key_board import InlineKeyboard, ReplyKeyboard
+from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP, MODE_TESTING
 
 
 class Bot:
@@ -37,7 +37,6 @@ class Bot:
         self.reply_keyboard = None
 
         self.bot_processor = BotProcessor()
-
 
     def run(self):
         """
@@ -121,15 +120,14 @@ class Bot:
         elif message.document.file_name == 'test_tasks.csv':
             handle_csv_test_tasks(self.bot, message, message.document)
         elif message.document.file_name != 'lessons.csv' or 'test_tasks.csv':
-            self.bot.send_message(message.chat.id,
-                                          "Будь ласка, відправте файл у форматі CSV з такою самою назвою"
-                                          " як нава таблиці в Базі Даннх.")
+            self.bot.send_message(message.chat.id, "Будь ласка, відправте файл у форматі CSV з такою самою назвою,\n"
+                                                   "як нава таблиці в БАЗІ ДАНИХ.")
 
     def handle_callback_query(self, call):
 
         """This handler allows using callback query with pressing designated inline keyboard buttons"""
         self.bot_processor.message_handler(call)  # Set the current mode
-        callback_query_handler(call, self.bot, self.inline_keyboard,self.reply_keyboard)
+        callback_query_handler(call, self.bot, self.inline_keyboard, self.reply_keyboard)
 
     def display_current_mode(self, message):
         """
@@ -149,7 +147,11 @@ class Bot:
             check_code(message, self.bot)
         elif self.bot_processor.is_mode_lesson():
             self.bot.send_message(message.chat.id, "You are in lesson mode.",
-                                  reply_markup=self.inline_keyboard.get_keyboard()) 
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+        elif self.bot_processor.is_mode_testing():
+            self.bot.send_message(message.chat.id, "You are in testing mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            choose_test_task_function(message, self.bot)
         elif self.bot_processor.is_mode_help():
             self.bot.send_message(message.chat.id, "You are in help mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
