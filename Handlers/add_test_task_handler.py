@@ -1,6 +1,6 @@
-from telebot import types
-
 from database.py_master_bot_database import PyMasterBotDatabase
+
+from Handlers.help_functions import create_levels_markup
 
 
 def add_test_task_function(bot, message):
@@ -91,7 +91,8 @@ def process_second_answer(message, task_id, topic, question, first_answer, bot):
 
     # Ask the user for the third answer option
     bot.send_message(chat_id, "Enter the third answer option:")
-    bot.register_next_step_handler(message, process_third_answer, task_id, topic, question, first_answer, second_answer, bot)
+    bot.register_next_step_handler(message, process_third_answer, task_id, topic, question,
+                                   first_answer, second_answer, bot)
 
 
 def process_third_answer(message, task_id, topic, question, first_answer, second_answer, bot):
@@ -129,20 +130,10 @@ def process_right_answer(message, task_id, topic, question, first_answer, second
         bot.send_message(chat_id, f"There is no such answer option among the given ones.\nCancelled.")
         return
 
-    # Create an instance of the database
-    bot_db = PyMasterBotDatabase()
-    levels = bot_db.get_all_levels()
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-
-    for level in levels:
-        btn = types.KeyboardButton(f"{level}")
-        markup.add(btn)
-
     # Ask the user for the level of task complexity
     bot.send_message(chat_id, "Choose the level of task complexity\n"
                               "or write 'cancel' to cancel the task addition:",
-                     reply_markup=markup)
+                     reply_markup=create_levels_markup())
 
     bot.register_next_step_handler(message, process_level_relation, task_id, topic, question,
                                    first_answer, second_answer, third_answer, right_answer, bot)

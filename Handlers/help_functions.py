@@ -1,6 +1,8 @@
 """
 This block contains helper functions that will be used in various handlers
 """
+from telebot import types
+from database.py_master_bot_database import PyMasterBotDatabase
 
 
 def delete_previous_messages(message, telebot_instance):
@@ -20,3 +22,17 @@ def delete_previous_messages(message, telebot_instance):
 
     except Exception as e:
         print("An unexpected error occurred:", e)
+
+
+def create_levels_markup():
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+    levels = bot_db.get_all_levels()
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+
+    for level in levels:
+        btn = types.KeyboardButton(f"{level}")
+        markup.add(btn)
+
+    return markup

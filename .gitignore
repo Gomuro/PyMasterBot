@@ -1,6 +1,7 @@
 *.pyc
 pycache/
 *.logs
+log.json
 
 logs/
 
