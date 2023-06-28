@@ -36,3 +36,12 @@ def create_levels_markup():
         markup.add(btn)
 
     return markup
+
+
+def create_yes_or_no_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_yes = types.KeyboardButton("yes")
+    btn_no = types.KeyboardButton("no")
+    markup.add(btn_yes, btn_no)
+
+    return markup

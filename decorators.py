@@ -11,7 +11,7 @@ from Handlers.check_code_handler import check_code
 from Handlers.documentation_handler import search_documentation
 from Handlers.add_test_task_handler import add_test_task_function
 from Handlers.change_test_task_handler import change_test_task_function
-from Handlers.choose_test_task_handler import choose_test_task_function
+from Handlers.choose_test_task_handler import choose_test_task_function, process_test_task_level
 from Handlers.request_help_handler import help_request_handler
 from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
@@ -151,7 +151,7 @@ class Bot:
         elif self.bot_processor.is_mode_testing():
             self.bot.send_message(message.chat.id, "You are in testing mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
-            choose_test_task_function(message, self.bot)
+            process_test_task_level(message, self.bot)
         elif self.bot_processor.is_mode_help():
             self.bot.send_message(message.chat.id, "You are in help mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())

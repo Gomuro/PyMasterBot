@@ -240,6 +240,10 @@ class AbstractDatabase(ABC):
     def get_test_tasks_by_level(self, table_name):
         pass
 
+    @abstractmethod
+    def check_this_level_task_exists(self, level_name):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -466,4 +470,10 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         result = self.session.execute(query, {"level": level}).fetchall()
         # Повернення результату запиту
         return result
+
+    def check_this_level_task_exists(self, level_name):
+        task = self.session.query(TestTask).filter_by(level_relation=level_name).first()
+        if task:
+            return True
+        return False
 

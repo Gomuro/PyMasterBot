@@ -1,54 +1,87 @@
 from telebot import types
-
-from database.py_master_bot_database import PyMasterBotDatabase
 from random import choice
+from database.py_master_bot_database import PyMasterBotDatabase
+from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages
 
-def choose_test_task_function(message, bot):
+
+def process_test_task_level(message, bot):
+    bot_db = PyMasterBotDatabase()
+    level_name = message.text.strip()
+
+    if bot_db.check_this_level_task_exists(level_name=level_name):
+        choose_test_task_function(message, level_name, bot)
+
+    else:
+        bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
+        return
+
+
+def choose_test_task_function(message, level_name, bot):
+    delete_previous_messages(message=message, telebot_instance=bot)
+
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
-    level = message.text.strip()
 
-    test_tasks = bot_db.get_test_tasks_by_level(level)
-    if not test_tasks:
-        # Якщо не знайдено тестових завдань за обраним рівнем, відправляємо повідомлення про помилку
-        bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
+    test_tasks = bot_db.get_test_tasks_by_level(level_name)
+
+    used_questions = []  # Список для збереження використаних питань
+    if len(used_questions) == len(test_tasks):
+        used_questions = []  # Якщо всі питання вже були використані, очищуємо список
+
+    # Вибір випадкового тестового завдання, яке ще не було використане
+    test_task = choice([task for task in test_tasks if task[2] not in used_questions])
+    used_questions.append(test_task[2])  # Додаємо питання до списку використаних
+
+    question = test_task[2]
+    var1 = test_task[3]
+    var2 = test_task[4]
+    var3 = test_task[5]
+    right_answer = test_task[6]
+
+    response = f"{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
+    bot.send_message(chat_id, response)
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_var1 = types.KeyboardButton(var1)
+    btn_var2 = types.KeyboardButton(var2)
+    btn_var3 = types.KeyboardButton(var3)
+    markup.add(btn_var1, btn_var2, btn_var3)
+
+    bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
+    bot.register_next_step_handler(message, handle_answer, right_answer, level_name, bot)
+
+
+# Обробник вибору відповіді
+def handle_answer(message, right_answer, level_name, bot):
+    chat_id = message.chat.id
+
+    if message.text == right_answer:
+        bot.reply_to(message, "You're right!")
     else:
-        used_questions = []  # Список для збереження використаних питань
-        if len(used_questions) == len(test_tasks):
-            used_questions = []  # Якщо всі питання вже були використані, очищуємо список
+        bot.reply_to(message, "Wrong answer!")
 
-        # Вибір випадкового тестового завдання, яке ще не було використане
-        test_task = choice([task for task in test_tasks if task[2] not in used_questions])
-        used_questions.append(test_task[2])  # Додаємо питання до списку використаних
+    # Виведення правильної відповіді та наступного питання
+    response = f"The correct answer is:\n{right_answer}"
+    bot.send_message(chat_id, response)
 
-        question = test_task[2]
-        var1 = test_task[3]
-        var2 = test_task[4]
-        var3 = test_task[5]
-        right_answer = test_task[6]
+    bot.send_message(chat_id, f"Continue testing by level <b>'{level_name}'</b>?\nSelect:",
+                     parse_mode="HTML", reply_markup=create_yes_or_no_markup())
 
-        response = f"{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
-        bot.reply_to(message, response)
+    bot.register_next_step_handler(message, handle_yes_or_no_answer, level_name, bot)
 
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        btn_var1 = types.KeyboardButton(var1)
-        btn_var2 = types.KeyboardButton(var2)
-        btn_var3 = types.KeyboardButton(var3)
-        markup.add(btn_var1, btn_var2, btn_var3)
 
-        bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
+def handle_yes_or_no_answer(message, level_name, bot):
+    delete_previous_messages(message=message, telebot_instance=bot)
+    chat_id = message.chat.id
 
-        # Обробник вибору відповіді
-        @bot.message_handler(func=lambda message: message.chat.id == chat_id)
-        def handle_answer(message):
-            if message.text == right_answer:
-                bot.reply_to(message, "Correct answer!")
-            else:
-                bot.reply_to(message, "Wrong answer!")
+    if message.text in ("no", "cancel"):
+        bot.send_message(chat_id, "Cancelled.")
+        return
 
-            # Виведення правильної відповіді та наступного питання
-            response = f"The correct answer is: {right_answer}"
-            bot.send_message(chat_id, response)
+    elif message.text == "yes":
+        # Continue testing by level
+        choose_test_task_function(message, level_name, bot)
 
-        bot.register_next_step_handler(message, handle_answer)
-
+    else:
+        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
+        return
