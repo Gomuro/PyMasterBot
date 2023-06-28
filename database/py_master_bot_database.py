@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv
@@ -236,6 +236,10 @@ class AbstractDatabase(ABC):
     def get_table_by_name(self, table_name):
         pass
 
+    @abstractmethod
+    def get_test_tasks_by_level(self, table_name):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -455,5 +459,29 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             "SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name AND table_name=:table_name")
         result = self.session.execute(query, {"schema_name": "public", "table_name": table_name}).fetchone()
         return result[0] if result else None
+
+    def get_test_tasks_by_level(self, level):
+        # Отримання тестових завдань за рівнем
+        query = text("SELECT * FROM test_tasks WHERE Level_relation = :level")
+        result = self.session.execute(query, {"level": level}).fetchall()
+        # Повернення результату запиту
+        return result
+
+    # def save_user_answer(self, user_id, answer):
+    #     # Збереження відповіді користувача в базі даних
+    #     # Реалізуйте цей метод залежно від вашої бази даних і структури збереження даних
+    #     # Наприклад, ви можете зберігати відповіді у вигляді таблиці або файлу
+    #     # Для прикладу, ми використаємо простий словник, де ключ - це ідентифікатор користувача, а значення - відповідь
+    #     user_answers = {
+    #         user_id: answer
+    #     }
+    #     # Збереження відповідей користувачів у вашій базі даних
+    #     # Наприклад, self.session.execute(query) або інші відповідні операції
+    #     # При необхідності адаптуйте цей код до вашої реалізації бази даних
+    #     # ...
+    #
+    #     # Повернення підтвердження збереження відповіді
+    #     return True
+
 
 
