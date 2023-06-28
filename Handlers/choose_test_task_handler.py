@@ -17,7 +17,6 @@ def process_test_task_level(message, bot):
 
 
 def choose_test_task_function(message, level_name, bot):
-    # delete_previous_messages(message=message, telebot_instance=bot)
 
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
@@ -58,18 +57,21 @@ def handle_answer(message, right_answer, level_name, bot):
     count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
     setattr(handle_answer, 'count', count)  # Зберегти значення лічильника
 
-    if message.text == right_answer:
+    if message.text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
+    elif message.text == right_answer:
         bot.reply_to(message, "You're right!")
     else:
-        bot.reply_to(message, "Wrong answer!")
+        bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
 
     if count < 3:
         choose_test_task_function(message, level_name, bot)
     else:
+        setattr(handle_answer, 'count', 0)
         bot.send_message(chat_id, f"Continue testing by level <b>'{level_name}'</b>?\nSelect:",
                          parse_mode="HTML", reply_markup=create_yes_or_no_markup())
         bot.register_next_step_handler(message, handle_yes_or_no_answer, level_name, bot)
-
 
 
 def handle_yes_or_no_answer(message, level_name, bot):
