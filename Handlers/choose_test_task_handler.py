@@ -30,10 +30,25 @@ def choose_test_task_function(message, bot):
         response = f"{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
         bot.reply_to(message, response)
 
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_var1 = types.KeyboardButton(var1)
-    btn_var2 = types.KeyboardButton(var2)
-    btn_var3 = types.KeyboardButton(var3)
-    markup.add(btn_var1, btn_var2, btn_var3)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        btn_var1 = types.KeyboardButton(var1)
+        btn_var2 = types.KeyboardButton(var2)
+        btn_var3 = types.KeyboardButton(var3)
+        markup.add(btn_var1, btn_var2, btn_var3)
 
-    bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
+        bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
+
+        # Обробник вибору відповіді
+        @bot.message_handler(func=lambda message: message.chat.id == chat_id)
+        def handle_answer(message):
+            if message.text == right_answer:
+                bot.reply_to(message, "Correct answer!")
+            else:
+                bot.reply_to(message, "Wrong answer!")
+
+            # Виведення правильної відповіді та наступного питання
+            response = f"The correct answer is: {right_answer}"
+            bot.send_message(chat_id, response)
+
+        bot.register_next_step_handler(message, handle_answer)
+
