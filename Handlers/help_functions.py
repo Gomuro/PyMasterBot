@@ -3,6 +3,7 @@ This block contains helper functions that will be used in various handlers
 """
 from telebot import types
 from database.py_master_bot_database import PyMasterBotDatabase
+from random import choice
 
 
 def delete_previous_messages(message, telebot_instance):
@@ -45,3 +46,4 @@ def create_yes_or_no_markup():
     markup.add(btn_yes, btn_no)
 
     return markup
+
