@@ -529,5 +529,16 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
         count = len(values[0]) if values and values[0] else 0
 
-        return count
+        if count == -1 or count is None:
+            return 0
+
+        if count > 0:
+            return count - 1
+
+        return 0
+
+
+
+
+
 
