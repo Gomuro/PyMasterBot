@@ -254,6 +254,10 @@ class AbstractDatabase(ABC):
     def check_this_level_task_exists(self, level_name):
         pass
 
+    @abstractmethod
+    def get_level_count(self, level_name):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -517,4 +521,13 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         if task:
             return True
         return False
+
+    def get_level_count(self, level_name):
+        # Зробити запит для отримання значень для заданого рівня
+        values = self.session.query(User.progress_testing[level_name]).filter(
+            User.progress_testing[level_name].isnot(None)).first()
+
+        count = len(values[0]) if values and values[0] else 0
+
+        return count
 
