@@ -2,6 +2,7 @@ from telebot import types
 from random import choice
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, create_start_markup
+import random
 
 
 def process_test_task_level(message, bot):
@@ -27,8 +28,20 @@ def choose_test_task_function(message, level_name, bot):
     if len(used_questions) == len(test_tasks):
         used_questions = []  # Якщо всі питання вже були використані, очищуємо список
 
+    # Перемішуємо список тестових завдань
+    random.shuffle(test_tasks)
+
     # Вибір випадкового тестового завдання, яке ще не було використане
-    test_task = choice([task for task in test_tasks if task[2] not in used_questions])
+    for test_task in test_tasks:
+        if test_task[2] not in used_questions:
+            task_id = test_task[0]
+            if not bot_db.is_task_in_progress_testing(chat_id, task_id, level_name):
+                break
+    else:
+        # Якщо всі завдання вже є в `progress_testing`, оброблюємо цей випадок
+        # (наприклад, відновлюємо список використаних питань або видаємо повідомлення)
+        pass
+
     used_questions.append(test_task[2])  # Додаємо питання до списку використаних
 
     task_id = test_task[0]
@@ -71,7 +84,7 @@ def handle_answer(message, task_id, right_answer, level_name, bot):
     else:
         bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
 
-    if count < 1:
+    if count < 3:
         choose_test_task_function(message, level_name, bot)
     else:
         setattr(handle_answer, 'count', 0)

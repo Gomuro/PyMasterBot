@@ -258,6 +258,9 @@ class AbstractDatabase(ABC):
     def get_level_count(self, level_name):
         pass
 
+    @abstractmethod
+    def is_task_in_progress_testing(self, user_id, task_id, level_name):
+        pass
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -533,10 +536,24 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             return 0
 
         if count > 0:
-            return count - 1
+            return count
 
         return 0
 
+    def is_task_in_progress_testing(self, user_id, task_id, level_name):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_testing = row.progress_testing
+
+        # Перевірити наявність рівня у JSON-стовпці
+        if level_name in progress_testing and isinstance(progress_testing[level_name], list):
+            # Перевірити наявність завдання з вказаним ID у списку завдань рівня
+            if task_id in progress_testing[level_name]:
+                return True
+
+        return False
 
 
 
