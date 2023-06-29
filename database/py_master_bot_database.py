@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv
@@ -29,6 +29,7 @@ class User(Base):
     paid_until = Column(Date)
     score = Column(Integer, default=0)
     progress = Column(JSON, default=list)
+    progress_testing = Column(JSON)
     role = Column(String)
 
 
@@ -109,6 +110,7 @@ class AbstractDatabase(ABC):
         paid_until=None,
         score=0,
         progress=[],
+        progress_testing={},
         role=None,
     ):
         pass
@@ -241,6 +243,14 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_user_progress_testing_level(self, user_id, level_name):
+        pass
+
+    @abstractmethod
+    def add_task_to_progress_testing(self, user_id, task_id, level_name):
+        pass
+
+    @abstractmethod
     def check_this_level_task_exists(self, level_name):
         pass
 
@@ -300,6 +310,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         paid_until=None,
         score=0,
         progress=[],
+        progress_testing={},
         role="user",
     ):
         new_user = User(
@@ -308,7 +319,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             username=username,
             status=status,
             paid_until=paid_until,
+            progress_testing=dict.fromkeys(level for level in self.get_all_levels())
         )
+
         self.session.add(new_user)
         self.session.commit()
 
@@ -470,6 +483,34 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         result = self.session.execute(query, {"level": level}).fetchall()
         # Повернення результату запиту
         return result
+
+    def get_user_progress_testing_level(self, user_id, level_name):
+        user_progress_testing_level = self.session.query(User).\
+            filter(func.json_array_length(User.progress_testing[f'{level_name}']) > 0).all()
+
+        return user_progress_testing_level
+
+    def add_task_to_progress_testing(self, user_id, task_id, level_name):
+        # Додавання нового значення до списку в JSON-стовпці за ключем
+
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_testing = row.progress_testing
+
+        # Додати нове значення до списку під вказаним ключем
+        if level_name in progress_testing and isinstance(progress_testing[level_name], list):
+            progress_testing[level_name].append(task_id)
+        elif level_name in progress_testing:
+            progress_testing[level_name] = [progress_testing[level_name], task_id]
+        else:
+            progress_testing[level_name] = [task_id]
+
+        # Оновити рядок з оновленим значенням JSON-стовпця
+        updating = update(User).where(User.id == user_id).values(progress_testing=progress_testing)
+        self.session.execute(updating)
+        self.session.commit()
 
     def check_this_level_task_exists(self, level_name):
         task = self.session.query(TestTask).filter_by(level_relation=level_name).first()

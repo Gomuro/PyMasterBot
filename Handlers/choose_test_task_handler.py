@@ -31,6 +31,7 @@ def choose_test_task_function(message, level_name, bot):
     test_task = choice([task for task in test_tasks if task[2] not in used_questions])
     used_questions.append(test_task[2])  # Додаємо питання до списку використаних
 
+    task_id = test_task[0]
     topic = test_task[1]
     question = test_task[2]
     var1 = test_task[3]
@@ -48,10 +49,10 @@ def choose_test_task_function(message, level_name, bot):
     markup.add(btn_var1, btn_var2, btn_var3)
 
     bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
-    bot.register_next_step_handler(message, handle_answer, right_answer, level_name, bot)
+    bot.register_next_step_handler(message, handle_answer, task_id, right_answer, level_name, bot)
 
 
-def handle_answer(message, right_answer, level_name, bot):
+def handle_answer(message, task_id, right_answer, level_name, bot):
     chat_id = message.chat.id
 
     count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
@@ -60,8 +61,13 @@ def handle_answer(message, right_answer, level_name, bot):
     if message.text == "cancel":
         bot.send_message(chat_id, "Cancelled.")
         return
+
     elif message.text == right_answer:
+        bot_db = PyMasterBotDatabase()
+        bot_db.add_task_to_progress_testing(chat_id, task_id, level_name)
+
         bot.reply_to(message, "You're right!")
+
     else:
         bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
 
