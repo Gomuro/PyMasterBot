@@ -102,5 +102,3 @@ def handle_yes_or_no_answer(message, level_name, bot):
     else:
         bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
         return
-
-
