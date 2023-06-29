@@ -55,7 +55,7 @@ def choose_test_task_function(message, level_name, bot):
 def handle_answer(message, task_id, right_answer, level_name, bot):
     chat_id = message.chat.id
 
-    count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
+    count = getattr(handle_answer, 'count', 0) +1  # Отримати значення лічильника або встановити 0
     setattr(handle_answer, 'count', count)  # Зберегти значення лічильника
 
     if message.text == "cancel":
@@ -90,7 +90,7 @@ def handle_yes_or_no_answer(message, level_name, bot):
         bot.send_message(chat_id, f''' 'Ви пройшли завдаань
                 на рівні easy: ', {bot_db.get_level_count(['easy'])},
                'на рівні middle: ', {bot_db.get_level_count(['middle'])},
-               'на рівні middle: ', {bot_db.get_level_count(['hard'])} ''')
+               'на рівні hard: ', {bot_db.get_level_count(['hard'])}''')
         return
 
     elif message.text == "yes":
