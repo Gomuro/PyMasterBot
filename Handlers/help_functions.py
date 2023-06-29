@@ -46,3 +46,14 @@ def create_yes_or_no_markup():
 
     return markup
 
+
+def create_start_markup():
+    markup = types.InlineKeyboardMarkup()
+    btn_help = types.InlineKeyboardButton("HELP",  callback_data="/help")
+    btn_doc = types.InlineKeyboardButton("Документація", callback_data="/documentation")
+    btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
+    btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
+    markup.add(btn_help, btn_doc, btn_check, btn_test)
+
+    return markup
+

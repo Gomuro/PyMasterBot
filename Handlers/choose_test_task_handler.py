@@ -1,7 +1,7 @@
 from telebot import types
 from random import choice
 from database.py_master_bot_database import PyMasterBotDatabase
-from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages
+from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, create_start_markup
 
 
 def process_test_task_level(message, bot):
@@ -87,10 +87,12 @@ def handle_yes_or_no_answer(message, level_name, bot):
 
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
-        bot.send_message(chat_id, f''' 'Ви пройшли завдаань
-                на рівні easy: ', {bot_db.get_level_count(['easy'])},
-               'на рівні middle: ', {bot_db.get_level_count(['middle'])},
-               'на рівні middle: ', {bot_db.get_level_count(['hard'])} ''')
+        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні такої кількості завдань</b>\n"
+                                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},\n"
+                                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])},\n"
+                                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])}",
+                         parse_mode="HTML", reply_markup=create_start_markup())
+
         return
 
     elif message.text == "yes":

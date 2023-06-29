@@ -323,7 +323,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             username=username,
             status=status,
             paid_until=paid_until,
-            progress_testing=dict.fromkeys(level for level in self.get_all_levels())
+            progress_testing=dict.fromkeys([level for level in self.get_all_levels()], [])
         )
 
         self.session.add(new_user)
