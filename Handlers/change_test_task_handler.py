@@ -3,6 +3,7 @@ from telebot import types
 from database.py_master_bot_database import PyMasterBotDatabase
 
 from Handlers.add_test_task_handler import process_topic
+from Handlers.help_functions import create_yes_or_no_markup
 
 
 def change_test_task_function(bot, message):
@@ -42,15 +43,9 @@ def process_test_task_id(message, bot):  # Add bot as a parameter
     # Check whether the user-entered test_task ID is in the database
     test_task = bot_db.get_test_task_by_id(task_id)
 
-    # Create a keyboard with a selection of options 'yes' or 'no'
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_yes = types.KeyboardButton("yes")
-    btn_no = types.KeyboardButton("no")
-    markup.add(btn_yes, btn_no)
-
     bot.send_message(chat_id, f"Do you really want to change the test task\n"
                               f"'{test_task.question}'\n\n of the level '{test_task.level_relation}'?",
-                     reply_markup=markup)
+                     reply_markup=create_yes_or_no_markup())  # Create a keyboard with options 'yes' or 'no'
 
     bot.register_next_step_handler(message, process_yes_or_no_answer, task_id, bot)  # Use the original_message
 

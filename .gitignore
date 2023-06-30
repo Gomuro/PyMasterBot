@@ -1,8 +1,7 @@
 *.pyc
 pycache/
 *.logs
-
-logs/
+log.json
 
 venv/
 
@@ -16,3 +15,4 @@ bot_token.txt
 .env
 
 tmp.py
+/logs/
