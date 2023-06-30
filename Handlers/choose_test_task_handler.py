@@ -100,7 +100,9 @@ def handle_yes_or_no_answer(message, level_name, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
 
-    total_tasks = 20  # Total number of tasks for the 'easy' level
+    total_tasks = bot_db.get_level_count(['easy']) + bot_db.get_level_count(['middle']) +\
+                  bot_db.get_level_count(['hard'])  # Total number of tasks for the 'easy' level
+
 
     easy_percentage = (bot_db.get_level_count(['easy']) / total_tasks) * 100 if total_tasks != 0 else 0
     middle_percentage = (bot_db.get_level_count(['middle']) / total_tasks) * 100 if total_tasks != 0 else 0
