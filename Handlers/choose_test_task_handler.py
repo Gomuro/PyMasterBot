@@ -100,12 +100,18 @@ def handle_yes_or_no_answer(message, level_name, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
 
+    total_tasks = 20  # Total number of tasks for the 'easy' level
+
+    easy_percentage = (bot_db.get_level_count(['easy']) / total_tasks) * 100 if total_tasks != 0 else 0
+    middle_percentage = (bot_db.get_level_count(['middle']) / total_tasks) * 100 if total_tasks != 0 else 0
+    hard_percentage = (bot_db.get_level_count(['hard']) / total_tasks) * 100 if total_tasks != 0 else 0
+
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
         bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні такої кількості завдань</b>\n"
-                                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},\n"
-                                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])},\n"
-                                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])}",
+                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
+                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
+                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}",
                          parse_mode="HTML", reply_markup=create_start_markup())
         progress_testing_visual_repr_function(message, bot)
 
