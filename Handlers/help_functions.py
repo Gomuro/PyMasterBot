@@ -56,4 +56,3 @@ def create_start_markup():
     markup.add(btn_help, btn_doc, btn_check, btn_test)
 
     return markup
-

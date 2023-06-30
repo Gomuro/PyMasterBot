@@ -1,5 +1,7 @@
 from telebot import types
 from random import choice
+
+from Handlers.visual_representation_handler import progress_testing_visual_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, create_start_markup
 import random
@@ -84,7 +86,7 @@ def handle_answer(message, task_id, right_answer, level_name, bot):
     else:
         bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
 
-    if count < 3:
+    if count < 1:
         choose_test_task_function(message, level_name, bot)
     else:
         setattr(handle_answer, 'count', 0)
@@ -105,6 +107,7 @@ def handle_yes_or_no_answer(message, level_name, bot):
                                   f"на рівні 'middle': {bot_db.get_level_count(['middle'])},\n"
                                   f"на рівні 'hard': {bot_db.get_level_count(['hard'])}",
                          parse_mode="HTML", reply_markup=create_start_markup())
+        progress_testing_visual_repr_function(message, bot)
 
         return
 
