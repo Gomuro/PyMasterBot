@@ -54,6 +54,7 @@ class Bot:
 
         # Add "HELP" button to the inline keyboard
         self.inline_keyboard.add_button("HELP", callback_data="/help")
+        self.inline_keyboard.add_button('Settings', callback_data='/settings')
 
     def get_bot(self):
         """
@@ -129,7 +130,7 @@ class Bot:
 
         """This handler allows using callback query with pressing designated inline keyboard buttons"""
         self.bot_processor.message_handler(call)  # Set the current mode
-        callback_query_handler(call, self.bot, self.inline_keyboard,self.reply_keyboard)
+        callback_query_handler(call, self.bot, self.inline_keyboard, self.reply_keyboard)
 
     def display_current_mode(self, message):
         """
@@ -143,6 +144,10 @@ class Bot:
             self.bot.send_message(message.chat.id, "You are in documentation mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             search_documentation(message, self.bot)
+        elif self.bot_processor.is_mode_settings():
+            self.bot.send_message(message.chat.id, "You are in settings mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            # settings_handler(message, self.bot)
         elif self.bot_processor.is_mode_check_code():
             self.bot.send_message(message.chat.id, "You are in check code mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
