@@ -6,6 +6,7 @@ class BotProcessor:
     MODE_CHECK_CODE = "check_code"
     MODE_LESSON = "lesson"
     MODE_HELP = "help"
+    MODE_SETTINGS = "settings"
 
     def __init__(self):
         """By default current mode set to main menu"""
@@ -39,17 +40,24 @@ class BotProcessor:
         """Checking if current mode is equal to main help"""
         return self.current_mode == self.MODE_HELP
 
+    def is_mode_settings(self):
+        """Checking if current mode is equal to settings"""
+        return self.current_mode == self.MODE_SETTINGS
+
     def message_handler(self, call):
         """The function which get the checked call data and set the current mode to it"""
         if call.data.find(self.MODE_DOCUMENTATION) == 1:
             self.change_mode(mode=self.MODE_DOCUMENTATION)
             print("New mode set: MODE_DOCUMENTATION")
-        elif call.data.find(self.MODE_CHECK_CODE):
+        elif call.data.find(self.MODE_CHECK_CODE) == 1:
             self.change_mode(mode=self.MODE_CHECK_CODE)
             print("New mode set: MODE_CHECK_CODE")
-        elif call.data.find(self.MODE_LESSON):
+        elif call.data.find(self.MODE_LESSON) == 1:
             self.change_mode(mode=self.MODE_LESSON)
             print("New mode set: MODE_LESSON")
-        elif call.data.find(self.MODE_HELP):
+        elif call.data.find(self.MODE_HELP) == 1:
             self.change_mode(mode=self.MODE_HELP)
             print("New mode set: MODE_HELP")
+        elif call.data.find(self.MODE_SETTINGS) == 1:
+            self.change_mode(mode=self.MODE_SETTINGS)
+            print("New mode set: MODE_SETTINGS")
