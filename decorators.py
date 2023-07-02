@@ -2,6 +2,8 @@ import os
 import telebot
 from dotenv import load_dotenv
 
+from Handlers.add_test_task_by_level_handler import add_easy_test_task_function, add_middle_test_task_function, \
+    add_hard_test_task_function
 from change_modes import BotProcessor
 
 from Handlers.add_admin_handler import add_admin_function
@@ -99,6 +101,19 @@ class Bot:
         """
         if message.text.find("/add_test_task") != -1:
             add_test_task_function(self.bot, message)
+
+    def add_test_task_by_level_handler(self, message):
+        """
+        This method adds a test_task based on the level.
+        """
+        text = message.text
+
+        if message.text.find("/add_easy_test_task") != -1:
+            add_easy_test_task_function(self.bot, message)
+        elif message.text.find("/add_middle_test_task") != -1:
+            add_middle_test_task_function(self.bot, message)
+        elif message.text.find("/add_hard_test_task") != -1:
+            add_hard_test_task_function(self.bot, message)
 
     def change_test_task_handler(self, message):
         """
