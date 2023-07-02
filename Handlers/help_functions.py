@@ -23,6 +23,14 @@ def delete_previous_messages(message, telebot_instance):
     except Exception as e:
         print("An unexpected error occurred:", e)
 
+def look_at_added_test_task():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_show = types.KeyboardButton("Show added task")
+    btn_continue = types.KeyboardButton("Continue")
+    markup.add(btn_show, btn_continue)
+
+    return markup
+
 
 def create_levels_markup():
     # Create an instance of the database

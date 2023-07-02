@@ -2,7 +2,8 @@
 This handler adds test_task by level
 """
 from database.py_master_bot_database import PyMasterBotDatabase
-from Handlers.help_functions import create_levels_markup
+from Handlers.help_functions import look_at_added_test_task
+
 
 def add_easy_test_task_function(bot, message):
     """
@@ -192,3 +193,24 @@ def process_right_answer(message, task_id, topic, question, first_answer, second
 
     bot.send_message(chat_id, f"Test_task added to the easy {level} successfully.")
 
+    bot.send_message(chat_id, "push the button and look what you have added",
+                     reply_markup=look_at_added_test_task())
+    bot.register_next_step_handler(message, process_look_at_added_test_task, task_id, topic, question,
+                                   first_answer, second_answer, third_answer, right_answer, level, bot)
+
+
+def process_look_at_added_test_task(message, task_id, topic, question,
+                                   first_answer, second_answer, third_answer, right_answer, level, bot):
+    chat_id = message.chat.id
+
+    if message.text in ("Continue", "cancel"):
+        bot.send_message(chat_id, "Cancelled.")
+        return
+
+    elif message.text == "Show added task":
+        # Ask the user for the test_task topic
+        bot.send_message(chat_id, f"{task_id}, {topic}, {question}, {first_answer}, {second_answer}, {third_answer},"
+                                  f" {right_answer}, {level}")
+    else:
+        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
+        return
