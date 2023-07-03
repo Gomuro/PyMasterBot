@@ -1,7 +1,8 @@
 from telebot import types
 from random import choice
 
-from Handlers.visual_representation_handler import progress_testing_visual_repr_function
+from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
+    progress_level_visual_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, create_start_markup
 import random
@@ -116,6 +117,7 @@ def handle_yes_or_no_answer(message, level_name, bot):
                   f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}",
                          parse_mode="HTML", reply_markup=create_start_markup())
         progress_testing_visual_repr_function(message, bot)
+        progress_level_visual_repr_function(message, bot)
 
         return
 
