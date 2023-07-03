@@ -116,8 +116,9 @@ def handle_yes_or_no_answer(message, level_name, bot):
                   f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
                   f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}",
                          parse_mode="HTML", reply_markup=create_start_markup())
-        progress_testing_visual_repr_function(message, bot)
+
         progress_level_visual_repr_function(message, bot)
+        progress_testing_visual_repr_function(message, bot)
 
         return
 
