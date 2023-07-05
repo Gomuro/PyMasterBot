@@ -4,10 +4,9 @@ import sqlalchemy
 from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
-from Handlers.csv_importer import add_lessons_csv
-from Handlers.csv_importer import add_test_tasks_csv
+from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv
+from Handlers.static_variables import max_total_tasks
 
-from sqlalchemy import text
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -261,6 +260,11 @@ class AbstractDatabase(ABC):
     @abstractmethod
     def is_task_in_progress_testing(self, user_id, task_id, level_name):
         pass
+
+    @abstractmethod
+    def check_rank(self, user_id):
+        pass
+
 
 class PyMasterBotDatabase(AbstractDatabase, ABC):
     def __init__(self):
@@ -555,7 +559,25 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
         return False
 
+    def check_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
 
+        # Отримати поточне значення JSON-стовпця
+        progress_testing = row.progress_testing
 
+        # Отримати загальну кількість виконаних завдань
+        total_tasks = sum(len(values) for values in progress_testing.values())
 
+        # Визначити відсоткове відношення виконаних завдань до максимальної кількості завдань для досягнення рангу
+        percentage_relation = total_tasks * 100 / max_total_tasks
 
+        # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"

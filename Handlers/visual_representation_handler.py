@@ -10,11 +10,17 @@ def progress_testing_visual_repr_function(message, bot):
 
     user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
 
+    # Налаштування параметрів графіку
+    color = ['green']
+
     # Створення графіка
     x = [key for key in user_testing_progress.keys()]
     y = [len(value) for value in user_testing_progress.values()]
 
-    plt.bar(x, y)
+    plt.bar(x, y, color=color)
+
+    # Відображення на осі У тільки цілих чисел
+    plt.yticks(range(0, int(max(y)) + 1))
     # Налаштування заголовка та підписів осей
     plt.title('Кількість успішно складених тестів за рівнями', fontweight=True)
     plt.xlabel('Назва рівня')
@@ -55,10 +61,21 @@ def progress_level_visual_repr_function(message, bot):
         sizes = [completed_tasks, (remaining_tasks if remaining_tasks > 0 else 0)]
 
         explode = [0.1] + [0] * (len(sizes) - 1)  # Підсвічування першого сегменту
+        '''
         labels = [f'{level} ({completed_tasks}/{max_value})', ''] if completed_tasks < max_value else [
             f'{level} ({completed_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n'
                                                         f'Виконано\nдостатньо\nзавдань\nрівня\n{level}']
-        ax.pie(sizes, labels=labels, colors=colors, explode=explode, autopct='%1.1f%%')
+        '''
+        def form_labels():
+            if completed_tasks == 0:
+                return f'Немає\nвиконаних\nзавдань\nрівня\n{level}', ''
+            elif completed_tasks < max_value:
+                return f'{level} ({completed_tasks}/{max_value})', ''
+            else:
+                return f'{level} ({completed_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n' \
+                                                                   f'Виконано\nдостатньо\nзавдань\nрівня\n{level}'
+
+        ax.pie(sizes, labels=form_labels(), colors=colors, explode=explode, autopct='%1.1f%%')
         ax.set_title(level.capitalize(), fontsize=17)
         ax.tick_params(labelsize=16)  # Розмір шрифту підписів
 

@@ -104,17 +104,17 @@ def handle_yes_or_no_answer(message, level_name, bot):
     total_tasks = bot_db.get_level_count(['easy']) + bot_db.get_level_count(['middle']) +\
                   bot_db.get_level_count(['hard'])  # Total number of tasks for the 'easy' level
 
-
     easy_percentage = (bot_db.get_level_count(['easy']) / total_tasks) * 100 if total_tasks != 0 else 0
     middle_percentage = (bot_db.get_level_count(['middle']) / total_tasks) * 100 if total_tasks != 0 else 0
     hard_percentage = (bot_db.get_level_count(['hard']) / total_tasks) * 100 if total_tasks != 0 else 0
 
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
-        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні такої кількості завдань</b>\n"
+        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні {total_tasks} завдань. З них:</b>\n"
                   f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
                   f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
-                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}",
+                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}\n\n"
+                         f"Ваш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>",
                          parse_mode="HTML", reply_markup=create_start_markup())
 
         progress_level_visual_repr_function(message, bot)
