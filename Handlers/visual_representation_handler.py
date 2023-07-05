@@ -11,13 +11,13 @@ def progress_testing_visual_repr_function(message, bot):
     user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
 
     # Налаштування параметрів графіку
-    color = ['green']
+    colors = ['green', 'orange', 'red']
 
     # Створення графіка
     x = [key for key in user_testing_progress.keys()]
     y = [len(value) for value in user_testing_progress.values()]
 
-    plt.bar(x, y, color=color)
+    plt.bar(x, y, color=colors)
 
     # Відображення на осі У тільки цілих чисел
     plt.yticks(range(0, int(max(y)) + 1))
@@ -48,7 +48,7 @@ def progress_level_visual_repr_function(message, bot):
     max_value = 20
 
     # Налаштування параметрів графіку
-    colors = ['green', 'bisque']
+    colors = ['green', 'orange', 'red', 'bisque']
 
     # Створення підграфіків
     fig, axes = plt.subplots(1, 3, figsize=(10, 4))
@@ -75,7 +75,7 @@ def progress_level_visual_repr_function(message, bot):
                 return f'{level} ({completed_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n' \
                                                                    f'Виконано\nдостатньо\nзавдань\nрівня\n{level}'
 
-        ax.pie(sizes, labels=form_labels(), colors=colors, explode=explode, autopct='%1.1f%%')
+        ax.pie(sizes, labels=form_labels(), colors=(colors[i], colors[-1]), explode=explode, autopct='%1.1f%%')
         ax.set_title(level.capitalize(), fontsize=17)
         ax.tick_params(labelsize=16)  # Розмір шрифту підписів
 
