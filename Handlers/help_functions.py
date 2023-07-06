@@ -23,6 +23,7 @@ def delete_previous_messages(message, telebot_instance):
     except Exception as e:
         print("An unexpected error occurred:", e)
 
+
 def look_at_added_test_task():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     btn_show = types.KeyboardButton("Show added task")
@@ -62,7 +63,8 @@ def create_start_markup():
     btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
     btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
     btn_rew = types.InlineKeyboardButton("🍓 Відгуки", callback_data="/comments")
-    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_rew)
+    btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
+    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_rew, btn_premium)
 
     return markup
 
@@ -72,5 +74,15 @@ def comment_markup():
     btn_view_comments = types.KeyboardButton("view comments")
     btn_write_comment = types.KeyboardButton("write a comment")
     markup.add(btn_view_comments, btn_write_comment)
+
+    return markup
+
+
+def create_premium_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_buy = types.KeyboardButton("💵 Оплатити 'Premium'")
+    btn_details = types.KeyboardButton("Детально про 'Premium'")
+    btn_cancel = types.KeyboardButton("Cancel")
+    markup.add(btn_buy, btn_details, btn_cancel)
 
     return markup

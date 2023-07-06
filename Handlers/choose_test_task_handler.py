@@ -1,19 +1,30 @@
 from telebot import types
-from random import choice
 
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
     progress_level_visual_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
-from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, create_start_markup
+from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
+    create_start_markup, create_premium_markup
+from Handlers.static_variables import premium_options
+
 import random
 
 
 def process_test_task_level(message, bot):
+    chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
     level_name = message.text.strip()
 
     if bot_db.check_this_level_task_exists(level_name=level_name):
-        choose_test_task_function(message, level_name, bot)
+
+        if level_name not in premium_options:
+            choose_test_task_function(message, level_name, bot)
+        elif level_name in premium_options and bot_db.check_status_premium(user_id=chat_id):
+            choose_test_task_function(message, level_name, bot)
+        elif level_name in premium_options and not bot_db.check_status_premium(user_id=chat_id):
+            bot.send_message(chat_id, f"Ви отримаєте можливість проходити тестові завдання рівня <b>'{level_name}'</b> "
+                                      f"за умови оплати 👑'Premium' доступу",
+                             parse_mode="HTML", reply_markup=create_premium_markup())
 
     else:
         bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")

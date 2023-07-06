@@ -135,6 +135,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def check_status_premium(self, user_id):
+        pass
+
+    @abstractmethod
     def delete_lesson(self, lesson_id):
         pass
 
@@ -376,6 +380,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def check_levels_exist(self):
         levels = self.session.query(Level).exists()
         if levels:
+            return True
+        return False
+
+    def check_status_premium(self, user_id):
+        user = self.get_user_by_id(user_id)
+        if user.status == 'premium':
             return True
         return False
 
