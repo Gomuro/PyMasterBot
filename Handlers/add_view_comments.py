@@ -80,7 +80,7 @@ def view_comments(bot, message):
     elif len(comments) > 0:
         comments_to_display = comments
         all_comments_text = '\n\n'.join(comments_to_display)
-        bot.send_message(chat_id, "Comments: \n\n")
+        bot.send_message(chat_id, "Comments: \n\n" + all_comments_text)
     else:
         bot.send_message(chat_id, "No comments available.")
 
@@ -100,19 +100,19 @@ def comment_range_markup(message, bot):
 
     if len(comments) > num_comments_per_page:
         if message_text == "Наступні 10":
-            start_index -= num_comments_per_page
-            end_index -= num_comments_per_page
-            comments_to_display = comments[end_index:start_index]
+            start_index += num_comments_per_page
+            end_index += num_comments_per_page
+            comments_to_display = comments[0:10]
             all_comments_text = '\n\n'.join(comments_to_display)
             bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
 
-
         elif message_text == "Останні 10":
-            start_index += num_comments_per_page
-            end_index += num_comments_per_page
+            start_index = max(0, len(comments) - num_comments_per_page)
+            end_index = start_index + num_comments_per_page
             comments_to_display = comments[start_index:end_index]
             all_comments_text = '\n\n'.join(comments_to_display)
             bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
     else:
         bot.send_message(chat_id, "No more comments available.")
 
+    bot.send_message(chat_id, "First or Last 10 comments: \n\n", reply_markup=comment_range_button_markup())
