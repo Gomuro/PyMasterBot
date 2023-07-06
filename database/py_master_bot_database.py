@@ -199,6 +199,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_comment_by_text(self, comment):
+        pass
+
+    @abstractmethod
     def get_comment_last_id(self):
         pass
 
@@ -464,6 +468,10 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
     def get_comment_by_id(self, comment_id):
         comment = self.session.query(Comment).filter_by(id=comment_id).first()
+        return comment
+
+    def get_comment_by_text(self, comment_text):
+        comment = self.session.query(Comment).filter_by(comment_from_user=comment_text).first()
         return comment
 
     def get_comment_last_id(self):

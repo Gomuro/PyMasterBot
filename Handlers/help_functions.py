@@ -78,6 +78,15 @@ def comment_markup():
     return markup
 
 
+def comment_range_button_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    next_button = types.InlineKeyboardButton("Останні 10")
+    prev_button = types.InlineKeyboardButton("Наступні 10")
+    markup.row(prev_button, next_button)
+
+    return markup
+
+
 def create_premium_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     btn_buy = types.KeyboardButton("💵 Оплатити 'Premium'")
@@ -86,3 +95,4 @@ def create_premium_markup():
     markup.add(btn_buy, btn_details, btn_cancel)
 
     return markup
+
