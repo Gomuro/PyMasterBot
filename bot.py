@@ -12,6 +12,7 @@ bot.run()
 bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
 bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
 bot.inline_keyboard.add_button("🔘 Розпочати тестування", callback_data="/testing")
+bot.inline_keyboard.add_button("🍓 Відгуки", callback_data="/comments")
 bot.reply_keyboard.add_button("Go to Python site")
 
 bot_db = PyMasterBotDatabase()

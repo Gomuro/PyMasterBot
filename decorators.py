@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from Handlers.add_test_task_by_level_handler import add_easy_test_task_function, add_middle_test_task_function, \
     add_hard_test_task_function
+from Handlers.add_view_comments import process_comments
 from change_modes import BotProcessor
 
 from Handlers.add_admin_handler import add_admin_function
@@ -167,6 +168,10 @@ class Bot:
             self.bot.send_message(message.chat.id, "You are in testing mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             process_test_task_level(message, self.bot)
+        elif self.bot_processor.is_mode_comments():
+            self.bot.send_message(message.chat.id, "You are in comments mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            process_comments(self.bot, message)
         elif self.bot_processor.is_mode_help():
             self.bot.send_message(message.chat.id, "You are in help mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())

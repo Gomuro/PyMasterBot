@@ -63,6 +63,14 @@ class TestTask(Base):
     level_relation = Column(String, ForeignKey('levels.level_name'))
 
 
+class Comment(Base):
+    __tablename__ = 'comments'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    comment_from_user = Column(String)
+
+
 class DatabaseFactory(ABC):
     @abstractmethod
     def create_database(self):
@@ -179,6 +187,18 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_all_comments(self):
+        pass
+
+    @abstractmethod
+    def get_comment_by_id(self, comment_id):
+        pass
+
+    @abstractmethod
+    def get_comment_last_id(self):
+        pass
+
+    @abstractmethod
     def get_total_lessons_count(self):
         pass
 
@@ -288,6 +308,11 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.add(new_test_task)
         self.session.commit()
 
+    def add_comment(self, comment_id, name, comment):
+        new_comment = Comment(id=comment_id, name=name, comment_from_user=comment)
+        self.session.add(new_comment)
+        self.session.commit()
+
     def add_level(self, level_id, level_name):
         new_level = Level(id=level_id, level_name=level_name)
         self.session.add(new_level)
@@ -366,6 +391,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             self.session.delete(test_task)
             self.session.commit()
 
+    def delete_comment(self, comment_id):
+        comment = self.session.query(Comment).filter_by(id=comment_id).first()
+        if comment:
+            self.session.delete(comment)
+            self.session.commit()
+
     def delete_level(self, level_name):
         level = self.session.query(Level).filter_by(level_name=level_name).first()
         if level:
@@ -414,6 +445,20 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_level_last_id(self):
         level_last_id = self.session.query(func.max(Level.id)).scalar() or 0
         return level_last_id
+
+    def get_all_comments(self):
+        comments = []
+        for comment in self.session.query(Comment).all():
+            comments.append(f"{comment.name}: {comment.comment_from_user}")
+        return comments
+
+    def get_comment_by_id(self, comment_id):
+        comment = self.session.query(Comment).filter_by(id=comment_id).first()
+        return comment
+
+    def get_comment_last_id(self):
+        comment_last_id = self.session.query(func.max(Comment.id)).scalar() or 0
+        return comment_last_id
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()

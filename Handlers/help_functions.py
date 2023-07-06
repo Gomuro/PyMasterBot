@@ -61,6 +61,16 @@ def create_start_markup():
     btn_doc = types.InlineKeyboardButton("Документація", callback_data="/documentation")
     btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
     btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
-    markup.add(btn_help, btn_doc, btn_check, btn_test)
+    btn_rew = types.InlineKeyboardButton("🍓 Відгуки", callback_data="/comments")
+    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_rew)
+
+    return markup
+
+
+def comment_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_view_comments = types.KeyboardButton("view comments")
+    btn_write_comment = types.KeyboardButton("write a comment")
+    markup.add(btn_view_comments, btn_write_comment)
 
     return markup
