@@ -74,45 +74,70 @@ def view_comments(bot, message):
     comments = bot_db.get_all_comments()
 
     if len(comments) > 10:
-        comments_to_display = comments[:10]  # Вибрати перші 10 коментарів
-        all_comments_text = '\n\n'.join(comments_to_display)
-        bot.send_message(chat_id, "First or Last 10 comments: \n\n", reply_markup=comment_range_button_markup())
+        bot.send_message(chat_id, "Можете подивитись наступні 10 коментарів або останні 10:", reply_markup=comment_range_button_markup())
+        bot.register_next_step_handler(message, next_comments_markup, bot)
+
     elif len(comments) > 0:
-        comments_to_display = comments
-        all_comments_text = '\n\n'.join(comments_to_display)
-        bot.send_message(chat_id, "Comments: \n\n" + all_comments_text)
+        bot.send_message(chat_id, "Comments:\n\n" )
     else:
         bot.send_message(chat_id, "No comments available.")
 
-    bot.register_next_step_handler(message, comment_range_markup, bot)
-    return
 
-
-def comment_range_markup(message, bot):
+def next_comments_markup(message, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
+
+    user_name = bot_db.get_user_by_id(message.from_user.id)
+
+    count = getattr(next_comments_markup, 'count', 0) + 1
+    setattr(next_comments_markup, 'count', count)
+
     comments = bot_db.get_all_comments()
+
     message_text = message.text
 
     num_comments_per_page = 10
-    start_index = 0
-    end_index = start_index + num_comments_per_page
 
-    if len(comments) > num_comments_per_page:
-        if message_text == "Наступні 10":
-            start_index += num_comments_per_page
-            end_index += num_comments_per_page
-            comments_to_display = comments[0:10]
-            all_comments_text = '\n\n'.join(comments_to_display)
-            bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
+    if message_text == "cancel":
+        bot.send_message(chat_id, "Cancelled.")
+        return
 
-        elif message_text == "Останні 10":
-            start_index = max(0, len(comments) - num_comments_per_page)
-            end_index = start_index + num_comments_per_page
-            comments_to_display = comments[start_index:end_index]
-            all_comments_text = '\n\n'.join(comments_to_display)
-            bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
+    elif message_text == "Наступні 10":
+        start_index = getattr(next_comments_markup, 'start_index', 0)
+        end_index = start_index + num_comments_per_page
+        comments_to_display = comments[start_index:end_index]
+        all_comments_text = '\n\n'.join(comments_to_display)
+        bot.reply_to(message, f"Next 10 comments:\n\n{all_comments_text}")
+
+        if end_index >= len(comments):
+            bot.send_message(chat_id, "No more comments available.")
+            setattr(next_comments_markup, 'count', 0)
+            setattr(next_comments_markup, 'start_index', 0)
+            view_comments(bot, message)
+        else:
+            setattr(next_comments_markup, 'start_index', end_index)
+            bot.register_next_step_handler(message, next_comments_markup, bot)
+
+        return
+
+    if message_text == "Останні 10":
+        start_index = max(0, len(comments) - num_comments_per_page)
+        end_index = start_index + num_comments_per_page
+        comments_to_display = comments[start_index:end_index]
+        all_comments_text = '\n\n'.join(comments_to_display)
+        bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
+        bot.register_next_step_handler(message, next_comments_markup, bot)
+
+        return
+
+    if message_text == "Мої коменти":
+        comments_by_user = bot_db.get_own_comments_by_name(user_name)  # Get comments of the specific user
+
+        all_comments_text = '\n\n'.join(comments_by_user)
+        bot.send_message(chat_id, f"All your comments:\n\n{all_comments_text}")
     else:
-        bot.send_message(chat_id, "No more comments available.")
+        bot.send_message(chat_id, "You have no comments.")
 
-    bot.send_message(chat_id, "First or Last 10 comments: \n\n", reply_markup=comment_range_button_markup())
+        return
+
+    bot.register_next_step_handler(message, next_comments_markup, bot)
