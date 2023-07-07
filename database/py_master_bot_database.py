@@ -231,6 +231,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_test_tasks_topics_by_level(self, level):
+        pass
+
+    @abstractmethod
     def is_admin(self, user_id):
         pass
 
@@ -267,6 +271,10 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_test_tasks_by_level(self, table_name):
+        pass
+
+    @abstractmethod
+    def get_test_tasks_by_level_and_topic(self, level_name, topic):
         pass
 
     @abstractmethod
@@ -502,6 +510,14 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         count = self.session.query(User).filter_by(role="admin").count()
         return count
 
+    def get_test_tasks_topics_by_level(self, level):
+        # Get all tasks of the level
+        tasks_by_level = self.get_test_tasks_by_level(level)
+
+        # Retrieve and sort all topics of level
+        topics = sorted(list(set([task.topic for task in tasks_by_level])))
+        return topics
+
     def is_admin(self, user_id):
         user = self.get_user_by_id(user_id)
         if user:
@@ -557,6 +573,11 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         result = self.session.execute(query, {"level": level}).fetchall()
         # Повернення результату запиту
         return result
+
+    def get_test_tasks_by_level_and_topic(self, level_name, topic):
+        test_tasks_by_level_and_topic = self.session.query(TestTask).\
+            filter(TestTask.level_relation == level_name, TestTask.topic == topic).all()
+        return test_tasks_by_level_and_topic
 
     def get_user_progress_testing_level(self, user_id, level_name):
         user_progress_testing_level = self.session.query(User).\

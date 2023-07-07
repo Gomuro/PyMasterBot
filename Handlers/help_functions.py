@@ -47,6 +47,25 @@ def create_levels_markup():
     return markup
 
 
+def create_tasks_topics_markup(level_name):
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    # Retrieve and sort all topics of level
+    topics = bot_db.get_test_tasks_topics_by_level(level_name)
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for topic in topics:
+        btn = types.KeyboardButton(f"{topic}")
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Cancel"))
+
+    return markup
+
+
 def create_yes_or_no_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     btn_yes = types.KeyboardButton("yes")
@@ -95,4 +114,3 @@ def create_premium_markup():
     markup.add(btn_buy, btn_details, btn_cancel)
 
     return markup
-
