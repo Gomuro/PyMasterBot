@@ -207,6 +207,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_own_comments_by_name(self, user_name):
+        pass
+
+    @abstractmethod
     def get_total_lessons_count(self):
         pass
 
@@ -477,6 +481,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_comment_last_id(self):
         comment_last_id = self.session.query(func.max(Comment.id)).scalar() or 0
         return comment_last_id
+
+    def get_own_comments_by_name(self, user_name):
+        comment_by_name = []
+        for comment in self.session.query(Comment).filter_by(name=user_name.name).all():
+            comment_by_name.append(f"{comment.name}: {comment.comment_from_user}")
+        return comment_by_name
 
     def get_total_lessons_count(self):
         count = self.session.query(Lesson).count()

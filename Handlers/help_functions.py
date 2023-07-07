@@ -80,9 +80,11 @@ def comment_markup():
 
 def comment_range_button_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    next_button = types.InlineKeyboardButton("Останні 10")
-    prev_button = types.InlineKeyboardButton("Наступні 10")
-    markup.row(prev_button, next_button)
+    next_button = types.InlineKeyboardButton("Наступні 10")
+    prev_button = types.InlineKeyboardButton("Останні 10")
+    btn_my_comments = types.KeyboardButton("Мої коменти")
+    cancel_button = types.InlineKeyboardButton("cancel")
+    markup.row(next_button, prev_button, btn_my_comments, cancel_button)
 
     return markup
 
