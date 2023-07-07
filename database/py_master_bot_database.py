@@ -286,6 +286,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_uncompleted_test_tasks_by_level(self, user_id, level_name):
+        pass
+
+    @abstractmethod
     def add_task_to_progress_testing(self, user_id, task_id, level_name):
         pass
 
@@ -594,6 +598,25 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             filter(func.json_array_length(User.progress_testing[f'{level_name}']) > 0).all()
 
         return user_progress_testing_level
+
+    def get_uncompleted_test_tasks_by_level(self, user_id, level_name):
+        # Get all tasks of the level
+        all_tasks_by_level = self.get_test_tasks_by_level(level_name)
+        set_tasks_by_level = set(task.id for task in all_tasks_by_level)
+
+        # create a set of tasks of a certain level that the user has already completed
+        user_testing_progress = self.get_user_by_id(user_id).progress_testing
+        tests_done_by_user = set(value for value in user_testing_progress[level_name])
+
+        # create a list of tasks of a certain level on the specified topic that the user has not yet done
+        uncompleted_tasks_id = list(set_tasks_by_level.difference(tests_done_by_user))
+
+        uncompleted_tasks = []
+
+        for task_id in uncompleted_tasks_id:
+            uncompleted_tasks.append(self.get_test_task_by_id(task_id))
+
+        return uncompleted_tasks
 
     def add_task_to_progress_testing(self, user_id, task_id, level_name):
         # Додавання нового значення до списку в JSON-стовпці за ключем

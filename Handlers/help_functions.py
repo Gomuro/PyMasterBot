@@ -47,12 +47,14 @@ def create_levels_markup():
     return markup
 
 
-def create_tasks_topics_markup(level_name):
+def create_tasks_topics_markup(user_id, level_name):
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
 
+    uncompleted_tasks = bot_db.get_uncompleted_test_tasks_by_level(user_id, level_name)
+
     # Retrieve and sort all topics of level
-    topics = bot_db.get_test_tasks_topics_by_level(level_name)
+    topics = sorted(list(set([task.topic for task in uncompleted_tasks])))
 
     # Create markup
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)

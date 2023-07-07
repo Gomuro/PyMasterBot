@@ -16,16 +16,18 @@ def process_test_task_level(message, bot):
     level_name = message.text.strip()
 
     if bot_db.check_this_level_task_exists(level_name=level_name):
+        message_text = f"Select a test topic of level <b>'{level_name}'</b>" \
+                       f"or click the button <b>'Cancel'</b> to exit.\n\n" \
+                       f"If only option 'Cancel' is available - congratulations - " \
+                       f"you have passed all <b>{level_name}</b> level tests!"
 
         if level_name not in premium_options:
-            bot.send_message(chat_id, f"Select a test topic of level <b>'{level_name}'</b> "
-                                      f"or click the button <b>'Cancel'</b> to exit",
-                             parse_mode="HTML", reply_markup=create_tasks_topics_markup(level_name))
+            bot.send_message(chat_id, message_text, parse_mode="HTML",
+                             reply_markup=create_tasks_topics_markup(chat_id, level_name))
             bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
         elif level_name in premium_options and bot_db.check_status_premium(user_id=chat_id):
-            bot.send_message(chat_id, f"Select a test topic of level <b>'{level_name}'</b> "
-                                      f"or click the button <b>'Cancel'</b> to exit",
-                             parse_mode="HTML", reply_markup=create_tasks_topics_markup(level_name))
+            bot.send_message(chat_id, message_text, parse_mode="HTML",
+                             reply_markup=create_tasks_topics_markup(chat_id, level_name))
             bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
         elif level_name in premium_options and not bot_db.check_status_premium(user_id=chat_id):
             bot.send_message(chat_id, f"Ви отримаєте можливість проходити тестові завдання рівня <b>'{level_name}'</b> "
@@ -44,8 +46,8 @@ def process_task_topic(message, level_name, bot):
     # Get the test_task topic from the user's message
     task_topic = message.text.strip()
 
-    if task_topic == "cancel":
-        bot.send_message(chat_id, "Cancelled.")
+    if task_topic.lower() == "cancel":
+        bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
 
     elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name):
