@@ -101,7 +101,7 @@ def comment_markup():
 
 def comment_range_button_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    next_button = types.InlineKeyboardButton("Наступні 10")
+    next_button = types.InlineKeyboardButton("Наступні коментарі")
     prev_button = types.InlineKeyboardButton("Останні 10")
     btn_my_comments = types.KeyboardButton("Мої коменти")
     cancel_button = types.InlineKeyboardButton("cancel")
