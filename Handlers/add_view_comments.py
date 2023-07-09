@@ -1,4 +1,4 @@
-from Handlers.help_functions import comment_range_button_markup
+from Handlers.help_functions import comment_range_button_markup, create_start_markup
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -77,8 +77,16 @@ def view_comments(bot, message):
         bot.send_message(chat_id, "Можете подивитись наступні 10 коментарів або останні 10:", reply_markup=comment_range_button_markup())
         bot.register_next_step_handler(message, next_comments_markup, bot)
 
-    elif len(comments) > 0:
-        bot.send_message(chat_id, "Comments:\n\n" )
+    elif 1 <= len(comments) < 10:
+        chat_id = message.chat.id
+        bot_db = PyMasterBotDatabase()
+
+        comments = bot_db.get_all_comments()
+
+        bot.send_message(chat_id, "Comments:\n\n")
+        comments_to_display = comments[0:9]
+        all_comments_text = '\n\n'.join(comments_to_display)
+        bot.reply_to(message, f"comments:\n\n{all_comments_text}")
     else:
         bot.send_message(chat_id, "No comments available.")
 
@@ -99,7 +107,7 @@ def next_comments_markup(message, bot):
     num_comments_per_page = 10
 
     if message_text == "cancel":
-        bot.send_message(chat_id, "Cancelled.")
+        bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
 
     elif message_text == "Наступні 10":
