@@ -87,10 +87,8 @@ def choose_test_task_function(message, level_name, task_topic, bot):
                          parse_mode="HTML", reply_markup=create_start_markup())
 
     else:
-        print(test_tasks_id)
         # Перемішуємо список тестових завдань
         random.shuffle(test_tasks_id)
-        print(test_tasks_id)
 
         test_task = bot_db.get_test_task_by_id(test_tasks_id[0])
 
