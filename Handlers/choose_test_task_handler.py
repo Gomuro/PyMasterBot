@@ -50,11 +50,12 @@ def process_task_topic(message, level_name, bot):
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
 
-    elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name):
+    elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name) or \
+            task_topic == "Обрати завдання незалежно від теми":
         choose_test_task_function(message, level_name, task_topic, bot)
 
     else:
-        bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
+        bot.reply_to(message, "Не знайдено тестових завдань за обраною темою.")
         return
 
 
@@ -63,9 +64,15 @@ def choose_test_task_function(message, level_name, task_topic, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
 
-    # Create a set of tasks of a certain level on the specified topic
-    test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level_and_topic(level_name, task_topic)
-    test_tasks_id = set(task.id for task in test_tasks_by_level_and_topic)
+    def tasks_by_topic(level, topic_task):
+        if task_topic == "Обрати завдання незалежно від теми":
+            test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level(level)
+        else:
+            test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level_and_topic(level, topic_task)
+        return test_tasks_by_level_and_topic
+
+    # create a set of tasks of a certain level on the specified topic
+    test_tasks_id = set(task.id for task in tasks_by_topic(level_name, task_topic))
 
     # create a set of tasks of a certain level on the specified topic that the user has already completed
     user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing

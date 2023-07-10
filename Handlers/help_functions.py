@@ -63,7 +63,7 @@ def create_tasks_topics_markup(user_id, level_name):
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
 
     return markup
 
