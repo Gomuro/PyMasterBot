@@ -1,5 +1,5 @@
 """This module allows using callback_query with pressing designated inline keyboard buttons"""
-from Handlers.help_functions import create_levels_markup
+from Handlers.help_functions import create_levels_markup, create_premium_markup, comment_markup
 
 
 def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboard):
@@ -24,6 +24,20 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
         telebot_instance.send_message(chat_id=call.message.chat.id,
                                       text="Choose the level of test complexity: ",
                                       reply_markup=create_levels_markup())
+
+    elif call.data == '/comments':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Want to write a comment or view comments?: ",
+                                      reply_markup=comment_markup())
+
+    elif call.data == '/premium':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Розкрийте для себе безліч захоплюючих\n"
+                                           "можливостей з 'Premium' доступом!\n\n"
+                                           "Оберіть опцію: ",
+                                      reply_markup=create_premium_markup())
 
     # Handle the "HELP" button separately
     elif call.data == '/help':

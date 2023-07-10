@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from Handlers.add_test_task_by_level_handler import add_easy_test_task_function, add_middle_test_task_function, \
     add_hard_test_task_function
+from Handlers.add_view_comments import process_comments
 from change_modes import BotProcessor
 
 from Handlers.add_admin_handler import add_admin_function
@@ -13,11 +14,12 @@ from Handlers.check_code_handler import check_code
 from Handlers.documentation_handler import search_documentation
 from Handlers.add_test_task_handler import add_test_task_function
 from Handlers.change_test_task_handler import change_test_task_function
-from Handlers.choose_test_task_handler import choose_test_task_function, process_test_task_level
+from Handlers.choose_test_task_handler import process_test_task_level
 from Handlers.request_help_handler import help_request_handler
 from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
 from Handlers.add_level_handler import add_level_function
+from Handlers.premium_status_handler import premium_status_function
 
 
 from utils.key_board import InlineKeyboard, ReplyKeyboard
@@ -167,10 +169,18 @@ class Bot:
             self.bot.send_message(message.chat.id, "You are in testing mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             process_test_task_level(message, self.bot)
+        elif self.bot_processor.is_mode_comments():
+            self.bot.send_message(message.chat.id, "You are in comments mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            process_comments(self.bot, message)
         elif self.bot_processor.is_mode_help():
             self.bot.send_message(message.chat.id, "You are in help mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             help_request_handler(message, self.bot)
+        elif self.bot_processor.is_mode_premium():
+            self.bot.send_message(message.chat.id, "You are in 'Premium' mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            premium_status_function(message, self.bot)
             
         # Handle the "HELP" button separately
         if message.text == "HELP":

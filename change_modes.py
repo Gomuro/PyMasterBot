@@ -7,6 +7,8 @@ class BotProcessor:
     MODE_LESSON = "lesson"
     MODE_TESTING = "testing"
     MODE_HELP = "help"
+    MODE_COMMENT = "comments"
+    MODE_PREMIUM = "premium"
 
     def __init__(self):
         """By default current mode set to main menu"""
@@ -40,9 +42,17 @@ class BotProcessor:
         """Checking if current mode is equal to testing"""
         return self.current_mode == self.MODE_TESTING
 
+    def is_mode_comments(self):
+        """Checking if current mode is equal to comments"""
+        return self.current_mode == self.MODE_COMMENT
+
     def is_mode_help(self):
         """Checking if current mode is equal to main help"""
         return self.current_mode == self.MODE_HELP
+
+    def is_mode_premium(self):
+        """Checking if current mode is equal to premium"""
+        return self.current_mode == self.MODE_PREMIUM
 
     def message_handler(self, call):
         """The function which get the checked call data and set the current mode to it"""
@@ -58,6 +68,12 @@ class BotProcessor:
         elif call.data.find(self.MODE_LESSON) == 1:
             self.change_mode(mode=self.MODE_LESSON)
             print("New mode set: MODE_LESSON")
+        elif call.data.find(self.MODE_COMMENT) == 1:
+            self.change_mode(mode=self.MODE_COMMENT)
+            print("New mode set: MODE_COMMENT")
         elif call.data.find(self.MODE_HELP) == 1:
             self.change_mode(mode=self.MODE_HELP)
             print("New mode set: MODE_HELP")
+        elif call.data.find(self.MODE_PREMIUM) == 1:
+            self.change_mode(mode=self.MODE_PREMIUM)
+            print("New mode set: MODE_PREMIUM")
