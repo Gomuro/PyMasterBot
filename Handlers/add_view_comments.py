@@ -74,7 +74,7 @@ def view_comments(bot, message):
     comments = bot_db.get_all_comments()
 
     if len(comments) >= 1:
-        bot.send_message(chat_id, "Подивитись коментарі:", reply_markup=comment_range_button_markup())
+        bot.send_message(chat_id, "View comments:", reply_markup=comment_range_button_markup())
         bot.register_next_step_handler(message, next_comments_markup, bot)
     else:
         bot.send_message(chat_id, "No comments available.")
@@ -99,12 +99,13 @@ def next_comments_markup(message, bot):
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
 
-    elif message_text == "Наступні коментарі":
+    elif message_text == "Перші і наступні коментарі":
         start_index = getattr(next_comments_markup, 'start_index', 0)
         end_index = start_index + num_comments_per_page
         comments_to_display = comments[start_index:end_index]
         all_comments_text = '\n\n'.join(comments_to_display)
-        bot.reply_to(message, f"Next 10 comments:\n\n{all_comments_text}")
+        bot.reply_to(message, f"First comments. If there are comments available, click 'Перші і наступні коментарі' "
+                              f"button again to view them:\n\n{all_comments_text}")
 
         if end_index >= len(comments):
             bot.send_message(chat_id, "No more comments available.")
@@ -117,12 +118,12 @@ def next_comments_markup(message, bot):
 
         return
 
-    if message_text == "Останні 10":
+    if message_text == "Останні коментарі":
         start_index = max(0, len(comments) - num_comments_per_page)
         end_index = start_index + num_comments_per_page
         comments_to_display = comments[start_index:end_index]
         all_comments_text = '\n\n'.join(comments_to_display)
-        bot.reply_to(message, f"prev_comments_'\n\n'{all_comments_text}")
+        bot.reply_to(message, f"Previous comments:\n\n{all_comments_text}")
         bot.register_next_step_handler(message, next_comments_markup, bot)
 
         return
