@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update, \
+    desc
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv
@@ -307,6 +308,14 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def check_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def top_users_by_score(self, top_number):
+        pass
+
+    @abstractmethod
+    def rank_user_score(self, user_id):
         pass
 
 
@@ -698,3 +707,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             return "Professional"
         else:
             return "Guru"
+
+    def top_users_by_score(self, top_number):
+        top_users_by_score = self.session.query(User).order_by(desc(User.score)).limit(top_number).all()
+        return top_users_by_score
+
+    def rank_user_score(self, user_id):
+        user_score = self.session.query(User.score).filter(User.id == user_id).scalar()
+        rank = self.session.query(func.count(User.score)).filter(User.score > user_score).scalar() + 1
+        return rank

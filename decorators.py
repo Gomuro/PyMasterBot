@@ -20,6 +20,7 @@ from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
 from Handlers.add_level_handler import add_level_function
 from Handlers.premium_status_handler import premium_status_function
+from Handlers.account_handler import account_function
 
 
 from utils.key_board import InlineKeyboard, ReplyKeyboard
@@ -169,6 +170,11 @@ class Bot:
             self.bot.send_message(message.chat.id, "You are in testing mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
             process_test_task_level(message, self.bot)
+        elif self.bot_processor.is_mode_account():
+            self.bot.delete_message(message.chat.id, message.message_id)
+            self.bot.send_message(message.chat.id, "You are in account mode.",
+                                  reply_markup=self.inline_keyboard.get_keyboard())
+            account_function(message, self.bot)
         elif self.bot_processor.is_mode_comments():
             self.bot.send_message(message.chat.id, "You are in comments mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())

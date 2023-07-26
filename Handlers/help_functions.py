@@ -83,9 +83,10 @@ def create_start_markup():
     btn_doc = types.InlineKeyboardButton("Документація", callback_data="/documentation")
     btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
     btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
+    btn_account = types.InlineKeyboardButton("🏠 Мій акаунт", callback_data="/account")
     btn_rew = types.InlineKeyboardButton("🍓 Відгуки", callback_data="/comments")
     btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
-    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_rew, btn_premium)
+    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_account, btn_rew, btn_premium)
 
     return markup
 
@@ -116,5 +117,14 @@ def create_premium_markup():
     btn_details = types.KeyboardButton("Детально про 'Premium'")
     btn_cancel = types.KeyboardButton("Cancel")
     markup.add(btn_buy, btn_details, btn_cancel)
+
+    return markup
+
+
+def create_account_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_stat = types.KeyboardButton("Статистика по акаунту")
+    btn_cancel = types.KeyboardButton("Cancel")
+    markup.add(btn_stat, btn_cancel)
 
     return markup

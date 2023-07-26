@@ -92,3 +92,31 @@ def progress_level_visual_repr_function(message, bot):
 
     # Очищення графіка
     plt.clf()
+
+
+def user_visual_repr_function(message, bot):
+    chat_id = message.chat.id
+    bot_db = PyMasterBotDatabase()
+    current_user = bot_db.get_user_by_id(chat_id)
+
+    top_users = ""  # create a rating for display
+    counter = 0
+
+    top_users_by_score = [(user.id, user.name, user.username, user.score)
+                          for user in bot_db.top_users_by_score(top_number=5)]  # number of persons in the rating
+    if top_users_by_score:
+
+        for user in top_users_by_score:
+            counter += 1
+            if user[0] == current_user.id:
+                top_users += f"<b>{counter}. {user[1]}({user[2]}) - {user[3]} pts</b> (THIS IS YOU!)\n"
+            else:
+                top_users += f"{counter}. {user[1]}({user[2]}) - {user[3]} pts\n"
+
+    user_score_position = bot_db.rank_user_score(user_id=chat_id)
+
+    bot.send_message(chat_id, f"You have <b>{current_user.status}</b> status until "
+                              f"{current_user.paid_until if current_user.paid_until else 'the moment of payment'}.\n\n"
+                              f"{message.chat.first_name}, your total score is <b>{current_user.score} pts</b>.\n"
+                              f"You take <b>{user_score_position} place</b> in the overall rating.\n\n"
+                              f"TOP-{counter} 🏆:\n {top_users}", parse_mode="HTML")

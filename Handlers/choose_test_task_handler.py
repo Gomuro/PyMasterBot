@@ -1,7 +1,7 @@
 from telebot import types
 
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
-    progress_level_visual_repr_function
+    progress_level_visual_repr_function, user_visual_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
     create_start_markup, create_premium_markup, create_tasks_topics_markup
@@ -126,6 +126,14 @@ def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
     elif message.text == right_answer:
         bot_db = PyMasterBotDatabase()
         bot_db.add_task_to_progress_testing(chat_id, task_id, level_name)
+        points = 0
+        if level_name == "easy":
+            points += 1
+        elif level_name == "middle":
+            points += 5
+        elif level_name == "hard":
+            points += 10
+        bot_db.add_points(user_id=chat_id, points=points)
 
         bot.reply_to(message, "You're right!")
 
@@ -155,16 +163,17 @@ def handle_yes_or_no_answer(message, level_name, task_topic, bot):
 
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
-        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні {total_tasks} завдань. З них:</b>\n"
-                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
-                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
-                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}\n\n"
-                         f"Ваш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>",
-                         parse_mode="HTML", reply_markup=create_start_markup())
 
+        user_visual_repr_function(message, bot)
         progress_level_visual_repr_function(message, bot)
         progress_testing_visual_repr_function(message, bot)
 
+        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні {total_tasks} завдань. З них:</b>\n"
+                                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
+                                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
+                                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}\n\n"
+                                  f"Ваш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>",
+                         parse_mode="HTML", reply_markup=create_start_markup())
         return
 
     elif message.text == "yes":
