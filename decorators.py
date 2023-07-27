@@ -30,7 +30,7 @@ from Handlers.account_handler import account_function
 
 
 from utils.key_board import InlineKeyboard, ReplyKeyboard
-from utils.modes import MODE_MAIN_MENU, MODE_DOCUMENTATION, MODE_CHECK_CODE, MODE_LESSON, MODE_HELP, MODE_TESTING
+from utils.modes import MODE_MAIN_MENU
 
 
 class Bot:
@@ -61,9 +61,6 @@ class Bot:
         self.inline_keyboard = InlineKeyboard()
         # create an instance of ReplyKeyboardMarkup
         self.reply_keyboard = ReplyKeyboard()
-
-        # Add "HELP" button to the inline keyboard
-        self.inline_keyboard.add_button("HELP", callback_data="/help")
 
     def get_bot(self):
         """
@@ -115,7 +112,6 @@ class Bot:
         """
         This method adds a test_task based on the level.
         """
-        text = message.text
 
         if message.text.find("/add_easy_test_task") != -1:
             add_easy_test_task_function(self.bot, message)
@@ -142,7 +138,6 @@ class Bot:
         """
         This method adds a code_task based on the level.
         """
-        text = message.text
 
         if message.text.find("/add_easy_code_task") != -1:
             add_easy_code_task_function(self.bot, message)

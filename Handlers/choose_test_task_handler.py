@@ -1,7 +1,7 @@
 from telebot import types
 
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
-    progress_level_visual_repr_function, user_visual_repr_function
+    progress_level_visual_repr_function, user_visual_repr_function, progress_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
     create_start_markup, create_premium_markup, create_tasks_topics_markup
@@ -152,14 +152,6 @@ def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
 def handle_yes_or_no_answer(message, level_name, task_topic, bot):
     delete_previous_messages(message=message, telebot_instance=bot)
     chat_id = message.chat.id
-    bot_db = PyMasterBotDatabase()
-
-    total_tasks = bot_db.get_level_count(['easy']) + bot_db.get_level_count(['middle']) +\
-                  bot_db.get_level_count(['hard'])  # Total number of tasks for the 'easy' level
-
-    easy_percentage = (bot_db.get_level_count(['easy']) / total_tasks) * 100 if total_tasks != 0 else 0
-    middle_percentage = (bot_db.get_level_count(['middle']) / total_tasks) * 100 if total_tasks != 0 else 0
-    hard_percentage = (bot_db.get_level_count(['hard']) / total_tasks) * 100 if total_tasks != 0 else 0
 
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
@@ -167,13 +159,8 @@ def handle_yes_or_no_answer(message, level_name, task_topic, bot):
         user_visual_repr_function(message, bot)
         progress_level_visual_repr_function(message, bot)
         progress_testing_visual_repr_function(message, bot)
+        progress_theory_tests_repr_function(message, bot)
 
-        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні {total_tasks} завдань. З них:</b>\n"
-                                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
-                                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
-                                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}\n\n"
-                                  f"Ваш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>",
-                         parse_mode="HTML", reply_markup=create_start_markup())
         return
 
     elif message.text == "yes":

@@ -97,6 +97,7 @@ def create_code_tasks_topics_markup(user_id, level_name):
 
     return markup
 
+
 def create_yes_or_no_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     btn_yes = types.KeyboardButton("yes")
@@ -108,15 +109,15 @@ def create_yes_or_no_markup():
 
 def create_start_markup():
     markup = types.InlineKeyboardMarkup()
-    btn_help = types.InlineKeyboardButton("HELP",  callback_data="/help")
-    btn_doc = types.InlineKeyboardButton("Документація", callback_data="/documentation")
-    btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
-    btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
-    btn_account = types.InlineKeyboardButton("🏠 Мій акаунт", callback_data="/account")
+    btn_test = types.InlineKeyboardButton("🔘 Theory tests", callback_data="/testing")
     btn_code = types.InlineKeyboardButton("🔵 Coding tests ", callback_data="/coding")
-    btn_rew = types.InlineKeyboardButton("🍓 Відгуки", callback_data="/comments")
+    btn_check = types.InlineKeyboardButton("Check my code", callback_data="/check_code")
+    btn_doc = types.InlineKeyboardButton("Documentation", callback_data="/documentation")
+    btn_help = types.InlineKeyboardButton("HELP", callback_data="/help")
+    btn_account = types.InlineKeyboardButton("🏠 My account", callback_data="/account")
+    btn_rew = types.InlineKeyboardButton("🍓 Comments", callback_data="/comments")
     btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
-    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_account, btn_code, btn_rew, btn_premium)
+    markup.add(btn_test, btn_code, btn_check, btn_doc, btn_help, btn_account, btn_rew, btn_premium)
 
     return markup
 

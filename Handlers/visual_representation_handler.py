@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 
 from io import BytesIO
+
+from Handlers.help_functions import create_start_markup
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -20,9 +22,14 @@ def progress_testing_visual_repr_function(message, bot):
     plt.bar(x, y, color=colors)
 
     # Відображення на осі У тільки цілих чисел
-    plt.yticks(range(0, int(max(y)) + 1))
+    plt.yticks(range(0, int(max(y)) + 2, 2))
+
+    # Додавання підписів значень до стовпців
+    for i, v in enumerate(y):
+        plt.text(x[i], v, str(v), ha='center', va='top', fontweight='bold')
+
     # Налаштування заголовка та підписів осей
-    plt.title('Кількість успішно складених тестів за рівнями', fontweight=True)
+    plt.title('Кількість успішно складених тестів (ТЕОРІЯ) за рівнями', fontweight=True)
     plt.xlabel('Назва рівня')
     plt.ylabel('Кількість тестів')
 
@@ -80,7 +87,7 @@ def progress_level_visual_repr_function(message, bot):
         ax.tick_params(labelsize=16)  # Розмір шрифту підписів
 
     # Загальний заголовок
-    fig.suptitle('Прогрес за рівнями складності', fontsize=18)
+    fig.suptitle('Прогрес тестування (ТЕОРІЯ) за рівнями складності', fontsize=18)
 
     # Збереження графіка в буфері
     buffer = BytesIO()
@@ -92,6 +99,26 @@ def progress_level_visual_repr_function(message, bot):
 
     # Очищення графіка
     plt.clf()
+
+
+def progress_theory_tests_repr_function(message, bot):
+    chat_id = message.chat.id
+    bot_db = PyMasterBotDatabase()
+
+    user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
+
+    total_value = sum(len(value) for value in user_testing_progress.values())
+
+    message_text = f"<b>Ви досягли успіху у виконанні {total_value} завдань. </b>"
+
+    if total_value != 0:
+        message_text += " З них:\n"
+        for key, value in user_testing_progress.items():
+            message_text += f"на рівні {key}: {len(value)},    {'{:.2f}%'.format(len(value) / total_value * 100)}\n"
+
+    message_text += f"\nВаш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>"
+
+    bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=create_start_markup())
 
 
 def user_visual_repr_function(message, bot):

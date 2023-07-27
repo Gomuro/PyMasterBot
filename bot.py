@@ -9,13 +9,15 @@ from Handlers.callback_query_handler import callback_query_handler
 bot = Bot("data/bot_token.txt")
 
 bot.run()
-bot.inline_keyboard.add_button("Документація", callback_data="/documentation")
-bot.inline_keyboard.add_button("Перевірити код", callback_data="/check_code")
-bot.inline_keyboard.add_button("🔘 Розпочати тестування", callback_data="/testing")
+bot.inline_keyboard.add_button("🔘 Theory tests", callback_data="/testing")
 bot.inline_keyboard.add_button("🔵 Coding tests ", callback_data="/coding")
-bot.inline_keyboard.add_button("🏠 Мій акаунт", callback_data="/account")
-bot.inline_keyboard.add_button("🍓 Відгуки", callback_data="/comments")
+bot.inline_keyboard.add_button("Check my code", callback_data="/check_code")
+bot.inline_keyboard.add_button("Documentation", callback_data="/documentation")
+bot.inline_keyboard.add_button("HELP", callback_data="/help")
+bot.inline_keyboard.add_button("🏠 My account", callback_data="/account")
+bot.inline_keyboard.add_button("🍓 Comments", callback_data="/comments")
 bot.inline_keyboard.add_button("👑 Premium", callback_data="/premium")
+
 bot.reply_keyboard.add_button("Go to Python site")
 
 bot_db = PyMasterBotDatabase()
