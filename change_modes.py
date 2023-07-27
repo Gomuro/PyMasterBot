@@ -6,6 +6,7 @@ class BotProcessor:
     MODE_CHECK_CODE = "check_code"
     MODE_LESSON = "lesson"
     MODE_TESTING = "testing"
+    MODE_CODING = "coding"
     MODE_ACCOUNT = "account"
     MODE_HELP = "help"
     MODE_COMMENT = "comments"
@@ -43,6 +44,10 @@ class BotProcessor:
         """Checking if current mode is equal to testing"""
         return self.current_mode == self.MODE_TESTING
 
+    def is_mode_coding(self):
+        """Checking if current mode is equal to coding"""
+        return self.current_mode == self.MODE_CODING
+
     def is_mode_account(self):
         """Checking if current mode is equal to account"""
         return self.current_mode == self.MODE_ACCOUNT
@@ -67,6 +72,9 @@ class BotProcessor:
         elif call.data.find(self.MODE_TESTING) == 1:
             self.change_mode(mode=self.MODE_TESTING)
             print("New mode set: MODE_TESTING")
+        elif call.data.find(self.MODE_CODING) == 1:
+            self.change_mode(mode=self.MODE_CODING)
+            print("New mode set: MODE_CODING")
         elif call.data.find(self.MODE_CHECK_CODE) == 1:
             self.change_mode(mode=self.MODE_CHECK_CODE)
             print("New mode set: MODE_CHECK_CODE")

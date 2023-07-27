@@ -34,6 +34,12 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
                                            f"'Статистика по акаунту' button or click 'Cancel' to exit",
                                       reply_markup=create_account_markup())
 
+    elif call.data == '/coding':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Choose the level of test code complexity: ",
+                                      reply_markup=create_levels_markup())
+
     elif call.data == '/comments':
         telebot_instance.answer_callback_query(callback_query_id=call.id)
         telebot_instance.send_message(chat_id=call.message.chat.id,

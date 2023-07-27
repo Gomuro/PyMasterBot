@@ -33,6 +33,15 @@ def look_at_added_test_task():
     return markup
 
 
+def look_at_added_code_task():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_show = types.KeyboardButton("Show added task")
+    btn_continue = types.KeyboardButton("Continue")
+    markup.add(btn_show, btn_continue)
+
+    return markup
+
+
 def create_levels_markup():
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
@@ -68,6 +77,26 @@ def create_tasks_topics_markup(user_id, level_name):
     return markup
 
 
+def create_code_tasks_topics_markup(user_id, level_name):
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    uncompleted_code_tasks = bot_db.get_uncompleted_code_tasks_by_level(user_id, level_name)
+
+    # Retrieve and sort all topics of level
+    topics = sorted(list(set([code_task.topic for code_task in uncompleted_code_tasks])))
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for topic in topics:
+        btn = types.KeyboardButton(f"{topic}")
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
+
+    return markup
+
 def create_yes_or_no_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     btn_yes = types.KeyboardButton("yes")
@@ -84,9 +113,10 @@ def create_start_markup():
     btn_check = types.InlineKeyboardButton("Перевірити код", callback_data="/check_code")
     btn_test = types.InlineKeyboardButton("🔘 Розпочати тестування", callback_data="/testing")
     btn_account = types.InlineKeyboardButton("🏠 Мій акаунт", callback_data="/account")
+    btn_code = types.InlineKeyboardButton("🔵 Coding tests ", callback_data="/coding")
     btn_rew = types.InlineKeyboardButton("🍓 Відгуки", callback_data="/comments")
     btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
-    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_account, btn_rew, btn_premium)
+    markup.add(btn_help, btn_doc, btn_check, btn_test, btn_account, btn_code, btn_rew, btn_premium)
 
     return markup
 
