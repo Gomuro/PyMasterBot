@@ -1,14 +1,13 @@
 from telebot import types
 
-from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
-    progress_level_visual_repr_function
+from Handlers.visual_code_representation_handler import progress_code_testing_visual_repr_function, \
+    progress_code_level_visual_repr_function, user_visual_repr_function, progress_code_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
     create_start_markup, create_premium_markup, create_code_tasks_topics_markup
 from Handlers.static_variables import premium_options
 
 import random
-
 
 def process_code_task_level(message, bot):
     chat_id = message.chat.id
@@ -43,7 +42,7 @@ def process_code_task_topic(message, level_name, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
 
-    # Get the code_task topic from the user's message
+    # Get the test_task topic from the user's message
     code_task_topic = message.text.strip()
 
     if code_task_topic.lower() == "cancel":
@@ -101,7 +100,7 @@ def choose_code_task_function(message, level_name, code_task_topic, bot):
         right_answer = code_task.right_answer
 
         response = f"({topic})\n{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
-        bot.send_message(chat_id, response)
+        bot.send_message(chat_id, response, parse_mode='HTML')
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         btn_var1 = types.KeyboardButton(var1)
@@ -110,8 +109,7 @@ def choose_code_task_function(message, level_name, code_task_topic, bot):
         markup.add(btn_var1, btn_var2, btn_var3)
 
         bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
-        bot.register_next_step_handler(message, handle_answer, code_task_id, right_answer, level_name, code_task_topic,
-                                       bot)
+        bot.register_next_step_handler(message, handle_answer, code_task_id, right_answer, level_name, code_task_topic, bot)
 
 
 def handle_answer(message, code_task_id, right_answer, level_name, code_task_topic, bot):
@@ -126,7 +124,15 @@ def handle_answer(message, code_task_id, right_answer, level_name, code_task_top
 
     elif message.text == right_answer:
         bot_db = PyMasterBotDatabase()
-        bot_db.add_code_task_to_progress_testing(chat_id, code_task_id, level_name)
+        bot_db.add_task_to_progress_testing(chat_id, code_task_id, level_name)
+        points = 0
+        if level_name == "easy":
+            points += 1
+        elif level_name == "middle":
+            points += 5
+        elif level_name == "hard":
+            points += 10
+        bot_db.add_points(user_id=chat_id, points=points)
 
         bot.reply_to(message, "You're right!")
 
@@ -145,26 +151,14 @@ def handle_answer(message, code_task_id, right_answer, level_name, code_task_top
 def handle_yes_or_no_answer(message, level_name, code_task_topic, bot):
     delete_previous_messages(message=message, telebot_instance=bot)
     chat_id = message.chat.id
-    bot_db = PyMasterBotDatabase()
-
-    total_code_tasks = bot_db.get_level_count(['easy']) + bot_db.get_level_count(['middle']) +\
-                  bot_db.get_level_count(['hard'])  # Total number of code_tasks for the 'easy' level
-
-    easy_percentage = (bot_db.get_level_count(['easy']) / total_code_tasks) * 100 if total_code_tasks != 0 else 0
-    middle_percentage = (bot_db.get_level_count(['middle']) / total_code_tasks) * 100 if total_code_tasks != 0 else 0
-    hard_percentage = (bot_db.get_level_count(['hard']) / total_code_tasks) * 100 if total_code_tasks != 0 else 0
 
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
-        bot.send_message(chat_id, f"<b>Ви досягли успіху у виконанні {total_code_tasks} завдань. З них:</b>\n"
-                  f"на рівні 'easy': {bot_db.get_level_count(['easy'])},    {'{:.2f}%'.format(easy_percentage)}\n"
-                  f"на рівні 'middle': {bot_db.get_level_count(['middle'])}    {'{:.2f}%'.format(middle_percentage)},\n"
-                  f"на рівні 'hard': {bot_db.get_level_count(['hard'])},    {'{:.2f}%'.format(hard_percentage)}\n\n"
-                         f"Ваш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>",
-                         parse_mode="HTML", reply_markup=create_start_markup())
 
-        progress_level_visual_repr_function(message, bot)
-        progress_testing_visual_repr_function(message, bot)
+        user_visual_repr_function(message, bot)
+        progress_code_level_visual_repr_function(message, bot)
+        progress_code_testing_visual_repr_function(message, bot)
+        progress_code_theory_tests_repr_function(message, bot)
 
         return
 
