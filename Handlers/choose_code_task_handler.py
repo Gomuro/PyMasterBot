@@ -1,13 +1,14 @@
 from telebot import types
 
 from Handlers.visual_code_representation_handler import progress_code_testing_visual_repr_function, \
-    progress_code_level_visual_repr_function, user_visual_repr_function, progress_code_theory_tests_repr_function
+    progress_code_level_visual_repr_function, user_visual_code_repr_function, progress_code_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
     create_start_markup, create_premium_markup, create_code_tasks_topics_markup
 from Handlers.static_variables import premium_options
 
 import random
+
 
 def process_code_task_level(message, bot):
     chat_id = message.chat.id
@@ -74,8 +75,8 @@ def choose_code_task_function(message, level_name, code_task_topic, bot):
     code_tasks_id = set(code_task.id for code_task in code_tasks_by_topic(level_name, code_task_topic))
 
     # create a set of code_tasks of a certain level on the specified topic that the user has already completed
-    user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
-    tests_done_by_user = set(value for value in user_testing_progress[level_name])
+    user_coding_progress = bot_db.get_user_by_id(chat_id).progress_coding
+    tests_done_by_user = set(value for value in user_coding_progress[level_name])
 
     # create a list of code_tasks of a certain level on the specified topic that the user has not yet done
     code_tasks_id = list(code_tasks_id.difference(tests_done_by_user))
@@ -124,7 +125,7 @@ def handle_answer(message, code_task_id, right_answer, level_name, code_task_top
 
     elif message.text == right_answer:
         bot_db = PyMasterBotDatabase()
-        bot_db.add_task_to_progress_testing(chat_id, code_task_id, level_name)
+        bot_db.add_code_task_to_progress_coding(chat_id, code_task_id, level_name)
         points = 0
         if level_name == "easy":
             points += 1
@@ -155,7 +156,7 @@ def handle_yes_or_no_answer(message, level_name, code_task_topic, bot):
     if message.text in ("no", "cancel"):
         bot.send_message(chat_id, "Cancelled.")
 
-        user_visual_repr_function(message, bot)
+        user_visual_code_repr_function(message, bot)
         progress_code_level_visual_repr_function(message, bot)
         progress_code_testing_visual_repr_function(message, bot)
         progress_code_theory_tests_repr_function(message, bot)
