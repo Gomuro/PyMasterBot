@@ -31,6 +31,7 @@ class User(Base):
     progress = Column(JSON, default=list)
     progress_testing = Column(JSON)
     progress_coding = Column(JSON)
+    progress_lessons = Column(JSON, default=list)
     role = Column(String)
 
 
@@ -47,6 +48,7 @@ class Lesson(Base):
 
     id = Column(Integer, primary_key=True)
     topic = Column(String)
+    item = Column(String)
     description = Column(String)
     text = Column(String)
     status = Column(String)
@@ -99,7 +101,7 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 
 class AbstractDatabase(ABC):
     @abstractmethod
-    def add_lesson(self, topic, description, text, status):
+    def add_lesson(self, topic, item, description, text, status):
         pass
 
     @abstractmethod
@@ -138,6 +140,7 @@ class AbstractDatabase(ABC):
         progress=[],
         progress_testing={},
         progress_coding={},
+        progress_lessons=[],
         role=None,
     ):
         pass
@@ -403,9 +406,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
 
-    def add_lesson(self, topic, description, text, status):
+    def add_lesson(self, topic, item, description, text, status):
         new_lesson = Lesson(
-            topic=topic, description=description, text=text, status=status
+            topic=topic, item=item, description=description, text=text, status=status
         )
         self.session.add(new_lesson)
         self.session.commit()
@@ -435,8 +438,8 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def add_lesson_progress(self, user_id, lesson_id):
         user = self.get_user_by_id(user_id)
         if user:
-            if lesson_id not in user.progress:
-                user.progress.append(lesson_id)
+            if lesson_id not in user.progress_lessons:
+                user.progress_lessons.append(lesson_id)
                 self.session.commit()
 
     def add_points(self, user_id, points):
@@ -462,6 +465,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         progress=[],
         progress_testing={},
         progress_coding={},
+        progress_lessons=[],
         role="user",
     ):
         new_user = User(

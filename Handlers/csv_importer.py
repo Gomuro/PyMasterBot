@@ -20,13 +20,15 @@ def add_lessons_csv(session, csv_filename, Lesson):
                 continue  # Skip rows without a numerical number
 
             topic = row[1]
-            description = row[2]
-            text = row[3]
-            status = row[4]
+            item = row[2]
+            description = row[3]
+            text = row[4]
+            status = row[5]
 
             # Check if the row already exists in the database
             existing_row = session.query(Lesson).filter_by(
                 topic=topic,
+                item=item,
                 description=description,
                 text=text,
                 status=status,
@@ -43,6 +45,7 @@ def add_lessons_csv(session, csv_filename, Lesson):
                 new_lesson = Lesson(
                     id=last_number + 1,  # Set the new number as the maximum + 1
                     topic=topic,
+                    item=item,
                     description=description,
                     text=text,
                     status=status,
@@ -54,6 +57,7 @@ def add_lessons_csv(session, csv_filename, Lesson):
                 session.rollback()
                 existing_lesson = session.query(Lesson).filter_by(id=number).first()
                 existing_lesson.topic = topic
+                existing_lesson.item = item
                 existing_lesson.description = description
                 existing_lesson.text = text
                 existing_lesson.status = status

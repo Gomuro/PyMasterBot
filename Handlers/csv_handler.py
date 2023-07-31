@@ -19,13 +19,9 @@ def handle_csv_lessons(telebot_instance, message, document):
 
     # Перевірка, чи повідомлення містить файл CSV
     if message.document.mime_type == 'text/csv':
-        # Отримання списку назв таблиць
-        table_names = db.get_all_tables()
 
         if document.file_name == "lessons.csv":
-            selected_table = "lessons"  # Збереження обраної таблиці
             file_extension = document.file_name.split('.')[-1]
-            unique_filename = f"{str(uuid.uuid4())}.{file_extension}"  # Генерація унікального імені файлу
             file_info = telebot_instance.get_file(document.file_id)
             downloaded_file = telebot_instance.download_file(file_info.file_path)
 
