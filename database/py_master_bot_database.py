@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import os
 import sqlalchemy
 from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update, \
-    desc
+    desc, inspect, MetaData
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv
@@ -314,7 +314,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def get_test_tasks_by_level(self, table_name):
+    def get_test_tasks_by_level(self, level):
         pass
 
     @abstractmethod
@@ -322,7 +322,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def get_code_tasks_by_level(self, table_name):
+    def get_code_tasks_by_level(self, level):
         pass
 
     @abstractmethod
@@ -689,32 +689,27 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         add_code_tasks_csv(self.session, csv_filename, CodeTask)
 
     def get_all_tables(self):
-        # get table names from database
-        query = text("SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name")
-        table_names = self.session.execute(query, {"schema_name": "public"}).fetchall()
-        table_names = [table[0] for table in table_names]
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+        table_names = metadata.tables.keys()
         return table_names
 
     def get_table_by_name(self, table_name):
-        # get table by name
-        query = text(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name AND table_name=:table_name")
-        result = self.session.execute(query, {"schema_name": "public", "table_name": table_name}).fetchone()
-        return result[0] if result else None
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+
+        if table_name in metadata.tables:
+            return metadata.tables[table_name]
+        else:
+            return None
 
     def get_test_tasks_by_level(self, level):
-        # Отримання тестових завдань за рівнем
-        query = text("SELECT * FROM test_tasks WHERE Level_relation = :level")
-        result = self.session.execute(query, {"level": level}).fetchall()
-        # Повернення результату запиту
-        return result
+        test_tasks = self.session.query(TestTask).join(Level).filter(Level.level_name == level).all()
+        return test_tasks
 
     def get_code_tasks_by_level(self, level):
-        # Отримання тестових завдань за рівнем
-        query = text("SELECT * FROM code_tasks WHERE Level_relation = :level")
-        result = self.session.execute(query, {"level": level}).fetchall()
-        # Повернення результату запиту
-        return result
+        code_tasks = self.session.query(CodeTask).join(Level).filter(Level.level_name == level).all()
+        return code_tasks
 
     def get_test_tasks_by_level_and_topic(self, level_name, topic):
         test_tasks_by_level_and_topic = self.session.query(TestTask).\

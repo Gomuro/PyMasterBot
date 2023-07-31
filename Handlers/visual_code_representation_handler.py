@@ -69,7 +69,7 @@ def progress_code_level_visual_repr_function(message, bot):
 
         explode = [0.1] + [0] * (len(sizes) - 1)  # Підсвічування першого сегменту
         '''
-        labels = [f'{level} ({completed_tasks}/{max_value})', ''] if completed_tasks < max_value else [
+        labels = [f'{level} ({completed_code_tasks}/{max_value})', ''] if completed_code_tasks < max_value else [
             f'{level} ({completed_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n'
                                                         f'Виконано\nдостатньо\nзавдань\nрівня\n{level}']
         '''
