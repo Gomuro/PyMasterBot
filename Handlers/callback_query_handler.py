@@ -1,5 +1,6 @@
 """This module allows using callback_query with pressing designated inline keyboard buttons"""
-from Handlers.help_functions import create_levels_markup, create_premium_markup, comment_markup
+from Handlers.help_functions import create_levels_markup, create_premium_markup, comment_markup, create_account_markup
+from Handlers.visual_representation_handler import user_visual_repr_function
 
 
 def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboard):
@@ -23,6 +24,20 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
         telebot_instance.answer_callback_query(callback_query_id=call.id)
         telebot_instance.send_message(chat_id=call.message.chat.id,
                                       text="Choose the level of test complexity: ",
+                                      reply_markup=create_levels_markup())
+
+    elif call.data == '/account':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        user_visual_repr_function(message=call.message, bot=telebot_instance)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text=f"For detailed information click on the "
+                                           f"'Статистика по акаунту' button or click 'Cancel' to exit",
+                                      reply_markup=create_account_markup())
+
+    elif call.data == '/coding':
+        telebot_instance.answer_callback_query(callback_query_id=call.id)
+        telebot_instance.send_message(chat_id=call.message.chat.id,
+                                      text="Choose the level of test code complexity: ",
                                       reply_markup=create_levels_markup())
 
     elif call.data == '/comments':

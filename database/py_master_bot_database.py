@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 import os
 import sqlalchemy
-from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update
+from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update, \
+    desc, inspect, MetaData
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
-from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv
+from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv
 from Handlers.static_variables import max_total_tasks
 
 
@@ -29,6 +30,7 @@ class User(Base):
     score = Column(Integer, default=0)
     progress = Column(JSON, default=list)
     progress_testing = Column(JSON)
+    progress_coding = Column(JSON)
     role = Column(String)
 
 
@@ -52,6 +54,19 @@ class Lesson(Base):
 
 class TestTask(Base):
     __tablename__ = 'test_tasks'
+
+    id = Column(Integer, primary_key=True)
+    topic = Column(String)
+    question = Column(String)
+    var1 = Column(String)
+    var2 = Column(String)
+    var3 = Column(String)
+    right_answer = Column(String)
+    level_relation = Column(String, ForeignKey('levels.level_name'))
+
+
+class CodeTask(Base):
+    __tablename__ = 'code_tasks'
 
     id = Column(Integer, primary_key=True)
     topic = Column(String)
@@ -92,6 +107,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def add_code_task(self, code_task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+        pass
+
+    @abstractmethod
     def add_level(self, level_id, level_name):
         pass
 
@@ -118,6 +137,7 @@ class AbstractDatabase(ABC):
         score=0,
         progress=[],
         progress_testing={},
+        progress_coding={},
         role=None,
     ):
         pass
@@ -144,6 +164,10 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def delete_test_task(self, test_task_id):
+        pass
+
+    @abstractmethod
+    def delete_code_task(self, code_task_id):
         pass
 
     @abstractmethod
@@ -176,6 +200,18 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_test_task_by_id(self, test_task_id):
+        pass
+
+    @abstractmethod
+    def get_code_task_by_question(self, question):
+        pass
+
+    @abstractmethod
+    def get_code_task_last_id(self):
+        pass
+
+    @abstractmethod
+    def get_code_task_by_id(self, code_task_id):
         pass
 
     @abstractmethod
@@ -239,6 +275,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_code_tasks_topics_by_level(self, level):
+        pass
+
+    @abstractmethod
     def is_admin(self, user_id):
         pass
 
@@ -274,11 +314,19 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def get_test_tasks_by_level(self, table_name):
+    def get_test_tasks_by_level(self, level):
         pass
 
     @abstractmethod
     def get_test_tasks_by_level_and_topic(self, level_name, topic):
+        pass
+
+    @abstractmethod
+    def get_code_tasks_by_level(self, level):
+        pass
+
+    @abstractmethod
+    def get_code_tasks_by_level_and_topic(self, level_name, topic):
         pass
 
     @abstractmethod
@@ -290,11 +338,23 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_uncompleted_code_tasks_by_level(self, user_id, level_name):
+        pass
+
+    @abstractmethod
     def add_task_to_progress_testing(self, user_id, task_id, level_name):
         pass
 
     @abstractmethod
     def check_this_level_task_exists(self, level_name):
+        pass
+
+    @abstractmethod
+    def add_code_task_to_progress_coding(self, user_id, code_task_id, level_name):
+        pass
+
+    @abstractmethod
+    def check_this_level_code_task_exists(self, level_name):
         pass
 
     @abstractmethod
@@ -306,7 +366,31 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def is_code_task_in_progress_coding(self, user_id, code_task_id, level_name):
+        pass
+
+    @abstractmethod
     def check_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def top_users_by_score(self, top_number):
+        pass
+
+    @abstractmethod
+    def rank_user_score(self, user_id):
+        pass
+
+    @abstractmethod
+    def check_code_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def get_code_level_count(self, level_name):
+        pass
+
+    @abstractmethod
+    def get_user_progress_coding_level(self, user_id, level_name):
         pass
 
 
@@ -328,6 +412,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
     def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
         new_test_task = TestTask(id=task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
+                                 right_answer=right_answer, level_relation=level_relation)
+        self.session.add(new_test_task)
+        self.session.commit()
+
+    def add_code_task(self, code_task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+        new_test_task = TestTask(id=code_task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
                                  right_answer=right_answer, level_relation=level_relation)
         self.session.add(new_test_task)
         self.session.commit()
@@ -371,6 +461,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         score=0,
         progress=[],
         progress_testing={},
+        progress_coding={},
         role="user",
     ):
         new_user = User(
@@ -379,7 +470,8 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             username=username,
             status=status,
             paid_until=paid_until,
-            progress_testing=dict.fromkeys([level for level in self.get_all_levels()], [])
+            progress_testing=dict.fromkeys([level for level in self.get_all_levels()], []),
+            progress_coding=dict.fromkeys([level for level in self.get_all_levels()], [])
         )
 
         self.session.add(new_user)
@@ -419,6 +511,12 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
         if test_task:
             self.session.delete(test_task)
+            self.session.commit()
+
+    def delete_code_task(self, code_task_id):
+        code_task = self.session.query(CodeTask).filter_by(id=code_task_id).first()
+        if code_task:
+            self.session.delete(code_task)
             self.session.commit()
 
     def delete_comment(self, comment_id):
@@ -462,6 +560,18 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_test_task_by_id(self, test_task_id):
         test_task = self.session.query(TestTask).filter_by(id=test_task_id).first()
         return test_task
+
+    def get_code_task_by_question(self, question):
+        code_task = self.session.query(CodeTask).filter_by(question=question).first()
+        return code_task
+
+    def get_code_task_last_id(self):
+        code_task_last_id = self.session.query(func.max(CodeTask.id)).scalar() or 0
+        return code_task_last_id
+
+    def get_code_task_by_id(self, code_task_id):
+        code_task = self.session.query(CodeTask).filter_by(id=code_task_id).first()
+        return code_task
 
     def get_level_by_name(self, level_name):
         level = self.session.query(Level).filter_by(level_name=level_name).first()
@@ -532,6 +642,14 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         topics = sorted(list(set([task.topic for task in tasks_by_level])))
         return topics
 
+    def get_code_tasks_topics_by_level(self, level):
+        # Get all code_tasks of the level
+        code_tasks_by_level = self.get_code_tasks_by_level(level)
+
+        # Retrieve and sort all topics of level
+        topics = sorted(list(set([code_task.topic for code_task in code_tasks_by_level])))
+        return topics
+
     def is_admin(self, user_id):
         user = self.get_user_by_id(user_id)
         if user:
@@ -567,37 +685,53 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def add_test_tasks_csv(self, csv_filename):
         add_test_tasks_csv(self.session, csv_filename, TestTask)
 
+    def add_code_tasks_csv(self, csv_filename):
+        add_code_tasks_csv(self.session, csv_filename, CodeTask)
+
     def get_all_tables(self):
-        # get table names from database
-        query = text("SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name")
-        table_names = self.session.execute(query, {"schema_name": "public"}).fetchall()
-        table_names = [table[0] for table in table_names]
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+        table_names = metadata.tables.keys()
         return table_names
 
     def get_table_by_name(self, table_name):
-        # get table by name
-        query = text(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema=:schema_name AND table_name=:table_name")
-        result = self.session.execute(query, {"schema_name": "public", "table_name": table_name}).fetchone()
-        return result[0] if result else None
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+
+        if table_name in metadata.tables:
+            return metadata.tables[table_name]
+        else:
+            return None
 
     def get_test_tasks_by_level(self, level):
-        # Отримання тестових завдань за рівнем
-        query = text("SELECT * FROM test_tasks WHERE Level_relation = :level")
-        result = self.session.execute(query, {"level": level}).fetchall()
-        # Повернення результату запиту
-        return result
+        test_tasks = self.session.query(TestTask).join(Level).filter(Level.level_name == level).all()
+        return test_tasks
+
+    def get_code_tasks_by_level(self, level):
+        code_tasks = self.session.query(CodeTask).join(Level).filter(Level.level_name == level).all()
+        return code_tasks
 
     def get_test_tasks_by_level_and_topic(self, level_name, topic):
         test_tasks_by_level_and_topic = self.session.query(TestTask).\
             filter(TestTask.level_relation == level_name, TestTask.topic == topic).all()
         return test_tasks_by_level_and_topic
 
+    def get_code_tasks_by_level_and_topic(self, level_name, topic):
+        code_tasks_by_level_and_topic = self.session.query(CodeTask).\
+            filter(CodeTask.level_relation == level_name, CodeTask.topic == topic).all()
+        return code_tasks_by_level_and_topic
+
     def get_user_progress_testing_level(self, user_id, level_name):
         user_progress_testing_level = self.session.query(User).\
             filter(func.json_array_length(User.progress_testing[f'{level_name}']) > 0).all()
 
         return user_progress_testing_level
+
+    def get_user_progress_coding_level(self, user_id, level_name):
+        user_progress_coding_level = self.session.query(User).\
+            filter(func.json_array_length(User.progress_coding[f'{level_name}']) > 0).all()
+
+        return user_progress_coding_level
 
     def get_uncompleted_test_tasks_by_level(self, user_id, level_name):
         # Get all tasks of the level
@@ -646,10 +780,75 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             return True
         return False
 
+    def get_uncompleted_code_tasks_by_level(self, user_id, level_name):
+        # Get all code_tasks of the level
+        all_code_tasks_by_level = self.get_code_tasks_by_level(level_name)
+        set_code_tasks_by_level = set(code_task.id for code_task in all_code_tasks_by_level)
+
+        # create a set of code_tasks of a certain level that the user has already completed
+        user_coding_progress = self.get_user_by_id(user_id).progress_coding
+        code_tests_done_by_user = set()
+
+        if user_coding_progress and level_name in user_coding_progress:
+            code_tests_done_by_user = set(value for value in user_coding_progress[level_name])
+
+        # create a list of code_tasks of a certain level on the specified topic that the user has not yet done
+        uncompleted_code_tasks_id = list(set_code_tasks_by_level.difference(code_tests_done_by_user))
+
+        uncompleted_code_tasks = []
+
+        for code_task_id in uncompleted_code_tasks_id:
+            uncompleted_code_tasks.append(self.get_code_task_by_id(code_task_id))
+
+        return uncompleted_code_tasks
+
+    def add_code_task_to_progress_coding(self, user_id, code_task_id, level_name):
+        # Додавання нового значення до списку в JSON-стовпці за ключем
+
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_coding = row.progress_coding
+
+        # Додати нове значення до списку під вказаним ключем
+        if level_name in progress_coding and isinstance(progress_coding[level_name], list):
+            progress_coding[level_name].append(code_task_id)
+        elif level_name in progress_coding:
+            progress_coding[level_name] = [progress_coding[level_name], code_task_id]
+        else:
+            progress_coding[level_name] = [code_task_id]
+
+        # Оновити рядок з оновленим значенням JSON-стовпця
+        updating = update(User).where(User.id == user_id).values(progress_coding=progress_coding)
+        self.session.execute(updating)
+        self.session.commit()
+
+    def check_this_level_code_task_exists(self, level_name):
+        code_task = self.session.query(CodeTask).filter_by(level_relation=level_name).first()
+        if code_task:
+            return True
+        return False
+
     def get_level_count(self, level_name):
         # Зробити запит для отримання значень для заданого рівня
         values = self.session.query(User.progress_testing[level_name]).filter(
             User.progress_testing[level_name].isnot(None)).first()
+
+        count = len(values[0]) if values and values[0] else 0
+
+        if count == -1 or count is None:
+            return 0
+
+        if count > 0:
+            return count
+
+        return 0
+
+    def get_code_level_count(self, level_name):
+        # Зробити запит для отримання значень для заданого рівня
+        values = self.session.query(User.progress_coding[level_name]).filter(
+            User.progress_coding[level_name].isnot(None)).first()
 
         count = len(values[0]) if values and values[0] else 0
 
@@ -676,6 +875,21 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
         return False
 
+    def is_code_task_in_progress_coding(self, user_id, code_task_id, level_name):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_coding = row.progress_coding
+
+        # Перевірити наявність рівня у JSON-стовпці
+        if level_name in progress_coding and isinstance(progress_coding[level_name], list):
+            # Перевірити наявність завдання з вказаним ID у списку завдань рівня
+            if code_task_id in progress_coding[level_name]:
+                return True
+
+        return False
+
     def check_rank(self, user_id):
         # Отримати рядок з бази даних
         row = self.get_user_by_id(user_id)
@@ -698,3 +912,35 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             return "Professional"
         else:
             return "Guru"
+
+    def check_code_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_coding = row.progress_coding
+
+        # Отримати загальну кількість виконаних завдань
+        total_code_tasks = sum(len(values) for values in progress_coding.values())
+
+        # Визначити відсоткове відношення виконаних завдань до максимальної кількості завдань для досягнення рангу
+        percentage_relation = total_code_tasks * 100 / max_total_tasks
+
+        # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"
+
+    def top_users_by_score(self, top_number):
+        top_users_by_score = self.session.query(User).order_by(desc(User.score)).limit(top_number).all()
+        return top_users_by_score
+
+    def rank_user_score(self, user_id):
+        user_score = self.session.query(User.score).filter(User.id == user_id).scalar()
+        rank = self.session.query(func.count(User.score)).filter(User.score > user_score).scalar() + 1
+        return rank
