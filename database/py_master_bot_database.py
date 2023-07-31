@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import random
+
 import os
 import sqlalchemy
 from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update, \
@@ -191,6 +193,22 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_lessons_by_topic(self, topic):
+        pass
+
+    @abstractmethod
+    def get_lessons_by_item(self, item):
+        pass
+
+    @abstractmethod
+    def get_lessons_topics(self):
+        pass
+
+    @abstractmethod
+    def get_lessons_items(self, topic):
+        pass
+
+    @abstractmethod
+    def get_random_lessons_items(self):
         pass
 
     @abstractmethod
@@ -552,6 +570,29 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_lessons_by_topic(self, topic):
         lessons = self.session.query(Lesson).filter_by(topic=topic).all()
         return lessons
+
+    def get_lessons_by_item(self, item):
+        lesson = self.session.query(Lesson).filter_by(item=item).first()
+        return lesson
+
+    def get_lessons_topics(self):
+        lessons = self.session.query(Lesson).all()
+        topics = sorted(list(set([lesson.topic for lesson in lessons])))
+        return topics
+
+    def get_lessons_items(self, topic):
+        # Get all lesson items by topic
+        items_by_topic = self.session.query(Lesson).filter(Lesson.topic == topic).all()
+
+        # Retrieve and sort all lesson items
+        lesson_items = sorted([lesson.item for lesson in items_by_topic])
+        return lesson_items
+
+    def get_random_lessons_items(self):
+        # Get all lesson items
+        all_lessons_items = [lesson.item for lesson in self.session.query(Lesson).all()]
+        random.shuffle(all_lessons_items)
+        return all_lessons_items[:5]
 
     def get_test_task_by_question(self, question):
         test_task = self.session.query(TestTask).filter_by(question=question).first()

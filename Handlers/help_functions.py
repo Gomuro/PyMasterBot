@@ -77,6 +77,61 @@ def create_tasks_topics_markup(user_id, level_name):
     return markup
 
 
+def create_lessons_topics_markup():
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    lessons_topics = bot_db.get_lessons_topics()
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for topic in lessons_topics:
+        btn = types.KeyboardButton(f"{topic}")
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Обрати заняття незалежно від теми"), types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_lessons_items_markup(topic):
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    lessons_items = bot_db.get_lessons_items(topic)
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for item in lessons_items:
+        btn = types.KeyboardButton(f"{item}")
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_random_lessons_items_markup():
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    lessons_items = bot_db.get_random_lessons_items()
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for item in lessons_items:
+        btn = types.KeyboardButton(f"{item}")
+
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Cancel"))
+
+    return markup
+
+
 def create_code_tasks_topics_markup(user_id, level_name):
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
@@ -111,13 +166,14 @@ def create_start_markup():
     markup = types.InlineKeyboardMarkup()
     btn_test = types.InlineKeyboardButton("🔘 Theory tests", callback_data="/testing")
     btn_code = types.InlineKeyboardButton("🔵 Coding tests ", callback_data="/coding")
+    btn_lessons = types.InlineKeyboardButton("📚 Lessons", callback_data="/lesson")
     btn_check = types.InlineKeyboardButton("Check my code", callback_data="/check_code")
     btn_doc = types.InlineKeyboardButton("Documentation", callback_data="/documentation")
     btn_help = types.InlineKeyboardButton("HELP", callback_data="/help")
     btn_account = types.InlineKeyboardButton("🏠 My account", callback_data="/account")
     btn_rew = types.InlineKeyboardButton("🍓 Comments", callback_data="/comments")
     btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
-    markup.add(btn_test, btn_code, btn_check, btn_doc, btn_help, btn_account, btn_rew, btn_premium)
+    markup.add(btn_test, btn_code, btn_lessons, btn_check, btn_doc, btn_help, btn_account, btn_rew, btn_premium)
 
     return markup
 
