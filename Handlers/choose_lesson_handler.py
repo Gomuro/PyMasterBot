@@ -92,7 +92,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
         return
 
     elif message.text == "✅ Mark as learned":
-        bot_db.add_lesson_progress(chat_id, lesson_id)
+        bot_db.add_lesson_to_progress_lesson(chat_id, lesson_id)
         bot.send_message(chat_id, f"Lesson <b>{lesson_item}</b> learned 🎉!",
                          parse_mode="HTML", reply_markup=create_lessons_topics_markup())
 

@@ -367,6 +367,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def add_lesson_to_progress_lesson(self, user_id, lesson_id):
+        pass
+
+    @abstractmethod
     def check_this_level_task_exists(self, level_name):
         pass
 
@@ -817,6 +821,22 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
 
         # Оновити рядок з оновленим значенням JSON-стовпця
         updating = update(User).where(User.id == user_id).values(progress_testing=progress_testing)
+        self.session.execute(updating)
+        self.session.commit()
+
+    def add_lesson_to_progress_lesson(self, user_id, lesson_id):
+
+        # Отримати рядок з бази даних
+        user = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення стовпця
+        progress_lessons_ = user.progress_lessons
+
+        # Додати нове значення до списку
+        progress_lessons_.append(lesson_id)
+
+        # Оновити рядок з оновленим значенням JSON-стовпця
+        updating = update(User).where(User.id == user_id).values(progress_lessons=progress_lessons_)
         self.session.execute(updating)
         self.session.commit()
 
