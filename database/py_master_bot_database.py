@@ -456,6 +456,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def add_lesson_progress(self, user_id, lesson_id):
         user = self.get_user_by_id(user_id)
         if user:
+            print(user)
             if lesson_id not in user.progress_lessons:
                 user.progress_lessons.append(lesson_id)
                 self.session.commit()

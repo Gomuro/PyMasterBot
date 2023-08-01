@@ -132,6 +132,16 @@ def create_random_lessons_items_markup():
     return markup
 
 
+def create_learned_lessons_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_learned = types.KeyboardButton("✅ Mark as learned")
+    btn_later = types.KeyboardButton("Return to lesson selection")
+    btn_cancel = types.KeyboardButton("Cancel")
+    markup.add(btn_learned, btn_later, btn_cancel)
+
+    return markup
+
+
 def create_code_tasks_topics_markup(user_id, level_name):
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
