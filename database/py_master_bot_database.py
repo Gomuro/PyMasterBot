@@ -832,8 +832,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         # Отримати поточне значення стовпця
         progress_lessons_ = user.progress_lessons
 
-        # Додати нове значення до списку
-        progress_lessons_.append(lesson_id)
+        if lesson_id not in progress_lessons_:
+            # Додати нове значення до списку
+            progress_lessons_.append(lesson_id)
 
         # Оновити рядок з оновленим значенням JSON-стовпця
         updating = update(User).where(User.id == user_id).values(progress_lessons=progress_lessons_)

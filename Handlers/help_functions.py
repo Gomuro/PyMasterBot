@@ -95,35 +95,54 @@ def create_lessons_topics_markup():
     return markup
 
 
-def create_lessons_items_markup(topic):
+def create_lessons_items_markup(user_id, topic):
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
 
+    user = bot_db.get_user_by_id(user_id)
     lessons_items = bot_db.get_lessons_items(topic)
 
     # Create markup
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
     for item in lessons_items:
+        lesson_id = bot_db.get_lessons_by_item(item).id
+
+        if lesson_id in user.progress_lessons:
+            btn = types.KeyboardButton(f"✅ LEARNED    {item}")
+        else:
+            btn = types.KeyboardButton(f"{item}")
+
+        markup.add(btn)
+
+    """
+    for item in lessons_items:
         btn = types.KeyboardButton(f"{item}")
         markup.add(btn)
+    """
 
     markup.add(types.KeyboardButton("Cancel"))
 
     return markup
 
 
-def create_random_lessons_items_markup():
+def create_random_lessons_items_markup(user_id):
     # Create an instance of the database
     bot_db = PyMasterBotDatabase()
 
+    user = bot_db.get_user_by_id(user_id)
     lessons_items = bot_db.get_random_lessons_items()
 
     # Create markup
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
     for item in lessons_items:
-        btn = types.KeyboardButton(f"{item}")
+        lesson_id = bot_db.get_lessons_by_item(item).id
+
+        if lesson_id in user.progress_lessons:
+            btn = types.KeyboardButton(f"✅ LEARNED    {item}")
+        else:
+            btn = types.KeyboardButton(f"{item}")
 
         markup.add(btn)
 

@@ -53,11 +53,11 @@ def process_lesson_topic(message, bot):
         return
 
     elif lesson_topic == "Обрати заняття незалежно від теми":
-        bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_random_lessons_items_markup())
+        bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_random_lessons_items_markup(chat_id))
         bot.register_next_step_handler(message, process_lesson_item, bot)
 
     elif lesson_topic in bot_db.get_lessons_topics():
-        bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_lessons_items_markup(lesson_topic))
+        bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_lessons_items_markup(chat_id, lesson_topic))
         bot.register_next_step_handler(message, process_lesson_item, bot)
 
     else:
@@ -71,6 +71,10 @@ def process_lesson_item(message, bot):
     bot_db = PyMasterBotDatabase()
 
     lesson_item = message.text.strip()
+
+    if lesson_item.lower() == "cancel":
+        bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
+        return
 
     lesson_by_item = bot_db.get_lessons_by_item(lesson_item)
     lesson_id = lesson_by_item.id
