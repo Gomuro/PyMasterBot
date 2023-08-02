@@ -70,14 +70,15 @@ def process_lesson_item(message, bot):
     bot_db = PyMasterBotDatabase()
     input_text = message.text.strip()
 
-    if "✅ LEARNED    " in input_text:
-        lesson_item = message.text.strip().split("✅ LEARNED    ")[1]
-    else:
-        lesson_item = input_text
-
-    if lesson_item.lower() == "cancel":
+    if input_text.lower() == "cancel":
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
+
+    if "✅ LEARNED    " in input_text:
+        lesson_item = input_text.split("✅ LEARNED    ")[1]
+    else:
+        lesson_item = input_text.split(f". ")[1].strip()
+        print(lesson_item)
 
     lesson_by_item = bot_db.get_lessons_by_item(lesson_item)
     lesson_id = lesson_by_item.id
@@ -117,6 +118,6 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
                          parse_mode="HTML", reply_markup=create_lessons_topics_markup())
 
     else:
-        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
+        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.",
+                         parse_mode="HTML", reply_markup=create_start_markup())
         return
-
