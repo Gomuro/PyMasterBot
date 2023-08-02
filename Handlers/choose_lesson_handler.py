@@ -1,5 +1,6 @@
 from telebot import types
 
+from Handlers.visual_lesson_representation_handler import progress_lesson_visual_repr_function
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
     progress_level_visual_repr_function, user_visual_repr_function, progress_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
@@ -92,6 +93,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
     bot_db = PyMasterBotDatabase()
 
     if message.text.lower() == "cancel":
+        progress_lesson_visual_repr_function(message, bot)
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
         return
 
@@ -99,6 +101,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
         bot_db.add_lesson_to_progress_lesson(chat_id, lesson_id)
         bot.send_message(chat_id, f"Lesson <b>{lesson_item}</b> learned 🎉!",
                          parse_mode="HTML", reply_markup=create_lessons_topics_markup())
+        progress_lesson_visual_repr_function(message, bot)
 
     elif message.text == "Return to lesson selection":
         bot.send_message(chat_id, "Choose the topic of the lesson: ",
