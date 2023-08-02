@@ -8,8 +8,7 @@ from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON,
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv
-from Handlers.static_variables import max_total_tasks
-
+from Handlers.static_variables import max_total_tasks, max_total_code_tasks
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -396,6 +395,14 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def check_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def check_coding_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def check_lessons_rank(self, user_id):
         pass
 
     @abstractmethod
@@ -971,6 +978,52 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         percentage_relation = total_tasks * 100 / max_total_tasks
 
         # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"
+
+    def check_coding_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_coding = row.progress_coding
+
+        # Отримати загальну кількість виконаних завдань
+        total_code_tasks = sum(len(values) for values in progress_coding.values())
+
+        # Визначити відсоткове відношення виконаних завдань до максимальної кількості завдань для досягнення рангу
+        percentage_relation = total_code_tasks * 100 / max_total_code_tasks
+
+        # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"
+
+    def check_lessons_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_lessons = row.progress_lessons
+
+        # Отримати загальну кількість вивчених уроків
+        completed_lessons = len(progress_lessons)
+
+        # Визначити відсоткове відношення вивчених уроків до максимальної кількості уроків для досягнення рангу
+        percentage_relation = progress_lessons * 100 / max_total_code_tasks
+
+        # Повернути назву рангу в залежності від кількості вивчених уроків
         if percentage_relation <= 33:
             return "Beginner"
         elif 33 < percentage_relation <= 66:

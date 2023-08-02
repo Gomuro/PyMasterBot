@@ -1,13 +1,11 @@
-from telebot import types
-
-from Handlers.visual_lesson_representation_handler import progress_lesson_visual_repr_function
+from Handlers.visual_lesson_representation_handler import progress_lesson_visual_round_repr_function, \
+    progress_lesson_theory_tests_repr_function
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
     progress_level_visual_repr_function, user_visual_repr_function, progress_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import create_yes_or_no_markup, delete_previous_messages, \
     create_start_markup, create_premium_markup, create_tasks_topics_markup, create_lessons_items_markup, \
     create_random_lessons_items_markup, create_learned_lessons_markup, create_lessons_topics_markup
-from Handlers.static_variables import premium_options
 
 import random
 
@@ -97,15 +95,22 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
     bot_db = PyMasterBotDatabase()
 
     if message.text.lower() == "cancel":
-        progress_lesson_visual_repr_function(message, bot)
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
+        user_visual_repr_function(message, bot)
+        progress_lesson_visual_round_repr_function(message, bot)
+        progress_lesson_theory_tests_repr_function(message, bot)
         return
 
     elif message.text == "✅ Mark as learned":
         bot_db.add_lesson_to_progress_lesson(chat_id, lesson_id)
         bot.send_message(chat_id, f"Lesson <b>{lesson_item}</b> learned 🎉!",
                          parse_mode="HTML", reply_markup=create_lessons_topics_markup())
-        progress_lesson_visual_repr_function(message, bot)
+
+        user_visual_repr_function(message, bot)
+        progress_lesson_visual_round_repr_function(message, bot)
+        progress_lesson_theory_tests_repr_function(message, bot)
+        bot.send_message(chat_id, "", reply_markup=create_start_markup())
+
 
     elif message.text == "Return to lesson selection":
         bot.send_message(chat_id, "Choose the topic of the lesson: ",
@@ -115,25 +120,3 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
         bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
         return
 
-
-def handle_yes_or_no_answer(message, level_name, task_topic, bot):
-    delete_previous_messages(message=message, telebot_instance=bot)
-    chat_id = message.chat.id
-
-    if message.text in ("no", "cancel"):
-        bot.send_message(chat_id, "Cancelled.")
-
-        user_visual_repr_function(message, bot)
-        progress_level_visual_repr_function(message, bot)
-        progress_testing_visual_repr_function(message, bot)
-        progress_theory_tests_repr_function(message, bot)
-
-        return
-
-    elif message.text == "yes":
-        # Continue testing by level
-        choose_test_task_function(message, level_name, task_topic, bot)
-
-    else:
-        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
-        return

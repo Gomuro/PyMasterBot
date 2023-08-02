@@ -13,7 +13,10 @@ def progress_code_testing_visual_repr_function(message, bot):
     user_coding_progress = bot_db.get_user_by_id(chat_id).progress_coding
 
     # Налаштування параметрів графіку
-    colors = ['pink', 'purple', 'green']
+    colors = ['yellow', 'purple', 'green']
+
+    # Створення нової фігури з кольоровим фоном
+    plt.figure(facecolor='pink')
 
     # Створення графіка
     x = [key for key in user_coding_progress.keys()]
@@ -57,8 +60,11 @@ def progress_code_level_visual_repr_function(message, bot):
     # Налаштування параметрів графіку
     colors = ['yellow', 'purple', 'green', 'pink']
 
+    # Створення нової фігури з кольоровим фоном
+    plt.subplots(facecolor='lightblue')
+
     # Створення підграфіків
-    fig, axes = plt.subplots(1, 3, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(10, 4), facecolor='lightblue')
 
     # Побудова кругових діаграм для кожного рівня складності
     for i, (level, values) in enumerate(user_coding_progress.items()):

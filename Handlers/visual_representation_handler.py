@@ -15,6 +15,9 @@ def progress_testing_visual_repr_function(message, bot):
     # Налаштування параметрів графіку
     colors = ['green', 'orange', 'red']
 
+    # Створення нової фігури з кольоровим фоном
+    plt.figure(facecolor='pink')
+
     # Створення графіка
     x = [key for key in user_testing_progress.keys()]
     y = [len(value) for value in user_testing_progress.values()]
@@ -57,8 +60,11 @@ def progress_level_visual_repr_function(message, bot):
     # Налаштування параметрів графіку
     colors = ['green', 'orange', 'red', 'bisque']
 
+    # Створення нової фігури з кольоровим фоном
+    plt.subplots(facecolor='lightblue')
+
     # Створення підграфіків
-    fig, axes = plt.subplots(1, 3, figsize=(10, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(10, 4), facecolor='lightblue')
 
     # Побудова кругових діаграм для кожного рівня складності
     for i, (level, values) in enumerate(user_testing_progress.items()):
