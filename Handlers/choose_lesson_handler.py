@@ -69,8 +69,12 @@ def process_lesson_item(message, bot):
 
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
+    input_text = message.text.strip()
 
-    lesson_item = message.text.strip()
+    if "✅ LEARNED    " in input_text:
+        lesson_item = message.text.strip().split("✅ LEARNED    ")[1]
+    else:
+        lesson_item = input_text
 
     if lesson_item.lower() == "cancel":
         bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
