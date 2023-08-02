@@ -105,15 +105,19 @@ def create_lessons_items_markup(user_id, topic):
     # Create markup
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
+    counter = 1
+
     for item in lessons_items:
         lesson_id = bot_db.get_lessons_by_item(item).id
 
         if lesson_id in user.progress_lessons:
-            btn = types.KeyboardButton(f"✅ LEARNED    {item}")
+            btn = types.KeyboardButton(f"{counter}. ✅ LEARNED    {item}")
         else:
-            btn = types.KeyboardButton(f"{item}")
+            btn = types.KeyboardButton(f"{counter}. {item}")
 
         markup.add(btn)
+
+        counter += 1
 
     markup.add(types.KeyboardButton("Cancel"))
 
@@ -130,15 +134,19 @@ def create_random_lessons_items_markup(user_id):
     # Create markup
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
+    counter = 1
+
     for item in lessons_items:
         lesson_id = bot_db.get_lessons_by_item(item).id
 
         if lesson_id in user.progress_lessons:
-            btn = types.KeyboardButton(f"✅ LEARNED    {item}")
+            btn = types.KeyboardButton(f"{counter}. ✅ LEARNED    {item}")
         else:
-            btn = types.KeyboardButton(f"{item}")
+            btn = types.KeyboardButton(f"{counter}. {item}")
 
         markup.add(btn)
+
+        counter += 1
 
     markup.add(types.KeyboardButton("Cancel"))
 
