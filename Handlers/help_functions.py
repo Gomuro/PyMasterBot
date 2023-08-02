@@ -115,12 +115,6 @@ def create_lessons_items_markup(user_id, topic):
 
         markup.add(btn)
 
-    """
-    for item in lessons_items:
-        btn = types.KeyboardButton(f"{item}")
-        markup.add(btn)
-    """
-
     markup.add(types.KeyboardButton("Cancel"))
 
     return markup
