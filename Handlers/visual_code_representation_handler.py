@@ -32,7 +32,7 @@ def progress_code_testing_visual_repr_function(message, bot):
         plt.text(x[i], v, str(v), ha='center', va='top', fontweight='bold')
 
     # Налаштування заголовка та підписів осей
-    plt.title('Кількість успішно складених тестів (CODDING) за рівнями', fontweight=True)
+    plt.title('Кількість успішно складених тестів (CODING) за рівнями', fontweight=True)
     plt.xlabel('Назва рівня')
     plt.ylabel('Кількість тестів')
 
@@ -93,7 +93,7 @@ def progress_code_level_visual_repr_function(message, bot):
         ax.tick_params(labelsize=16)  # Розмір шрифту підписів
 
     # Загальний заголовок
-    fig.suptitle('Прогрес тестування (ТЕОРІЯ) за рівнями складності', fontsize=18)
+    fig.suptitle('Прогрес тестування (CODING) за рівнями складності', fontsize=18)
 
     # Збереження графіка в буфері
     buffer = BytesIO()

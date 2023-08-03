@@ -43,7 +43,7 @@ def process_code_task_topic(message, level_name, bot):
     chat_id = message.chat.id
     bot_db = PyMasterBotDatabase()
 
-    # Get the test_task topic from the user's message
+    # Get the code_task topic from the user's message
     code_task_topic = message.text.strip()
 
     if code_task_topic.lower() == "cancel":
