@@ -4,7 +4,6 @@ from database.py_master_bot_database import PyMasterBotDatabase
 
 from decorators import Bot
 from Handlers.callback_query_handler import callback_query_handler
-import os
 
 
 bot = Bot("data/bot_token.txt")
@@ -31,10 +30,10 @@ telebot_instance.message_handler(commands=['add_lesson'])(bot.add_lesson_handler
 telebot_instance.message_handler(commands=['add_admin'])(bot.add_admin_handler)
 telebot_instance.message_handler(commands=['add_test_task'])(bot.add_test_task_handler)
 telebot_instance.message_handler(commands=['add_code_task'])(bot.add_code_task_handler)
-telebot_instance.message_handler(commands=['add_easy_test_task', 'add_middle_test_task', 'add_hard_test_task'])\
-    (bot.add_test_task_by_level_handler)
-telebot_instance.message_handler(commands=['add_easy_code_task', 'add_middle_code_task', 'add_hard_code_task'])\
-    (bot.add_code_task_by_level_handler)
+telebot_instance.message_handler(commands=['add_easy_test_task', 'add_middle_test_task',
+                                           'add_hard_test_task'])(bot.add_test_task_by_level_handler)
+telebot_instance.message_handler(commands=['add_easy_code_task', 'add_middle_code_task',
+                                           'add_hard_code_task'])(bot.add_code_task_by_level_handler)
 telebot_instance.message_handler(commands=['change_test_task'])(bot.change_test_task_handler)
 telebot_instance.message_handler(commands=['change_code_task'])(bot.change_code_task_handler)
 telebot_instance.message_handler(commands=['add_level'])(bot.add_level_handler)

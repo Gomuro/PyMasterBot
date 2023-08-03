@@ -3,7 +3,7 @@ This block contains helper functions that add CSV file into the Table in Databas
 """
 import csv
 import sqlalchemy
-from sqlalchemy import func, exc, and_, cast, JSON
+from sqlalchemy import func, exc
 
 
 def add_lessons_csv(session, csv_filename, Lesson):
@@ -65,7 +65,6 @@ def add_lessons_csv(session, csv_filename, Lesson):
 
 
 def add_test_tasks_csv(session, csv_filename, TestTask):
-    pass
     with open(csv_filename, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the first row (headers)
@@ -132,7 +131,6 @@ def add_test_tasks_csv(session, csv_filename, TestTask):
 
 
 def add_code_tasks_csv(session, csv_filename, CodeTask):
-    pass
     with open(csv_filename, 'r') as file:
         reader = csv.reader(file)
         next(reader)  # Skip the first row (headers)
@@ -196,7 +194,3 @@ def add_code_tasks_csv(session, csv_filename, CodeTask):
                 existing_lesson.right_answer = right_answer
                 existing_lesson.level_relation = level_relation
                 session.commit()
-
-
-
-

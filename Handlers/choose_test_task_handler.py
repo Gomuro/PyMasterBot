@@ -1,3 +1,5 @@
+import os
+
 from telebot import types
 
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
@@ -11,162 +13,192 @@ import random
 
 
 def process_test_task_level(message, bot):
-    chat_id = message.chat.id
-    bot_db = PyMasterBotDatabase()
-    level_name = message.text.strip()
+    try:
 
-    if bot_db.check_this_level_task_exists(level_name=level_name):
-        message_text = f"Select a test topic of level <b>'{level_name}'</b>" \
-                       f"or click the button <b>'Cancel'</b> to exit.\n\n" \
-                       f"If only option 'Cancel' is available - congratulations - " \
-                       f"you have passed all <b>{level_name}</b> level tests!"
+        chat_id = message.chat.id
+        bot_db = PyMasterBotDatabase()
+        level_name = message.text.strip()
 
-        if level_name not in premium_options:
-            bot.send_message(chat_id, message_text, parse_mode="HTML",
-                             reply_markup=create_tasks_topics_markup(chat_id, level_name))
-            bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
-        elif level_name in premium_options and bot_db.check_status_premium(user_id=chat_id):
-            bot.send_message(chat_id, message_text, parse_mode="HTML",
-                             reply_markup=create_tasks_topics_markup(chat_id, level_name))
-            bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
-        elif level_name in premium_options and not bot_db.check_status_premium(user_id=chat_id):
-            bot.send_message(chat_id, f"Ви отримаєте можливість проходити тестові завдання рівня <b>'{level_name}'</b> "
-                                      f"за умови оплати 👑'Premium' доступу",
-                             parse_mode="HTML", reply_markup=create_premium_markup())
+        if bot_db.check_this_level_task_exists(level_name=level_name):
+            message_text = f"Select a test topic of level <b>'{level_name}'</b>" \
+                           f"or click the button <b>'Cancel'</b> to exit.\n\n" \
+                           f"If only option 'Cancel' is available - congratulations - " \
+                           f"you have passed all <b>{level_name}</b> level tests!"
 
-    else:
-        bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
-        return
+            if level_name not in premium_options:
+                bot.send_message(chat_id, message_text, parse_mode="HTML",
+                                 reply_markup=create_tasks_topics_markup(chat_id, level_name))
+                bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
+            elif level_name in premium_options and bot_db.check_status_premium(user_id=chat_id):
+                bot.send_message(chat_id, message_text, parse_mode="HTML",
+                                 reply_markup=create_tasks_topics_markup(chat_id, level_name))
+                bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
+            elif level_name in premium_options and not bot_db.check_status_premium(user_id=chat_id):
+                bot.send_message(chat_id, f"Ви отримаєте можливість проходити тестові завдання рівня "
+                                          f"<b>'{level_name}'</b> "
+                                          f"за умови оплати 👑'Premium' доступу",
+                                 parse_mode="HTML", reply_markup=create_premium_markup())
+
+        else:
+            bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
+            return
+
+    except Exception as e:
+        error_message = str(e)
+        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
 
 
 def process_task_topic(message, level_name, bot):
-    chat_id = message.chat.id
-    bot_db = PyMasterBotDatabase()
+    try:
 
-    # Get the test_task topic from the user's message
-    task_topic = message.text.strip()
+        chat_id = message.chat.id
+        bot_db = PyMasterBotDatabase()
 
-    if task_topic.lower() == "cancel":
-        bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
-        return
+        # Get the test_task topic from the user's message
+        task_topic = message.text.strip()
 
-    elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name) or \
-            task_topic == "Обрати завдання незалежно від теми":
-        choose_test_task_function(message, level_name, task_topic, bot)
+        if task_topic.lower() == "cancel":
+            bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
+            return
 
-    else:
-        bot.reply_to(message, "Не знайдено тестових завдань за обраною темою.")
-        return
+        elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name) or \
+                task_topic == "Обрати завдання незалежно від теми":
+            choose_test_task_function(message, level_name, task_topic, bot)
+
+        else:
+            bot.reply_to(message, "Не знайдено тестових завдань за обраною темою.")
+            return
+
+    except Exception as e:
+        error_message = str(e)
+        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
 
 
 def choose_test_task_function(message, level_name, task_topic, bot):
+    try:
 
-    chat_id = message.chat.id
-    bot_db = PyMasterBotDatabase()
+        chat_id = message.chat.id
+        bot_db = PyMasterBotDatabase()
 
-    def tasks_by_topic(level, topic_task):
-        if task_topic == "Обрати завдання незалежно від теми":
-            test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level(level)
+        def tasks_by_topic(level, topic_task):
+            if task_topic == "Обрати завдання незалежно від теми":
+                test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level(level)
+            else:
+                test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level_and_topic(level, topic_task)
+            return test_tasks_by_level_and_topic
+
+        # create a set of tasks of a certain level on the specified topic
+        test_tasks_id = set(task.id for task in tasks_by_topic(level_name, task_topic))
+
+        # create a set of tasks of a certain level on the specified topic that the user has already completed
+        user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
+        tests_done_by_user = set(value for value in user_testing_progress[level_name])
+
+        # create a list of tasks of a certain level on the specified topic that the user has not yet done
+        test_tasks_id = list(test_tasks_id.difference(tests_done_by_user))
+
+        if len(test_tasks_id) == 0:
+            bot.send_message(chat_id, f"You have already passed all tests of <b>'{level_name}'</b> level "
+                                      f"on the topic <b>'{task_topic}'</b>.",
+                             parse_mode="HTML", reply_markup=create_start_markup())
+
         else:
-            test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level_and_topic(level, topic_task)
-        return test_tasks_by_level_and_topic
+            # Перемішуємо список тестових завдань
+            random.shuffle(test_tasks_id)
 
-    # create a set of tasks of a certain level on the specified topic
-    test_tasks_id = set(task.id for task in tasks_by_topic(level_name, task_topic))
+            test_task = bot_db.get_test_task_by_id(test_tasks_id[0])
 
-    # create a set of tasks of a certain level on the specified topic that the user has already completed
-    user_testing_progress = bot_db.get_user_by_id(chat_id).progress_testing
-    tests_done_by_user = set(value for value in user_testing_progress[level_name])
+            task_id = test_task.id
+            topic = test_task.topic
+            question = test_task.question
+            var1 = test_task.var1
+            var2 = test_task.var2
+            var3 = test_task.var3
+            right_answer = test_task.right_answer
 
-    # create a list of tasks of a certain level on the specified topic that the user has not yet done
-    test_tasks_id = list(test_tasks_id.difference(tests_done_by_user))
+            response = f"({topic})\n{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
+            bot.send_message(chat_id, response)
 
-    if len(test_tasks_id) == 0:
-        bot.send_message(chat_id, f"You have already passed all tests of <b>'{level_name}'</b> level "
-                                  f"on the topic <b>'{task_topic}'</b>.",
-                         parse_mode="HTML", reply_markup=create_start_markup())
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+            btn_var1 = types.KeyboardButton(var1)
+            btn_var2 = types.KeyboardButton(var2)
+            btn_var3 = types.KeyboardButton(var3)
+            markup.add(btn_var1, btn_var2, btn_var3)
 
-    else:
-        # Перемішуємо список тестових завдань
-        random.shuffle(test_tasks_id)
+            bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
+            bot.register_next_step_handler(message, handle_answer, task_id, right_answer, level_name, task_topic, bot)
 
-        test_task = bot_db.get_test_task_by_id(test_tasks_id[0])
-
-        task_id = test_task.id
-        topic = test_task.topic
-        question = test_task.question
-        var1 = test_task.var1
-        var2 = test_task.var2
-        var3 = test_task.var3
-        right_answer = test_task.right_answer
-
-        response = f"({topic})\n{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
-        bot.send_message(chat_id, response)
-
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        btn_var1 = types.KeyboardButton(var1)
-        btn_var2 = types.KeyboardButton(var2)
-        btn_var3 = types.KeyboardButton(var3)
-        markup.add(btn_var1, btn_var2, btn_var3)
-
-        bot.send_message(chat_id, f"Choose the right answer\n", reply_markup=markup)
-        bot.register_next_step_handler(message, handle_answer, task_id, right_answer, level_name, task_topic, bot)
+    except Exception as e:
+        error_message = str(e)
+        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
 
 
 def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
-    chat_id = message.chat.id
+    try:
 
-    count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
-    setattr(handle_answer, 'count', count)  # Зберегти значення лічильника
+        chat_id = message.chat.id
 
-    if message.text == "cancel":
-        bot.send_message(chat_id, "Cancelled.")
-        return
+        count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
+        setattr(handle_answer, 'count', count)  # Зберегти значення лічильника
 
-    elif message.text == right_answer:
-        bot_db = PyMasterBotDatabase()
-        bot_db.add_task_to_progress_testing(chat_id, task_id, level_name)
-        points = 0
-        if level_name == "easy":
-            points += 1
-        elif level_name == "middle":
-            points += 5
-        elif level_name == "hard":
-            points += 10
-        bot_db.add_points(user_id=chat_id, points=points)
+        if message.text == "cancel":
+            bot.send_message(chat_id, "Cancelled.")
+            return
 
-        bot.reply_to(message, "You're right!")
+        elif message.text == right_answer:
+            bot_db = PyMasterBotDatabase()
+            bot_db.add_task_to_progress_testing(chat_id, task_id, level_name)
+            points = 0
+            if level_name == "easy":
+                points += 1
+            elif level_name == "middle":
+                points += 5
+            elif level_name == "hard":
+                points += 10
+            bot_db.add_points(user_id=chat_id, points=points)
 
-    else:
-        bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
+            bot.reply_to(message, "You're right!")
 
-    if count < 1:
-        choose_test_task_function(message, level_name, task_topic, bot)
-    else:
-        setattr(handle_answer, 'count', 0)
-        bot.send_message(chat_id, f"Continue testing by level <b>'{level_name}'</b>?\nSelect:",
-                         parse_mode="HTML", reply_markup=create_yes_or_no_markup())
-        bot.register_next_step_handler(message, handle_yes_or_no_answer, level_name, task_topic, bot)
+        else:
+            bot.reply_to(message, f"Wrong answer!\n\nThe right answer is\n'{right_answer}'")
+
+        if count < 1:
+            choose_test_task_function(message, level_name, task_topic, bot)
+        else:
+            setattr(handle_answer, 'count', 0)
+            bot.send_message(chat_id, f"Continue testing by level <b>'{level_name}'</b>?\nSelect:",
+                             parse_mode="HTML", reply_markup=create_yes_or_no_markup())
+            bot.register_next_step_handler(message, handle_yes_or_no_answer, level_name, task_topic, bot)
+
+    except Exception as e:
+        error_message = str(e)
+        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
 
 
 def handle_yes_or_no_answer(message, level_name, task_topic, bot):
-    delete_previous_messages(message=message, telebot_instance=bot)
-    chat_id = message.chat.id
+    try:
 
-    if message.text in ("no", "cancel"):
-        bot.send_message(chat_id, "Cancelled.")
+        delete_previous_messages(message=message, telebot_instance=bot)
+        chat_id = message.chat.id
 
-        user_visual_repr_function(message, bot)
-        progress_level_visual_repr_function(message, bot)
-        progress_testing_visual_repr_function(message, bot)
-        progress_theory_tests_repr_function(message, bot)
+        if message.text in ("no", "cancel"):
+            bot.send_message(chat_id, "Cancelled.")
 
-        return
+            user_visual_repr_function(message, bot)
+            progress_level_visual_repr_function(message, bot)
+            progress_testing_visual_repr_function(message, bot)
+            progress_theory_tests_repr_function(message, bot)
 
-    elif message.text == "yes":
-        # Continue testing by level
-        choose_test_task_function(message, level_name, task_topic, bot)
+            return
 
-    else:
-        bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
-        return
+        elif message.text == "yes":
+            # Continue testing by level
+            choose_test_task_function(message, level_name, task_topic, bot)
+
+        else:
+            bot.send_message(chat_id, f"Unrecognized command <b>{message.text}</b>. Cancelled.", parse_mode="HTML")
+            return
+
+    except Exception as e:
+        error_message = str(e)
+        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")

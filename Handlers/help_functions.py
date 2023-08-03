@@ -1,6 +1,8 @@
 """
 This block contains helper functions that will be used in various handlers
 """
+import os
+
 from telebot import types
 from database.py_master_bot_database import PyMasterBotDatabase
 
@@ -22,6 +24,7 @@ def delete_previous_messages(message, telebot_instance):
 
     except Exception as e:
         print("An unexpected error occurred:", e)
+        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{str(e)}")
 
 
 def look_at_added_test_task():

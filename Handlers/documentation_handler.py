@@ -1,5 +1,6 @@
 import inspect
 import ast
+import os
 
 from utils.bot_logger import log_message
 from Handlers.help_functions import delete_previous_messages
@@ -16,55 +17,60 @@ def search_documentation(message, telebot_instance):
     :param message: This is an object that represents the incoming message that the bot interacts with.
     :return: This function uses return statements to terminate function execution in various situations
     """
-
-    # Delete previous message
-    delete_previous_messages(message, telebot_instance)
-
-    # A variable used to further process and search documentation for a user-entered keyword
-    user_input = message.text.strip().lower()
-
-    if "documentation" in user_input:
-        user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
-
-    if not user_input:
-        text = "Будь ласка, введіть ключове слово для пошуку документації."
-        log_message(message, DOCUMENTATION_COMMAND, user_input, text)
-
-        telebot_instance.send_message(message.chat.id, text=text)
-        return  # Вирівняти з блоком if
-
     try:
-        # Use inspect to get the documentation
-        node = ast.parse(user_input, mode="eval")
-        obj = eval(compile(node, filename="<string>", mode="eval"))
-        doc = inspect.getdoc(obj)
 
-        if not doc:
-            text = "На жаль, не знайдено документації для даного запиту."
+        # Delete previous message
+        delete_previous_messages(message, telebot_instance)
+
+        # A variable used to further process and search documentation for a user-entered keyword
+        user_input = message.text.strip().lower()
+
+        if "documentation" in user_input:
+            user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
+
+        if not user_input:
+            text = "Будь ласка, введіть ключове слово для пошуку документації."
             log_message(message, DOCUMENTATION_COMMAND, user_input, text)
+
             telebot_instance.send_message(message.chat.id, text=text)
-            return
+            return  # Вирівняти з блоком if
 
-        # Remove the content after (...)
-        index = doc.find("(...)")
-        if index != -1:
-            doc = doc[index + len("(...)"):]
+        try:
+            # Use inspect to get the documentation
+            node = ast.parse(user_input, mode="eval")
+            obj = eval(compile(node, filename="<string>", mode="eval"))
+            doc = inspect.getdoc(obj)
 
-        link = f"https://docs.python.org/uk/3/search.html?q={str(user_input)}"
-        view_doc = ""
-        for i in doc.split("\n\n"):
-            if user_input+"(" in i:
-                view_doc += f"<i>Writing example <b>{user_input}</b>:</i>\n{i}\n\n"
-            else:
-                view_doc += f"<i>Description:</i>\n{i}"
-        view_doc += f"\n\nFor detailed information, follow the link {link} and select <b>{user_input}</b>"
+            if not doc:
+                text = "На жаль, не знайдено документації для даного запиту."
+                log_message(message, DOCUMENTATION_COMMAND, user_input, text)
+                telebot_instance.send_message(message.chat.id, text=text)
+                return
 
-        formatted_doc = f"<b>{user_input.upper()} documentation:</b>\n\n{view_doc}"
-        # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
-        telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
+            # Remove the content after (...)
+            index = doc.find("(...)")
+            if index != -1:
+                doc = doc[index + len("(...)"):]
 
-    except Exception as err:  # rewrite the error exception
-        text = "Виникла помилка при пошуку\nабо перекладі документації."
-        # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
-        telebot_instance.send_message(message.chat.id, text=text)
-        print(f"Error: {str(err)}")
+            link = f"https://docs.python.org/uk/3/search.html?q={str(user_input)}"
+            view_doc = ""
+            for i in doc.split("\n\n"):
+                if user_input+"(" in i:
+                    view_doc += f"<i>Writing example <b>{user_input}</b>:</i>\n{i}\n\n"
+                else:
+                    view_doc += f"<i>Description:</i>\n{i}"
+            view_doc += f"\n\nFor detailed information, follow the link {link} and select <b>{user_input}</b>"
+
+            formatted_doc = f"<b>{user_input.upper()} documentation:</b>\n\n{view_doc}"
+            # log_message(message, DOCUMENTATION_COMMAND, message.text, formatted_doc)
+            telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
+
+        except Exception as err:  # rewrite the error exception
+            text = "Виникла помилка при пошуку\nабо перекладі документації."
+            # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
+            telebot_instance.send_message(message.chat.id, text=text)
+            print(f"Error: {str(err)}")
+
+    except Exception as e:
+        error_message = str(e)
+        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")

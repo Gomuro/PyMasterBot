@@ -25,7 +25,8 @@ def process_lesson_topic(message, bot):
             bot.register_next_step_handler(message, process_lesson_item, bot)
 
         elif lesson_topic in bot_db.get_lessons_topics():
-            bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_lessons_items_markup(chat_id, lesson_topic))
+            bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_lessons_items_markup(chat_id,
+                                                                                                    lesson_topic))
             bot.register_next_step_handler(message, process_lesson_item, bot)
 
         else:
@@ -58,7 +59,8 @@ def process_lesson_item(message, bot):
         lesson_id = lesson_by_item.id
 
         if lesson_by_item:
-            bot.send_message(chat_id, lesson_by_item.text, parse_mode="HTML", reply_markup=create_learned_lessons_markup())
+            bot.send_message(chat_id, lesson_by_item.text, parse_mode="HTML",
+                             reply_markup=create_learned_lessons_markup())
             bot.register_next_step_handler(message, handle_answer_lesson, lesson_item, lesson_id, bot)
         else:
             bot.send_message(chat_id, "Не знайдено заняття за обраною темою", reply_markup=create_start_markup())
@@ -90,7 +92,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
             user_visual_repr_function(message, bot)
             progress_lesson_visual_round_repr_function(message, bot)
             progress_lesson_theory_tests_repr_function(message, bot)
-            bot.send_message(chat_id, "", reply_markup=create_start_markup())
+            # bot.send_message(chat_id, "", reply_markup=create_start_markup())
 
         elif message.text == "Return to lesson selection":
             bot.send_message(chat_id, "Choose the topic of the lesson: ",
