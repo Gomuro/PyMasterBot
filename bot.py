@@ -4,6 +4,7 @@ from database.py_master_bot_database import PyMasterBotDatabase
 
 from decorators import Bot
 from Handlers.callback_query_handler import callback_query_handler
+import os
 
 
 bot = Bot("data/bot_token.txt")
@@ -45,4 +46,10 @@ telebot_instance.callback_query_handler(func=lambda call: True)(callback_query_h
 
 # start polling for new messages
 if __name__ == '__main__':
-    telebot_instance.polling(none_stop=True, timeout=60)
+
+    try:
+        telebot_instance.polling(none_stop=True, timeout=60)
+
+    except Exception as e:
+        error_message = str(e)
+        telebot_instance.send_error_message(error_message)

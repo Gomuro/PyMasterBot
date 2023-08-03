@@ -161,6 +161,9 @@ class Bot:
         if message.text.find("/add_level") != -1:
             add_level_function(self.bot, message)
 
+    def send_error_message(self, error_message):
+        self.bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+
     def csv_tables_names_lessons(self, message):
         if message.document.file_name == 'lessons.csv':
             handle_csv_lessons(self.bot, message, message.document)
