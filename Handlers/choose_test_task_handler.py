@@ -1,7 +1,6 @@
-import os
-
 from telebot import types
 
+from Handlers.exception_handler import handle_exception
 from Handlers.visual_representation_handler import progress_testing_visual_repr_function, \
     progress_level_visual_repr_function, user_visual_repr_function, progress_theory_tests_repr_function
 from database.py_master_bot_database import PyMasterBotDatabase
@@ -44,8 +43,7 @@ def process_test_task_level(message, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_task_topic(message, level_name, bot):
@@ -70,8 +68,7 @@ def process_task_topic(message, level_name, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def choose_test_task_function(message, level_name, task_topic, bot):
@@ -129,8 +126,7 @@ def choose_test_task_function(message, level_name, task_topic, bot):
             bot.register_next_step_handler(message, handle_answer, task_id, right_answer, level_name, task_topic, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
@@ -171,8 +167,7 @@ def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
             bot.register_next_step_handler(message, handle_yes_or_no_answer, level_name, task_topic, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def handle_yes_or_no_answer(message, level_name, task_topic, bot):
@@ -200,5 +195,4 @@ def handle_yes_or_no_answer(message, level_name, task_topic, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

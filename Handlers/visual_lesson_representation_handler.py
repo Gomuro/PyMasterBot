@@ -1,5 +1,4 @@
-import os
-
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import create_start_markup
 from database.py_master_bot_database import PyMasterBotDatabase
 
@@ -55,8 +54,7 @@ def progress_lesson_visual_round_repr_function(message, bot):
         plt.clf()
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def progress_lesson_theory_tests_repr_function(message, bot):
@@ -82,8 +80,7 @@ def progress_lesson_theory_tests_repr_function(message, bot):
         bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=create_start_markup())
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def user_visual_repr_function(message, bot):
@@ -117,5 +114,4 @@ def user_visual_repr_function(message, bot):
                                   f"TOP-{counter} 🏆:\n {top_users}", parse_mode="HTML")
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

@@ -1,6 +1,5 @@
 """import"""
-import os
-
+from Handlers.exception_handler import handle_exception
 from utils.bot_logger import log_message
 
 HELP_COMMAND = "/help"
@@ -21,5 +20,4 @@ def help_handler(message, telebot_instance, inline_keyboard):
                                       )
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)

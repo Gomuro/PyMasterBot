@@ -4,6 +4,8 @@ This block contains helper functions that processes the input CSV file
 """
 import os
 import tempfile
+
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -38,8 +40,7 @@ def handle_csv_lessons(telebot_instance, message, document):
                 telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)
 
 
 def handle_csv_test_tasks(telebot_instance, message, document):
@@ -73,8 +74,7 @@ def handle_csv_test_tasks(telebot_instance, message, document):
                 telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)
 
 
 def handle_csv_code_tasks(telebot_instance, message, document):
@@ -108,5 +108,4 @@ def handle_csv_code_tasks(telebot_instance, message, document):
                 telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)

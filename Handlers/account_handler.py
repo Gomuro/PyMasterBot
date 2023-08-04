@@ -1,5 +1,4 @@
-import os
-
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import create_start_markup
 from Handlers.visual_code_representation_handler import progress_code_testing_visual_repr_function, \
     progress_code_level_visual_repr_function, progress_code_theory_tests_repr_function
@@ -31,5 +30,4 @@ def account_function(message, bot):
                              parse_mode="HTML", reply_markup=create_start_markup())
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

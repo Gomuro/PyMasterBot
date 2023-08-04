@@ -1,7 +1,4 @@
-import os
-
-from telebot import types
-
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 
 from Handlers.add_test_task_handler import process_topic
@@ -27,8 +24,7 @@ def change_code_task_function(bot, message):
         bot.register_next_step_handler(message, process_code_task_id, bot)  # Pass bot as an argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_code_task_id(message, bot):  # Add bot as a parameter
@@ -60,8 +56,7 @@ def process_code_task_id(message, bot):  # Add bot as a parameter
         bot.register_next_step_handler(message, process_yes_or_no_answer, code_task_id, bot)  # Use the original_message
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_yes_or_no_answer(message, code_task_id, bot):
@@ -83,5 +78,4 @@ def process_yes_or_no_answer(message, code_task_id, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

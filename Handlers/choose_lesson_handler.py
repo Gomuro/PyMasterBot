@@ -1,5 +1,7 @@
 import os
 
+from Handlers.exception_handler import handle_exception
+
 from Handlers.visual_lesson_representation_handler import progress_lesson_visual_round_repr_function, \
     progress_lesson_theory_tests_repr_function
 from Handlers.visual_representation_handler import user_visual_repr_function
@@ -34,12 +36,10 @@ def process_lesson_topic(message, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_lesson_item(message, bot):
-
     try:
 
         chat_id = message.chat.id
@@ -66,12 +66,10 @@ def process_lesson_item(message, bot):
             bot.send_message(chat_id, "Не знайдено заняття за обраною темою", reply_markup=create_start_markup())
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def handle_answer_lesson(message, lesson_item, lesson_id, bot):
-
     try:
 
         chat_id = message.chat.id
@@ -92,7 +90,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
             user_visual_repr_function(message, bot)
             progress_lesson_visual_round_repr_function(message, bot)
             progress_lesson_theory_tests_repr_function(message, bot)
-            # bot.send_message(chat_id, "", reply_markup=create_start_markup())
+            bot.send_message(chat_id, "", reply_markup=create_start_markup())
 
         elif message.text == "Return to lesson selection":
             bot.send_message(chat_id, "Choose the topic of the lesson: ",
@@ -104,5 +102,4 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

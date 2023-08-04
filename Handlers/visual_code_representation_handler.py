@@ -1,9 +1,8 @@
-import os
-
 import matplotlib.pyplot as plt
 
 from io import BytesIO
 
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import create_start_markup
 from database.py_master_bot_database import PyMasterBotDatabase
 
@@ -52,8 +51,7 @@ def progress_code_testing_visual_repr_function(message, bot):
         plt.clf()
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def progress_code_level_visual_repr_function(message, bot):
@@ -117,8 +115,7 @@ def progress_code_level_visual_repr_function(message, bot):
         plt.clf()
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def progress_code_theory_tests_repr_function(message, bot):
@@ -143,8 +140,7 @@ def progress_code_theory_tests_repr_function(message, bot):
         bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=create_start_markup())
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def user_visual_code_repr_function(message, bot):
@@ -171,11 +167,11 @@ def user_visual_code_repr_function(message, bot):
         user_score_position = bot_db.rank_user_score(user_id=chat_id)
 
         bot.send_message(chat_id, f"You have <b>{current_user.status}</b> status until "
-                                  f"{current_user.paid_until if current_user.paid_until else 'the moment of payment'}.\n\n"
+                                  f"{current_user.paid_until if current_user.paid_until else 'the moment of payment'}."
+                                  f"\n\n"
                                   f"{message.chat.first_name}, your total score is <b>{current_user.score} pts</b>.\n"
                                   f"You take <b>{user_score_position} place</b> in the overall rating.\n\n"
                                   f"TOP-{counter} 🏆:\n {top_users}", parse_mode="HTML")
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

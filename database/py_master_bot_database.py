@@ -102,7 +102,7 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 
 class AbstractDatabase(ABC):
     @abstractmethod
-    def add_lesson(self, topic, item, description, text, status):
+    def add_lesson(self, lesson_id, topic, item, description, text, status):
         pass
 
     @abstractmethod
@@ -208,6 +208,10 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_random_lessons_items(self):
+        pass
+
+    @abstractmethod
+    def get_lesson_last_id(self):
         pass
 
     @abstractmethod
@@ -435,9 +439,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
 
-    def add_lesson(self, topic, item, description, text, status):
+    def add_lesson(self, lesson_id, topic, item, description, text, status):
         new_lesson = Lesson(
-            topic=topic, item=item, description=description, text=text, status=status
+            id=lesson_id, topic=topic, item=item, description=description, text=text, status=status
         )
         self.session.add(new_lesson)
         self.session.commit()
@@ -605,6 +609,10 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         all_lessons_items = [lesson.item for lesson in self.session.query(Lesson).all()]
         random.shuffle(all_lessons_items)
         return all_lessons_items[:5]
+
+    def get_lesson_last_id(self):
+        lesson_last_id = self.session.query(func.max(Lesson.id)).scalar() or 0
+        return lesson_last_id
 
     def get_test_task_by_question(self, question):
         test_task = self.session.query(TestTask).filter_by(question=question).first()

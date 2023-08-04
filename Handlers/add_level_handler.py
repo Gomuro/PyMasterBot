@@ -1,5 +1,4 @@
-import os
-
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -22,8 +21,7 @@ def add_level_function(bot, message):
         bot.register_next_step_handler(message, process_level_name, bot)  # Pass bot as an argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_level_name(message, bot):  # Add bot as a parameter
@@ -55,5 +53,4 @@ def process_level_name(message, bot):  # Add bot as a parameter
         bot.send_message(chat_id, "Level added successfully.")
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

@@ -1,5 +1,5 @@
 """Imports"""
-
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 
 from decorators import Bot
@@ -50,5 +50,4 @@ if __name__ == '__main__':
         telebot_instance.polling(none_stop=True, timeout=60)
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_error_message(error_message)
+        handle_exception(e, telebot_instance)

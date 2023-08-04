@@ -1,8 +1,8 @@
 """ This module allows to run check_syntax function"""
-import os
 import subprocess
 import re
 
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import delete_previous_messages
 from utils.bot_logger import log_message
 
@@ -70,8 +70,7 @@ def check_code(message, telebot_instance):
         telebot_instance.send_message(message.chat.id, result)
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)
 
 
 def check_style():

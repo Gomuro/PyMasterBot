@@ -1,8 +1,7 @@
 """
 This handler adds test_task by level
 """
-import os
-
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 from Handlers.help_functions import look_at_added_test_task
 
@@ -12,7 +11,6 @@ def add_easy_test_task_function(bot, message):
     This function adds a test_task to the easy level.
     """
     try:
-
         chat_id = message.chat.id
         user_id = message.from_user.id
 
@@ -33,8 +31,7 @@ def add_easy_test_task_function(bot, message):
         bot.register_next_step_handler(message, process_topic, task_id, "easy", bot)  # "easy" as the level argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def add_middle_test_task_function(bot, message):
@@ -63,8 +60,7 @@ def add_middle_test_task_function(bot, message):
         bot.register_next_step_handler(message, process_topic, task_id, "middle", bot)  # "middle" as the level argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def add_hard_test_task_function(bot, message):
@@ -93,8 +89,7 @@ def add_hard_test_task_function(bot, message):
         bot.register_next_step_handler(message, process_topic, task_id, "hard", bot)  # "hard" as the level argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_topic(message, task_id, level, bot):
@@ -114,8 +109,7 @@ def process_topic(message, task_id, level, bot):
         bot.register_next_step_handler(message, process_question, task_id, topic, level, bot)  # Pass the level argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_question(message, task_id, topic, level, bot):
@@ -143,8 +137,7 @@ def process_question(message, task_id, topic, level, bot):
         bot.register_next_step_handler(message, process_first_answer, task_id, topic, question, level, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_first_answer(message, task_id, topic, question, level, bot):
@@ -166,8 +159,7 @@ def process_first_answer(message, task_id, topic, question, level, bot):
                                        first_answer, level, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_second_answer(message, task_id, topic, question, first_answer, level, bot):
@@ -193,8 +185,7 @@ def process_second_answer(message, task_id, topic, question, first_answer, level
                                        first_answer, second_answer, level, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_third_answer(message, task_id, topic, question, first_answer, second_answer, level, bot):
@@ -220,8 +211,7 @@ def process_third_answer(message, task_id, topic, question, first_answer, second
                                        first_answer, second_answer, third_answer, level, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_right_answer(message, task_id, topic, question, first_answer, second_answer, third_answer, level, bot):
@@ -260,8 +250,7 @@ def process_right_answer(message, task_id, topic, question, first_answer, second
                                        first_answer, second_answer, third_answer, right_answer, level, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_look_at_added_test_task(message, task_id, topic, question,
@@ -284,5 +273,4 @@ def process_look_at_added_test_task(message, task_id, topic, question,
             return
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

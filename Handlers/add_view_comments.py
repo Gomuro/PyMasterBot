@@ -1,5 +1,4 @@
-import os
-
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import comment_range_button_markup, create_start_markup
 from database.py_master_bot_database import PyMasterBotDatabase
 
@@ -12,8 +11,7 @@ def process_comments(bot, message):
             view_comments(bot, message)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_comments_handler(bot, message):
@@ -37,8 +35,7 @@ def process_comments_handler(bot, message):
             bot.register_next_step_handler(message, process_name, comment_id, name, bot)  # Pass bot as an argument
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_name(message, comment_id, name, bot):
@@ -60,8 +57,7 @@ def process_name(message, comment_id, name, bot):
         bot.register_next_step_handler(message, process_comment, comment_id, name, bot)  # Use the original_message
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def process_comment(message, comment_id, name, bot):
@@ -88,8 +84,7 @@ def process_comment(message, comment_id, name, bot):
         bot.send_message(chat_id, "Comment added successfully.")
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def view_comments(bot, message):
@@ -106,8 +101,7 @@ def view_comments(bot, message):
             bot.send_message(chat_id, "No comments available.")
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)
 
 
 def next_comments_markup(message, bot):
@@ -174,5 +168,4 @@ def next_comments_markup(message, bot):
         bot.register_next_step_handler(message, next_comments_markup, bot)
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

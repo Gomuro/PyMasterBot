@@ -1,5 +1,4 @@
-import os
-
+from Handlers.exception_handler import handle_exception
 from Handlers.help_functions import create_premium_markup, create_start_markup
 
 
@@ -35,5 +34,4 @@ def premium_status_function(message, bot):
                              parse_mode="HTML", reply_markup=create_start_markup())
 
     except Exception as e:
-        error_message = str(e)
-        bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, bot)

@@ -1,7 +1,7 @@
 import inspect
 import ast
-import os
 
+from Handlers.exception_handler import handle_exception
 from utils.bot_logger import log_message
 from Handlers.help_functions import delete_previous_messages
 
@@ -72,5 +72,4 @@ def search_documentation(message, telebot_instance):
             print(f"Error: {str(err)}")
 
     except Exception as e:
-        error_message = str(e)
-        telebot_instance.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        handle_exception(e, telebot_instance)
