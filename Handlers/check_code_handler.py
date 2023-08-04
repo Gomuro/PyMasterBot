@@ -33,7 +33,7 @@ def check_code(message, telebot_instance):
             try:
                 user_input = message.text.split(maxsplit=1)[1].strip()
             except IndexError:
-                text = "Будь ласка, вкажіть код для перевірки."
+                text = "Please enter the code for verification."
                 log_message(message, CHECK_CODE_COMMAND, user_input, text)
                 telebot_instance.send_message(message.chat.id, text=text)
                 return
@@ -48,9 +48,9 @@ def check_code(message, telebot_instance):
         result = ""
 
         if syntax_errors:
-            result += f"У вашому коді є синтаксична помилка:\n{syntax_errors}\n"
+            result += f"There is a syntax error in your code:\n{syntax_errors}\n"
         else:
-            result += "Код не має синтаксичних помилок.\n"
+            result += "The code has no syntax errors.\n"
 
         if pep8_output:
             cleaned_output = re.sub(
@@ -60,10 +60,10 @@ def check_code(message, telebot_instance):
 
             pep8_errors = re.findall(r"\w+:\s.*", cleaned_output)
             if pep8_errors:
-                result += "\nУ вашому коді помилки PEP-8:\n"
+                result += "\nPEP-8 errors in your code:\n"
                 result += "\n".join(pep8_errors)
             else:
-                result += "\nКод не має помилок PEP-8."
+                result += "\nCode has no PEP-8 errors."
 
         log_message(message, CHECK_CODE_COMMAND, user_input, result)
 

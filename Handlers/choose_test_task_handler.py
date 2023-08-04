@@ -33,13 +33,13 @@ def process_test_task_level(message, bot):
                                  reply_markup=create_tasks_topics_markup(chat_id, level_name))
                 bot.register_next_step_handler(message, process_task_topic, level_name, bot)  # Pass bot as an argument
             elif level_name in premium_options and not bot_db.check_status_premium(user_id=chat_id):
-                bot.send_message(chat_id, f"Ви отримаєте можливість проходити тестові завдання рівня "
+                bot.send_message(chat_id, f"You will have the opportunity to take test tasks of the level "
                                           f"<b>'{level_name}'</b> "
-                                          f"за умови оплати 👑'Premium' доступу",
+                                          f"if you'll get 👑'Premium' access",
                                  parse_mode="HTML", reply_markup=create_premium_markup())
 
         else:
-            bot.reply_to(message, "Не знайдено тестових завдань за обраним рівнем.")
+            bot.reply_to(message, "No tests found at the selected level.")
             return
 
     except Exception as e:
@@ -60,11 +60,11 @@ def process_task_topic(message, level_name, bot):
             return
 
         elif task_topic in bot_db.get_test_tasks_topics_by_level(level_name) or \
-                task_topic == "Обрати завдання незалежно від теми":
+                task_topic == "Choose tasks on any topic":
             choose_test_task_function(message, level_name, task_topic, bot)
 
         else:
-            bot.reply_to(message, "Не знайдено тестових завдань за обраною темою.")
+            bot.reply_to(message, "No test tasks were found for the selected topic")
             return
 
     except Exception as e:
@@ -78,7 +78,7 @@ def choose_test_task_function(message, level_name, task_topic, bot):
         bot_db = PyMasterBotDatabase()
 
         def tasks_by_topic(level, topic_task):
-            if task_topic == "Обрати завдання незалежно від теми":
+            if task_topic == "Choose tasks on any topic":
                 test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level(level)
             else:
                 test_tasks_by_level_and_topic = bot_db.get_test_tasks_by_level_and_topic(level, topic_task)
@@ -100,7 +100,7 @@ def choose_test_task_function(message, level_name, task_topic, bot):
                              parse_mode="HTML", reply_markup=create_start_markup())
 
         else:
-            # Перемішуємо список тестових завдань
+            # Shuffle the list of test tasks
             random.shuffle(test_tasks_id)
 
             test_task = bot_db.get_test_task_by_id(test_tasks_id[0])
@@ -134,8 +134,8 @@ def handle_answer(message, task_id, right_answer, level_name, task_topic, bot):
 
         chat_id = message.chat.id
 
-        count = getattr(handle_answer, 'count', 0) + 1  # Отримати значення лічильника або встановити 0
-        setattr(handle_answer, 'count', count)  # Зберегти значення лічильника
+        count = getattr(handle_answer, 'count', 0) + 1  # Get counter value or set to 0
+        setattr(handle_answer, 'count', count)  # Save counter value
 
         if message.text == "cancel":
             bot.send_message(chat_id, "Cancelled.")

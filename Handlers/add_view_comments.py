@@ -125,13 +125,13 @@ def next_comments_markup(message, bot):
             bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
             return
 
-        elif message_text == "Перші і наступні коментарі":
+        elif message_text == "First and following comments":
             start_index = getattr(next_comments_markup, 'start_index', 0)
             end_index = start_index + num_comments_per_page
             comments_to_display = comments[start_index:end_index]
             all_comments_text = '\n\n'.join(comments_to_display)
             bot.reply_to(message, f"First comments. If there are comments available, "
-                                  f"click 'Перші і наступні коментарі' "
+                                  f"click 'First and following comments' "
                                   f"button again to view them:\n\n{all_comments_text}")
 
             if end_index >= len(comments):
@@ -145,7 +145,7 @@ def next_comments_markup(message, bot):
 
             return
 
-        if message_text == "Останні коментарі":
+        if message_text == "Recent comments":
             start_index = max(0, len(comments) - num_comments_per_page)
             end_index = start_index + num_comments_per_page
             comments_to_display = comments[start_index:end_index]
@@ -155,7 +155,7 @@ def next_comments_markup(message, bot):
 
             return
 
-        if message_text == "Мої коменти":
+        if message_text == "My comments":
             comments_by_user = bot_db.get_own_comments_by_name(user_name)  # Get comments of the specific user
 
             all_comments_text = '\n\n'.join(comments_by_user)

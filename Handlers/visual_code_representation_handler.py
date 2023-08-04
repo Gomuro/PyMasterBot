@@ -15,39 +15,39 @@ def progress_code_testing_visual_repr_function(message, bot):
 
         user_coding_progress = bot_db.get_user_by_id(chat_id).progress_coding
 
-        # Налаштування параметрів графіку
+        # Setting up schedule options
         colors = ['yellow', 'purple', 'green']
 
-        # Створення нової фігури з кольоровим фоном
+        # Create a new shape with a colored background
         plt.figure(facecolor='pink')
 
-        # Створення графіка
+        # Creating a schedule
         x = [key for key in user_coding_progress.keys()]
         y = [len(value) for value in user_coding_progress.values()]
 
         plt.bar(x, y, color=colors)
 
-        # Відображення на осі У тільки цілих чисел
+        # Displaying only integers on the y-axis
         plt.yticks(range(0, int(max(y)) + 2, 2))
 
-        # Додавання підписів значень до стовпців
+        # Add value labels to columns
         for i, v in enumerate(y):
             plt.text(x[i], v, str(v), ha='center', va='top', fontweight='bold')
 
-        # Налаштування заголовка та підписів осей
-        plt.title('Кількість успішно складених тестів (CODING) за рівнями', fontweight=True)
-        plt.xlabel('Назва рівня')
-        plt.ylabel('Кількість тестів')
+        # Customize the axis title and labels
+        plt.title('Number of successfully passed tests (CODING) by levels', fontweight=True)
+        plt.xlabel('Level name')
+        plt.ylabel('Number of tests')
 
-        # Збереження графіка в буфері
+        # Saving a graph to a buffer
         buffer = BytesIO()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
 
-        # Відправка графіка як фото у відповідь на команду
+        # Send a graph as a photo in response to a command
         bot.send_photo(message.chat.id, photo=buffer)
 
-        # Очищення графіка
+        # Cleaning up the schedule
         plt.clf()
 
     except Exception as e:
@@ -60,58 +60,55 @@ def progress_code_level_visual_repr_function(message, bot):
         chat_id = message.chat.id
         bot_db = PyMasterBotDatabase()
 
-        # База даних з рівнями складності та значеннями
+        # Database with difficulty levels and values
         user_coding_progress = bot_db.get_user_by_id(chat_id).progress_coding
 
         max_value = 20
 
-        # Налаштування параметрів графіку
+        # Setting up schedule options
         colors = ['yellow', 'purple', 'green', 'pink']
 
-        # Створення нової фігури з кольоровим фоном
+        # Create a new shape with a colored background
         plt.subplots(facecolor='lightblue')
 
-        # Створення підграфіків
+        # Creating sub-graphs
         fig, axes = plt.subplots(1, 3, figsize=(10, 4), facecolor='lightblue')
 
-        # Побудова кругових діаграм для кожного рівня складності
+        # Building pie charts for each level of complexity
         for i, (level, values) in enumerate(user_coding_progress.items()):
-            ax = axes[i]  # Отримання активного підграфіка
+            ax = axes[i]  # Getting an active subgraph
             completed_code_tasks = len(values)
             remaining_code_tasks = max_value - completed_code_tasks
             sizes = [completed_code_tasks, (remaining_code_tasks if remaining_code_tasks > 0 else 0)]
 
-            explode = [0.1] + [0] * (len(sizes) - 1)  # Підсвічування першого сегменту
-            '''
-            labels = [f'{level} ({completed_code_tasks}/{max_value})', ''] if completed_code_tasks < max_value else [
-                f'{level} ({completed_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n'
-                                                            f'Виконано\nдостатньо\nзавдань\nрівня\n{level}']
-            '''
+            explode = [0.1] + [0] * (len(sizes) - 1)  # Highlighting the first segment
+
             def form_labels():
                 if completed_code_tasks == 0:
-                    return f'Немає\nвиконаних\nзавдань\nрівня\n{level}', ''
+                    return f'No\ncompleted\ntasks\nof the\n{level}\nlevel', ''
                 elif completed_code_tasks < max_value:
                     return f'{level} ({completed_code_tasks}/{max_value})', ''
                 else:
-                    return f'{level} ({completed_code_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n' \
-                                                                       f'Виконано\nдостатньо\nзавдань\nрівня\n{level}'
+                    return f'{level} ({completed_code_tasks}/{max_value})', f'\n\n\n\n\n\n\n\n\n'\
+                                                                            'Completed\nenough\ntasks\nof the\n' \
+                                                                            f'{level}\nlevel'
 
             ax.pie(sizes, labels=form_labels(), colors=(colors[i], colors[-1]), explode=explode, autopct='%1.1f%%')
             ax.set_title(level.capitalize(), fontsize=17)
-            ax.tick_params(labelsize=16)  # Розмір шрифту підписів
+            ax.tick_params(labelsize=16)  # Font size of captions
 
-        # Загальний заголовок
-        fig.suptitle('Прогрес тестування (CODING) за рівнями складності', fontsize=18)
+        # General title
+        fig.suptitle('Testing progress (CODING) by levels', fontsize=18)
 
-        # Збереження графіка в буфері
+        # Saving a graph to a buffer
         buffer = BytesIO()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
 
-        # Відправка графіка як фото у відповідь на команду
+        # Send a graph as a photo in response to a command
         bot.send_photo(message.chat.id, photo=buffer)
 
-        # Очищення графіка
+        # Cleaning up the schedule
         plt.clf()
 
     except Exception as e:
@@ -128,14 +125,16 @@ def progress_code_theory_tests_repr_function(message, bot):
 
         total_value = sum(len(value) for value in user_coding_progress.values())
 
-        message_text = f"<b>Ви досягли успіху у виконанні {total_value} завдань. </b>"
+        message_text = f"<b>You have succeeded in completing {total_value} tasks. </b>"
 
         if total_value != 0:
-            message_text += " З них:\n"
+            message_text += " Among them:\n"
             for key, value in user_coding_progress.items():
-                message_text += f"на рівні {key}: {len(value)},    {'{:.2f}%'.format(len(value) / total_value * 100)}\n"
+                message_text += f"at the {key} level: {len(value)},    " \
+                                f"{'{:.2f}%'.format(len(value) / total_value * 100)}\n"
 
-        message_text += f"\nВаш ранг за кількістю виконаних тестів 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>"
+        message_text += f"\nYour rank by the number of completed CODE tests 💭 " \
+                        f"<b>{bot_db.check_rank(chat_id).upper()}</b>"
 
         bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=create_start_markup())
 

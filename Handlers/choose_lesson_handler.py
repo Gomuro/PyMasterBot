@@ -1,5 +1,3 @@
-import os
-
 from Handlers.exception_handler import handle_exception
 
 from Handlers.visual_lesson_representation_handler import progress_lesson_visual_round_repr_function, \
@@ -22,17 +20,17 @@ def process_lesson_topic(message, bot):
             bot.send_message(chat_id, "Cancelled.", reply_markup=create_start_markup())
             return
 
-        elif lesson_topic == "Обрати заняття незалежно від теми":
-            bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_random_lessons_items_markup(chat_id))
+        elif lesson_topic == "Choose a lesson regardless of the topic":
+            bot.send_message(chat_id, "Choose a lesson: ", reply_markup=create_random_lessons_items_markup(chat_id))
             bot.register_next_step_handler(message, process_lesson_item, bot)
 
         elif lesson_topic in bot_db.get_lessons_topics():
-            bot.send_message(chat_id, "Оберіть заняття: ", reply_markup=create_lessons_items_markup(chat_id,
+            bot.send_message(chat_id, "Choose a lesson: ", reply_markup=create_lessons_items_markup(chat_id,
                                                                                                     lesson_topic))
             bot.register_next_step_handler(message, process_lesson_item, bot)
 
         else:
-            bot.reply_to(message, "Не знайдено занять за обраною темою.")
+            bot.reply_to(message, "No lessons on the selected topic were found.")
             return
 
     except Exception as e:
@@ -63,7 +61,8 @@ def process_lesson_item(message, bot):
                              reply_markup=create_learned_lessons_markup())
             bot.register_next_step_handler(message, handle_answer_lesson, lesson_item, lesson_id, bot)
         else:
-            bot.send_message(chat_id, "Не знайдено заняття за обраною темою", reply_markup=create_start_markup())
+            bot.send_message(chat_id, "No lessons on the selected topic were found.",
+                             reply_markup=create_start_markup())
 
     except Exception as e:
         handle_exception(e, bot)
@@ -90,7 +89,7 @@ def handle_answer_lesson(message, lesson_item, lesson_id, bot):
             user_visual_repr_function(message, bot)
             progress_lesson_visual_round_repr_function(message, bot)
             progress_lesson_theory_tests_repr_function(message, bot)
-            bot.send_message(chat_id, "", reply_markup=create_start_markup())
+            # bot.send_message(chat_id, "", reply_markup=create_start_markup())
 
         elif message.text == "Return to lesson selection":
             bot.send_message(chat_id, "Choose the topic of the lesson: ",

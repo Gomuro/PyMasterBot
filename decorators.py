@@ -162,7 +162,7 @@ class Bot:
             add_level_function(self.bot, message)
 
     def send_error_message(self, error_message):
-        self.bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Помилка в боті:\n{error_message}")
+        self.bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Error in bot:\n\n{error_message}")
 
     def csv_tables_names_lessons(self, message):
         if message.document.file_name == 'lessons.csv':
@@ -172,8 +172,8 @@ class Bot:
         elif message.document.file_name == 'code_tasks.csv':
             handle_csv_code_tasks(self.bot, message, message.document)
         elif message.document.file_name != 'lessons.csv' or 'test_tasks.csv':
-            self.bot.send_message(message.chat.id, "Будь ласка, відправте файл у форматі CSV з такою самою назвою,\n"
-                                                   "як нава таблиці в БАЗІ ДАНИХ.")
+            self.bot.send_message(message.chat.id, "Please send the file in CSV format with the same name,\n"
+                                                   "as a table name in the DATABASE.")
 
     def handle_callback_query(self, call):
 

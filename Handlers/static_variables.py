@@ -1,17 +1,17 @@
-# стандартні назви рівнів
+# standard level names
 static_levels = ('easy', 'middle', 'hard')
 
-# загальна кількість тестових завдань, які мають бути виконані для досягнення найвищого рангу
+# the total number of test tasks that must be completed to achieve the highest rank
 max_total_tasks = 60
 
-# загальна кількість завдань кодінгу, які мають бути виконані для досягнення найвищого рангу
+# the total number of coding tasks that must be completed to achieve the highest rank
 max_total_code_tasks = 60
 
-# загальна кількість уроків, які мають бути виконані для досягнення найвищого рангу
+# загальна кількість уроків, які мають бути вивчені для досягнення найвищого рангу
 max_total_lessons = 60
 
-# статуси користувачів
+# user statuses
 user_statuses = ('не оплачено', 'premium')
 
-# можливості, відкриті лише при статусі "premium"
+# features open only with 'premium' status
 premium_options = 'hard'

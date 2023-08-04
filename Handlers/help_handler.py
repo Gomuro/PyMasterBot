@@ -9,10 +9,10 @@ def help_handler(message, telebot_instance, inline_keyboard):
     """ This method allows to send designated message when the button been pressed"""
     try:
 
-        text = "Я можу допомогти вам з цими командами:\n"\
-               "/help - допомога\n"\
-               "/check_code - перевірка синтаксису\n"\
-               "/documentation - документація"
+        text = "I can help you with these commands:\n"\
+               "/help - getting help on your question\n"\
+               "/check_code - syntax checking\n"\
+               "/documentation obtaining documentation"
         log_message(message, HELP_COMMAND, '', text)
         telebot_instance.send_message(message.chat.id,
                                       text=text,

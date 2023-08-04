@@ -4,7 +4,6 @@ import webbrowser
 
 from Handlers.exception_handler import handle_exception
 # from utils.bot_logger import log_message
-from Handlers.help_functions import delete_previous_messages
 
 HELP_COMMAND = "/help"
 
@@ -18,7 +17,6 @@ def help_request_handler(message, telebot_instance):
     :return: This function uses return statements to terminate function execution in various situations
     """
     try:
-        delete_previous_messages(message, telebot_instance)
 
         user_input = message.text.strip()
 
@@ -39,7 +37,7 @@ def help_request_handler(message, telebot_instance):
             doc = inspect.getdoc(obj)
 
             if not doc:
-                text = "На жаль, не знайдено документації для даного запиту."
+                text = "Unfortunately, no documentation was found for this request."
                 # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
                 telebot_instance.send_message(message.chat.id, text=text)
                 return
@@ -49,7 +47,7 @@ def help_request_handler(message, telebot_instance):
             if index != -1:
                 doc = doc[index + len("(...)"):]
 
-            link = f"https://docs.python.org/uk/3/search.html?q={str(user_input)}"
+            link = f"https://docs.python.org/3/search.html?q={str(user_input)}"
             view_doc = ""
             for i in doc.split("\n\n"):
                 if user_input + "(" in i:
@@ -67,7 +65,7 @@ def help_request_handler(message, telebot_instance):
             telebot_instance.send_message(message.chat.id, "Enter your question:")
 
         except Exception as err:  # rewrite the error exception
-            text = "Виникла помилка при пошуку\nабо перекладі документації."
+            text = "An error occurred while searching for\nor translation of the documentation."
             # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
             telebot_instance.send_message(message.chat.id, text=text)
             telebot_instance.send_message(message.chat.id, "Enter your question:")

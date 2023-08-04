@@ -13,14 +13,14 @@ def handle_csv_lessons(telebot_instance, message, document):
     try:
 
         user_id = message.from_user.id
-        db = PyMasterBotDatabase()  # Створення об'єкту бази даних
+        db = PyMasterBotDatabase()  # Create a database object
 
-        # Перевірка, чи користувач є адміністратором
+        # Check if the user has administrator permissions
         if not db.is_admin(user_id):
-            telebot_instance.reply_to(message, "У вас немає доступу для завантаження файлу.")
+            telebot_instance.reply_to(message, "You don't have permission to upload the file.")
             return
 
-        # Перевірка, чи повідомлення містить файл CSV
+        # Check if the message contains a CSV file
         if message.document.mime_type == 'text/csv':
 
             if document.file_name == "lessons.csv":
@@ -32,12 +32,12 @@ def handle_csv_lessons(telebot_instance, message, document):
                     temp_filename = temp_file.name
                     temp_file.write(downloaded_file)
 
-                # Обробка файлу CSV
+                # Processing a CSV file
                 db.add_lessons_csv(temp_filename)
 
                 os.remove(temp_filename)
 
-                telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
+                telebot_instance.reply_to(message, "CSV file has been processed successfully.")
 
     except Exception as e:
         handle_exception(e, telebot_instance)
@@ -47,14 +47,14 @@ def handle_csv_test_tasks(telebot_instance, message, document):
     try:
 
         user_id = message.from_user.id
-        db = PyMasterBotDatabase()  # Створення об'єкту бази даних
+        db = PyMasterBotDatabase()  # Create a database object
 
-        # Перевірка, чи користувач є адміністратором
+        # Check if the user has administrator permissions
         if not db.is_admin(user_id):
-            telebot_instance.reply_to(message, "У вас немає доступу для завантаження файлу.")
+            telebot_instance.reply_to(message, "You don't have permission to upload the file.")
             return
 
-        # Перевірка, чи повідомлення містить файл CSV
+        # Check if the message contains a CSV file
         if message.document.mime_type == 'text/csv':
 
             if document.file_name == "test_tasks.csv":
@@ -66,12 +66,12 @@ def handle_csv_test_tasks(telebot_instance, message, document):
                     temp_filename = temp_file.name
                     temp_file.write(downloaded_file)
 
-                # Обробка файлу CSV
+                # Processing a CSV file
                 db.add_test_tasks_csv(temp_filename)
 
                 os.remove(temp_filename)
 
-                telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
+                telebot_instance.reply_to(message, "CSV file has been processed successfully.")
 
     except Exception as e:
         handle_exception(e, telebot_instance)
@@ -81,14 +81,14 @@ def handle_csv_code_tasks(telebot_instance, message, document):
     try:
 
         user_id = message.from_user.id
-        db = PyMasterBotDatabase()  # Створення об'єкту бази даних
+        db = PyMasterBotDatabase()  # Create a database object
 
-        # Перевірка, чи користувач є адміністратором
+        # Check if the user has administrator permissions
         if not db.is_admin(user_id):
-            telebot_instance.reply_to(message, "У вас немає доступу для завантаження файлу.")
+            telebot_instance.reply_to(message, "You don't have permission to upload the file.")
             return
 
-        # Перевірка, чи повідомлення містить файл CSV
+        # Check if the message contains a CSV file
         if message.document.mime_type == 'text/csv':
 
             if document.file_name == "code_tasks.csv":
@@ -100,12 +100,12 @@ def handle_csv_code_tasks(telebot_instance, message, document):
                     temp_filename = temp_file.name
                     temp_file.write(downloaded_file)
 
-                # Обробка файлу CSV
+                # Processing a CSV file
                 db.add_code_tasks_csv(temp_filename)
 
                 os.remove(temp_filename)
 
-                telebot_instance.reply_to(message, "Файл CSV оброблено успішно.")
+                telebot_instance.reply_to(message, "CSV file has been processed successfully.")
 
     except Exception as e:
         handle_exception(e, telebot_instance)

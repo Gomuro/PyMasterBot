@@ -29,11 +29,11 @@ def search_documentation(message, telebot_instance):
             user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
 
         if not user_input:
-            text = "Будь ласка, введіть ключове слово для пошуку документації."
+            text = "Please enter a keyword to search for documentation."
             log_message(message, DOCUMENTATION_COMMAND, user_input, text)
 
             telebot_instance.send_message(message.chat.id, text=text)
-            return  # Вирівняти з блоком if
+            return
 
         try:
             # Use inspect to get the documentation
@@ -42,7 +42,7 @@ def search_documentation(message, telebot_instance):
             doc = inspect.getdoc(obj)
 
             if not doc:
-                text = "На жаль, не знайдено документації для даного запиту."
+                text = "Unfortunately, no documentation was found for this request."
                 log_message(message, DOCUMENTATION_COMMAND, user_input, text)
                 telebot_instance.send_message(message.chat.id, text=text)
                 return
@@ -66,7 +66,7 @@ def search_documentation(message, telebot_instance):
             telebot_instance.send_message(message.chat.id, formatted_doc, parse_mode="HTML")
 
         except Exception as err:  # rewrite the error exception
-            text = "Виникла помилка при пошуку\nабо перекладі документації."
+            text = "An error occurred while searching for\nor translation of the documentation."
             # log_message(message, DOCUMENTATION_COMMAND, user_input, text)
             telebot_instance.send_message(message.chat.id, text=text)
             print(f"Error: {str(err)}")

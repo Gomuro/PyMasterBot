@@ -38,7 +38,7 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
         user_visual_repr_function(message=call.message, bot=telebot_instance)
         telebot_instance.send_message(chat_id=call.message.chat.id,
                                       text=f"For detailed information click on the "
-                                           f"'Статистика по акаунту' button or click 'Cancel' to exit",
+                                           f"'Account statistics' button or click 'Cancel' to exit",
                                       reply_markup=create_account_markup())
 
     elif call.data == '/coding':
@@ -56,9 +56,9 @@ def callback_query_handler(call, telebot_instance, inline_keyboard, reply_keyboa
     elif call.data == '/premium':
         telebot_instance.answer_callback_query(callback_query_id=call.id)
         telebot_instance.send_message(chat_id=call.message.chat.id,
-                                      text="Розкрийте для себе безліч захоплюючих\n"
-                                           "можливостей з 'Premium' доступом!\n\n"
-                                           "Оберіть опцію: ",
+                                      text="Discover many exciting\n"
+                                           "opportunities with 'Premium' access!\n\n"
+                                           "Select the option: ",
                                       reply_markup=create_premium_markup())
 
     # Handle the "HELP" button separately

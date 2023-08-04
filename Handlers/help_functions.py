@@ -74,7 +74,7 @@ def create_tasks_topics_markup(user_id, level_name):
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Choose tasks on any topic"), types.KeyboardButton("Cancel"))
 
     return markup
 
@@ -92,7 +92,7 @@ def create_lessons_topics_markup():
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Обрати заняття незалежно від теми"), types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Choose a lesson regardless of the topic"), types.KeyboardButton("Cancel"))
 
     return markup
 
@@ -181,7 +181,7 @@ def create_code_tasks_topics_markup(user_id, level_name):
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Choose a coding task regardless of the topic"), types.KeyboardButton("Cancel"))
 
     return markup
 
@@ -222,9 +222,9 @@ def comment_markup():
 
 def comment_range_button_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    next_button = types.InlineKeyboardButton("Перші і наступні коментарі")
-    prev_button = types.InlineKeyboardButton("Останні коментарі")
-    btn_my_comments = types.KeyboardButton("Мої коменти")
+    next_button = types.InlineKeyboardButton("First and following comments")
+    prev_button = types.InlineKeyboardButton("Recent comments")
+    btn_my_comments = types.KeyboardButton("My comments")
     cancel_button = types.InlineKeyboardButton("cancel")
     markup.row(prev_button, next_button, btn_my_comments, cancel_button)
 
@@ -233,8 +233,8 @@ def comment_range_button_markup():
 
 def create_premium_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_buy = types.KeyboardButton("💵 Оплатити 'Premium'")
-    btn_details = types.KeyboardButton("Детально про 'Premium'")
+    btn_buy = types.KeyboardButton("💵 Pay for 'Premium'")
+    btn_details = types.KeyboardButton("Read more about 'Premium'")
     btn_cancel = types.KeyboardButton("Cancel")
     markup.add(btn_buy, btn_details, btn_cancel)
 
@@ -243,7 +243,7 @@ def create_premium_markup():
 
 def create_account_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_stat = types.KeyboardButton("Статистика по акаунту")
+    btn_stat = types.KeyboardButton("Account statistics")
     btn_cancel = types.KeyboardButton("Cancel")
     markup.add(btn_stat, btn_cancel)
 

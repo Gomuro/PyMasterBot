@@ -14,43 +14,43 @@ def progress_lesson_visual_round_repr_function(message, bot):
 
         user_lesson_items_progress = bot_db.get_user_by_id(chat_id).progress_lessons
 
-        # Отримання загальної кількості уроків з таблиці 'lessons'
+        # Get the total number of lessons from the 'lessons' table
         total_lessons = bot_db.get_total_lessons_count()
 
-        # Отримання кількості пройдених уроків користувачем
+        # Get the number of lessons completed by the user
         completed_lessons = len(user_lesson_items_progress)
 
-        # Налаштування параметрів графіку
+        # Setting up schedule options
         colors = ['yellow', 'purple']
 
-        # Створення нової фігури з кольоровим фоном
+        # Create a new shape with a colored background
         plt.figure(facecolor='lightblue')
 
-        # Створення першого графіка (загальна кількість уроків)
+        # Create the first schedule (total number of lessons)
         plt.subplot(1, 2, 1)
-        x_total = ['Пройдені', '']
+        x_total = ['Learned', '']
         y_total = [completed_lessons, total_lessons - completed_lessons]
         plt.pie(y_total, labels=x_total, colors=colors, autopct='%1.0f%%', startangle=140)
-        plt.title('Кількість пройдених уроків', fontweight=True)
+        plt.title('Percentage of learned lessons', fontweight=True)
 
-        # Створення другого графіка (кількість пройдених уроків)
+        # Create a second graph (number of lessons completed)
         plt.subplot(1, 2, 2)
-        x_completed = ['Пройдені', 'Не пройдені уроки']
+        x_completed = ['Learned', 'Unlearned lessons']
         y_completed = [completed_lessons, total_lessons - completed_lessons]
         plt.bar(x_completed, y_completed, color=colors)
         for i, v in enumerate(y_completed):
             plt.text(x_completed[i], v, str(v), ha='center', va='bottom', fontweight='bold')
-        plt.title('Пройдені уроки та ті, що залишились', fontweight=True)
+        plt.title('Lessons learned and those\nthat remain to be learned', fontweight=True)
 
-        # Збереження графіків в буфері
+        # Saving graphs to the buffer
         buffer = BytesIO()
         plt.savefig(buffer, format='png')
         buffer.seek(0)
 
-        # Відправка графіків як фото у відповідь на команду
+        # Send graphs as photos in response to a command
         bot.send_photo(message.chat.id, photo=buffer)
 
-        # Очищення графіків
+        # Clean up schedules
         plt.clf()
 
     except Exception as e:
@@ -65,17 +65,17 @@ def progress_lesson_theory_tests_repr_function(message, bot):
 
         user_lesson_items_progress = bot_db.get_user_by_id(chat_id).progress_lessons
 
-        # Отримання загальної кількості уроків з таблиці 'lessons'
+        # Getting the total number of lessons from the 'lessons' table
         total_lessons = bot_db.get_total_lessons_count()
 
-        # Отримання кількості пройдених уроків користувачем
+        # Get the number of lessons completed by the user
         completed_lessons = len(user_lesson_items_progress)
 
         percentage_relation = completed_lessons * 100 / total_lessons
-        message_text = f"<b>Ви вивчили {completed_lessons} з {total_lessons} уроків. \n " \
+        message_text = f"<b>You have learned {completed_lessons} from {total_lessons} lessons. \n " \
                        f"{percentage_relation}%</b>"
 
-        message_text += f"\nВаш ранг за кількістю вивчених уроків 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>"
+        message_text += f"\nYour rank by the number of learned lessons 💭 <b>{bot_db.check_rank(chat_id).upper()}</b>"
 
         bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=create_start_markup())
 
