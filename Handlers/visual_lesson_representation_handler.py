@@ -30,7 +30,8 @@ def progress_lesson_visual_round_repr_function(message, bot):
         plt.subplot(1, 2, 1)
         x_total = ['Learned', '']
         y_total = [completed_lessons, total_lessons - completed_lessons]
-        plt.pie(y_total, labels=x_total, colors=colors, autopct='%1.0f%%', startangle=140)
+        explode = [0.1, 0]  # Add an explode effect to the first slice
+        plt.pie(y_total, labels=x_total, colors=colors, autopct='%1.0f%%', startangle=140, explode=explode)
         plt.title('Percentage of learned lessons', fontweight=True)
 
         # Create a second graph (number of lessons completed)
@@ -38,6 +39,7 @@ def progress_lesson_visual_round_repr_function(message, bot):
         x_completed = ['Learned', 'Unlearned lessons']
         y_completed = [completed_lessons, total_lessons - completed_lessons]
         plt.bar(x_completed, y_completed, color=colors)
+
         for i, v in enumerate(y_completed):
             plt.text(x_completed[i], v, str(v), ha='center', va='bottom', fontweight='bold')
         plt.title('Lessons learned and those\nthat remain to be learned', fontweight=True)
