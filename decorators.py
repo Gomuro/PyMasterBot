@@ -20,6 +20,7 @@ from Handlers.choose_code_task_handler import process_code_task_level
 from Handlers.add_test_task_handler import add_test_task_function
 from Handlers.change_test_task_handler import change_test_task_function
 from Handlers.choose_test_task_handler import process_test_task_level
+from Handlers.choose_lesson_handler import process_lesson_topic
 from Handlers.request_help_handler import help_request_handler
 from Handlers.csv_handler import handle_csv_lessons
 from Handlers.csv_handler import handle_csv_test_tasks
@@ -160,6 +161,9 @@ class Bot:
         if message.text.find("/add_level") != -1:
             add_level_function(self.bot, message)
 
+    def send_error_message(self, error_message):
+        self.bot.send_message(os.getenv('OWNER_CHAT_ID'), f"Error in bot:\n\n{error_message}")
+
     def csv_tables_names_lessons(self, message):
         if message.document.file_name == 'lessons.csv':
             handle_csv_lessons(self.bot, message, message.document)
@@ -168,8 +172,8 @@ class Bot:
         elif message.document.file_name == 'code_tasks.csv':
             handle_csv_code_tasks(self.bot, message, message.document)
         elif message.document.file_name != 'lessons.csv' or 'test_tasks.csv':
-            self.bot.send_message(message.chat.id, "Будь ласка, відправте файл у форматі CSV з такою самою назвою,\n"
-                                                   "як нава таблиці в БАЗІ ДАНИХ.")
+            self.bot.send_message(message.chat.id, "Please send the file in CSV format with the same name,\n"
+                                                   "as a table name in the DATABASE.")
 
     def handle_callback_query(self, call):
 
@@ -196,6 +200,7 @@ class Bot:
         elif self.bot_processor.is_mode_lesson():
             self.bot.send_message(message.chat.id, "You are in lesson mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())
+            process_lesson_topic(message, self.bot)
         elif self.bot_processor.is_mode_testing():
             self.bot.send_message(message.chat.id, "You are in testing mode.",
                                   reply_markup=self.inline_keyboard.get_keyboard())

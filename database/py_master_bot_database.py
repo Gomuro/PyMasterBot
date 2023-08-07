@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import random
+
 import os
 import sqlalchemy
 from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON, BigInteger, ForeignKey, text, update, \
@@ -6,8 +8,7 @@ from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON,
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv
-from Handlers.static_variables import max_total_tasks
-
+from Handlers.static_variables import max_total_tasks, max_total_code_tasks
 
 Base = sqlalchemy.orm.declarative_base()
 
@@ -31,6 +32,7 @@ class User(Base):
     progress = Column(JSON, default=list)
     progress_testing = Column(JSON)
     progress_coding = Column(JSON)
+    progress_lessons = Column(JSON, default=list)
     role = Column(String)
 
 
@@ -47,6 +49,7 @@ class Lesson(Base):
 
     id = Column(Integer, primary_key=True)
     topic = Column(String)
+    item = Column(String)
     description = Column(String)
     text = Column(String)
     status = Column(String)
@@ -99,7 +102,7 @@ class PyMasterBotDatabaseFactory(DatabaseFactory):
 
 class AbstractDatabase(ABC):
     @abstractmethod
-    def add_lesson(self, topic, description, text, status):
+    def add_lesson(self, lesson_id, topic, item, description, text, status):
         pass
 
     @abstractmethod
@@ -138,6 +141,7 @@ class AbstractDatabase(ABC):
         progress=[],
         progress_testing={},
         progress_coding={},
+        progress_lessons=[],
         role=None,
     ):
         pass
@@ -188,6 +192,26 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def get_lessons_by_topic(self, topic):
+        pass
+
+    @abstractmethod
+    def get_lessons_by_item(self, item):
+        pass
+
+    @abstractmethod
+    def get_lessons_topics(self):
+        pass
+
+    @abstractmethod
+    def get_lessons_items(self, topic):
+        pass
+
+    @abstractmethod
+    def get_random_lessons_items(self):
+        pass
+
+    @abstractmethod
+    def get_lesson_last_id(self):
         pass
 
     @abstractmethod
@@ -346,6 +370,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def add_lesson_to_progress_lesson(self, user_id, lesson_id):
+        pass
+
+    @abstractmethod
     def check_this_level_task_exists(self, level_name):
         pass
 
@@ -371,6 +399,14 @@ class AbstractDatabase(ABC):
 
     @abstractmethod
     def check_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def check_coding_rank(self, user_id):
+        pass
+
+    @abstractmethod
+    def check_lessons_rank(self, user_id):
         pass
 
     @abstractmethod
@@ -403,9 +439,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
 
-    def add_lesson(self, topic, description, text, status):
+    def add_lesson(self, lesson_id, topic, item, description, text, status):
         new_lesson = Lesson(
-            topic=topic, description=description, text=text, status=status
+            id=lesson_id, topic=topic, item=item, description=description, text=text, status=status
         )
         self.session.add(new_lesson)
         self.session.commit()
@@ -435,8 +471,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def add_lesson_progress(self, user_id, lesson_id):
         user = self.get_user_by_id(user_id)
         if user:
-            if lesson_id not in user.progress:
-                user.progress.append(lesson_id)
+            print(user)
+            if lesson_id not in user.progress_lessons:
+                user.progress_lessons.append(lesson_id)
                 self.session.commit()
 
     def add_points(self, user_id, points):
@@ -462,6 +499,7 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         progress=[],
         progress_testing={},
         progress_coding={},
+        progress_lessons=[],
         role="user",
     ):
         new_user = User(
@@ -548,6 +586,33 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def get_lessons_by_topic(self, topic):
         lessons = self.session.query(Lesson).filter_by(topic=topic).all()
         return lessons
+
+    def get_lessons_by_item(self, item):
+        lesson = self.session.query(Lesson).filter_by(item=item).first()
+        return lesson
+
+    def get_lessons_topics(self):
+        lessons = self.session.query(Lesson).all()
+        topics = sorted(list(set([lesson.topic for lesson in lessons])))
+        return topics
+
+    def get_lessons_items(self, topic):
+        # Get all lesson items by topic
+        items_by_topic = self.session.query(Lesson).filter(Lesson.topic == topic).all()
+
+        # Retrieve and sort all lesson items
+        lesson_items = sorted([lesson.item for lesson in items_by_topic])
+        return lesson_items
+
+    def get_random_lessons_items(self):
+        # Get all lesson items
+        all_lessons_items = [lesson.item for lesson in self.session.query(Lesson).all()]
+        random.shuffle(all_lessons_items)
+        return all_lessons_items[:5]
+
+    def get_lesson_last_id(self):
+        lesson_last_id = self.session.query(func.max(Lesson.id)).scalar() or 0
+        return lesson_last_id
 
     def get_test_task_by_question(self, question):
         test_task = self.session.query(TestTask).filter_by(question=question).first()
@@ -774,6 +839,23 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.execute(updating)
         self.session.commit()
 
+    def add_lesson_to_progress_lesson(self, user_id, lesson_id):
+
+        # Отримати рядок з бази даних
+        user = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення стовпця
+        progress_lessons_ = user.progress_lessons
+
+        if lesson_id not in progress_lessons_:
+            # Додати нове значення до списку
+            progress_lessons_.append(lesson_id)
+
+        # Оновити рядок з оновленим значенням JSON-стовпця
+        updating = update(User).where(User.id == user_id).values(progress_lessons=progress_lessons_)
+        self.session.execute(updating)
+        self.session.commit()
+
     def check_this_level_task_exists(self, level_name):
         task = self.session.query(TestTask).filter_by(level_relation=level_name).first()
         if task:
@@ -904,6 +986,52 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         percentage_relation = total_tasks * 100 / max_total_tasks
 
         # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"
+
+    def check_coding_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_coding = row.progress_coding
+
+        # Отримати загальну кількість виконаних завдань
+        total_code_tasks = sum(len(values) for values in progress_coding.values())
+
+        # Визначити відсоткове відношення виконаних завдань до максимальної кількості завдань для досягнення рангу
+        percentage_relation = total_code_tasks * 100 / max_total_code_tasks
+
+        # Повернути назву рангу в залежності від кількості виконаних завдань
+        if percentage_relation <= 33:
+            return "Beginner"
+        elif 33 < percentage_relation <= 66:
+            return "Advanced"
+        elif 66 < percentage_relation < 100:
+            return "Professional"
+        else:
+            return "Guru"
+
+    def check_lessons_rank(self, user_id):
+        # Отримати рядок з бази даних
+        row = self.get_user_by_id(user_id)
+
+        # Отримати поточне значення JSON-стовпця
+        progress_lessons = row.progress_lessons
+
+        # Отримати загальну кількість вивчених уроків
+        completed_lessons = len(progress_lessons)
+
+        # Визначити відсоткове відношення вивчених уроків до максимальної кількості уроків для досягнення рангу
+        percentage_relation = progress_lessons * 100 / max_total_code_tasks
+
+        # Повернути назву рангу в залежності від кількості вивчених уроків
         if percentage_relation <= 33:
             return "Beginner"
         elif 33 < percentage_relation <= 66:

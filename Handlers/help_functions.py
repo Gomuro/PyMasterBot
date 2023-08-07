@@ -2,6 +2,8 @@
 This block contains helper functions that will be used in various handlers
 """
 from telebot import types
+
+from Handlers.exception_handler import handle_exception
 from database.py_master_bot_database import PyMasterBotDatabase
 
 
@@ -21,7 +23,7 @@ def delete_previous_messages(message, telebot_instance):
                 telebot_instance.delete_message(message.chat.id, message.message_id - index)
 
     except Exception as e:
-        print("An unexpected error occurred:", e)
+        handle_exception(e, telebot_instance)
 
 
 def look_at_added_test_task():
@@ -72,7 +74,93 @@ def create_tasks_topics_markup(user_id, level_name):
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Choose tasks on any topic"), types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_lessons_topics_markup():
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    lessons_topics = bot_db.get_lessons_topics()
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    for topic in lessons_topics:
+        btn = types.KeyboardButton(f"{topic}")
+        markup.add(btn)
+
+    markup.add(types.KeyboardButton("Choose a lesson regardless of the topic"), types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_lessons_items_markup(user_id, topic):
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    user = bot_db.get_user_by_id(user_id)
+    lessons_items = bot_db.get_lessons_items(topic)
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    counter = 1
+
+    for item in lessons_items:
+        lesson_id = bot_db.get_lessons_by_item(item).id
+
+        if lesson_id in user.progress_lessons:
+            btn = types.KeyboardButton(f"{counter}. ✅ LEARNED    {item}")
+        else:
+            btn = types.KeyboardButton(f"{counter}. {item}")
+
+        markup.add(btn)
+
+        counter += 1
+
+    markup.add(types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_random_lessons_items_markup(user_id):
+    # Create an instance of the database
+    bot_db = PyMasterBotDatabase()
+
+    user = bot_db.get_user_by_id(user_id)
+    lessons_items = bot_db.get_random_lessons_items()
+
+    # Create markup
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+
+    counter = 1
+
+    for item in lessons_items:
+        lesson_id = bot_db.get_lessons_by_item(item).id
+
+        if lesson_id in user.progress_lessons:
+            btn = types.KeyboardButton(f"{counter}. ✅ LEARNED    {item}")
+        else:
+            btn = types.KeyboardButton(f"{counter}. {item}")
+
+        markup.add(btn)
+
+        counter += 1
+
+    markup.add(types.KeyboardButton("Cancel"))
+
+    return markup
+
+
+def create_learned_lessons_markup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    btn_learned = types.KeyboardButton("✅ Mark as learned")
+    btn_later = types.KeyboardButton("Return to lesson selection")
+    btn_cancel = types.KeyboardButton("Cancel")
+    markup.add(btn_learned, btn_later, btn_cancel)
 
     return markup
 
@@ -93,7 +181,7 @@ def create_code_tasks_topics_markup(user_id, level_name):
         btn = types.KeyboardButton(f"{topic}")
         markup.add(btn)
 
-    markup.add(types.KeyboardButton("Обрати завдання незалежно від теми"), types.KeyboardButton("Cancel"))
+    markup.add(types.KeyboardButton("Choose a coding task regardless of the topic"), types.KeyboardButton("Cancel"))
 
     return markup
 
@@ -111,13 +199,14 @@ def create_start_markup():
     markup = types.InlineKeyboardMarkup()
     btn_test = types.InlineKeyboardButton("🔘 Theory tests", callback_data="/testing")
     btn_code = types.InlineKeyboardButton("🔵 Coding tests ", callback_data="/coding")
+    btn_lessons = types.InlineKeyboardButton("📚 Lessons", callback_data="/lesson")
     btn_check = types.InlineKeyboardButton("Check my code", callback_data="/check_code")
     btn_doc = types.InlineKeyboardButton("Documentation", callback_data="/documentation")
     btn_help = types.InlineKeyboardButton("HELP", callback_data="/help")
     btn_account = types.InlineKeyboardButton("🏠 My account", callback_data="/account")
     btn_rew = types.InlineKeyboardButton("🍓 Comments", callback_data="/comments")
     btn_premium = types.InlineKeyboardButton("👑 Premium", callback_data="/premium")
-    markup.add(btn_test, btn_code, btn_check, btn_doc, btn_help, btn_account, btn_rew, btn_premium)
+    markup.add(btn_test, btn_code, btn_lessons, btn_check, btn_doc, btn_help, btn_account, btn_rew, btn_premium)
 
     return markup
 
@@ -133,9 +222,9 @@ def comment_markup():
 
 def comment_range_button_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    next_button = types.InlineKeyboardButton("Перші і наступні коментарі")
-    prev_button = types.InlineKeyboardButton("Останні коментарі")
-    btn_my_comments = types.KeyboardButton("Мої коменти")
+    next_button = types.InlineKeyboardButton("First and following comments")
+    prev_button = types.InlineKeyboardButton("Recent comments")
+    btn_my_comments = types.KeyboardButton("My comments")
     cancel_button = types.InlineKeyboardButton("cancel")
     markup.row(prev_button, next_button, btn_my_comments, cancel_button)
 
@@ -144,8 +233,8 @@ def comment_range_button_markup():
 
 def create_premium_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_buy = types.KeyboardButton("💵 Оплатити 'Premium'")
-    btn_details = types.KeyboardButton("Детально про 'Premium'")
+    btn_buy = types.KeyboardButton("💵 Pay for 'Premium'")
+    btn_details = types.KeyboardButton("Read more about 'Premium'")
     btn_cancel = types.KeyboardButton("Cancel")
     markup.add(btn_buy, btn_details, btn_cancel)
 
@@ -154,7 +243,7 @@ def create_premium_markup():
 
 def create_account_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    btn_stat = types.KeyboardButton("Статистика по акаунту")
+    btn_stat = types.KeyboardButton("Account statistics")
     btn_cancel = types.KeyboardButton("Cancel")
     markup.add(btn_stat, btn_cancel)
 
