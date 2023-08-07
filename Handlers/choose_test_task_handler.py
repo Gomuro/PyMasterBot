@@ -1,3 +1,4 @@
+import html
 from telebot import types
 
 from Handlers.exception_handler import handle_exception
@@ -115,6 +116,11 @@ def choose_test_task_function(message, level_name, task_topic, bot):
 
             response = f"({topic})\n{question}\n\n1. {var1}\n2. {var2}\n3. {var3}"
             bot.send_message(chat_id, response)
+
+            var1 = html.unescape(var1)
+            var2 = html.unescape(var2)
+            var3 = html.unescape(var3)
+            right_answer = html.unescape(right_answer)
 
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             btn_var1 = types.KeyboardButton(var1)
