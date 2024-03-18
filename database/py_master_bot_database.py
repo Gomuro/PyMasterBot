@@ -7,7 +7,8 @@ from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON,
     desc, inspect, MetaData
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
-from Handlers.csv_importer import add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv
+from Handlers.csv_importer import (add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv, add_ai_test_tasks_csv,
+                                   add_csv_to_database)
 from Handlers.static_variables import max_total_tasks, max_total_code_tasks
 
 Base = sqlalchemy.orm.declarative_base()
@@ -68,6 +69,19 @@ class TestTask(Base):
     level_relation = Column(String, ForeignKey('levels.level_name'))
 
 
+class AITestTask(Base):
+    __tablename__ = 'ai_test_tasks'
+
+    id = Column(Integer, primary_key=True)
+    topic = Column(String)
+    question = Column(String)
+    var1 = Column(String)
+    var2 = Column(String)
+    var3 = Column(String)
+    right_answer = Column(String)
+    level_relation = Column(String, ForeignKey('levels.level_name'))
+
+
 class CodeTask(Base):
     __tablename__ = 'code_tasks'
 
@@ -108,6 +122,10 @@ class AbstractDatabase(ABC):
     @abstractmethod
     def add_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
         pass
+
+    # @abstractmethod
+    # def add_ai_test_task(self, task_id, topic, question, var1, var2, var3, right_answer, level_relation):
+    #     pass
 
     @abstractmethod
     def add_code_task(self, code_task_id, topic, question, var1, var2, var3, right_answer, level_relation):
@@ -322,11 +340,19 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def add_csv_to_database(self, csv_filename):
+        pass
+
+    @abstractmethod
     def add_lessons_csv(self, csv_filename):
         pass
 
     @abstractmethod
     def add_test_tasks_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def add_ai_test_tasks_csv(self, csv_filename):
         pass
 
     @abstractmethod
@@ -453,9 +479,9 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         self.session.commit()
 
     def add_code_task(self, code_task_id, topic, question, var1, var2, var3, right_answer, level_relation):
-        new_test_task = TestTask(id=code_task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
+        new_code_task = CodeTask(id=code_task_id, topic=topic, question=question, var1=var1, var2=var2, var3=var3,
                                  right_answer=right_answer, level_relation=level_relation)
-        self.session.add(new_test_task)
+        self.session.add(new_code_task)
         self.session.commit()
 
     def add_comment(self, comment_id, name, comment):
@@ -744,11 +770,17 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
             user.role = role
             self.session.commit()
 
+    def add_csv_to_database(self, csv_filename):
+        add_csv_to_database(self.session, csv_filename)
+
     def add_lessons_csv(self, csv_filename):
         add_lessons_csv(self.session, csv_filename, Lesson)
 
     def add_test_tasks_csv(self, csv_filename):
         add_test_tasks_csv(self.session, csv_filename, TestTask)
+
+    def add_ai_test_tasks_csv(self, csv_filename):
+        add_ai_test_tasks_csv(self.session, csv_filename, AITestTask)
 
     def add_code_tasks_csv(self, csv_filename):
         add_code_tasks_csv(self.session, csv_filename, CodeTask)
