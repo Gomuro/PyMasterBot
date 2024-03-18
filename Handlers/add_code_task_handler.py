@@ -22,7 +22,7 @@ def add_code_task_function(bot, message):
         code_task_id = last_number + 1
 
         # Ask the user for the code_task topic
-        bot.send_message(chat_id, "Enter the test_task topic:")
+        bot.send_message(chat_id, "Enter the code_task topic:")
         bot.register_next_step_handler(message, process_topic, code_task_id, bot)  # Pass bot as an argument
 
     except Exception as e:
@@ -196,7 +196,7 @@ def process_level_relation(message, code_task_id, topic, question, first_answer,
         bot_db = PyMasterBotDatabase()
 
         # Delete a code task with the same number to prevent a conflict
-        bot_db.delete_test_task(code_task_id)
+        bot_db.delete_code_task(code_task_id)
 
         # Add the test_task to the database with the provided status
         bot_db.add_code_task(code_task_id, topic, question, first_answer, second_answer,
