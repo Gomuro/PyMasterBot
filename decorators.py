@@ -2,7 +2,8 @@ import os
 import telebot
 from dotenv import load_dotenv
 
-from Handlers.add_ai_test_task_handler import add_ai_test_task_function
+from Handlers.add_ai_test_tasks_handler import add_ai_test_tasks_function, add_ai_code_tasks_function, \
+    add_ai_lessons_function
 from Handlers.add_test_task_by_level_handler import add_easy_test_task_function, add_middle_test_task_function, \
     add_hard_test_task_function
 from Handlers.add_code_task_by_level_handler import add_easy_code_task_function, add_middle_code_task_function, \
@@ -19,11 +20,13 @@ from Handlers.add_code_task_handler import add_code_task_function
 from Handlers.change_code_task_handler import change_code_task_function
 from Handlers.choose_code_task_handler import process_code_task_level
 from Handlers.add_test_task_handler import add_test_task_function
+# from Handlers.add_test_task_handler import add_ai_tasks_function
 from Handlers.change_test_task_handler import change_test_task_function
 from Handlers.choose_test_task_handler import process_test_task_level
 from Handlers.choose_lesson_handler import process_lesson_topic
 from Handlers.request_help_handler import help_request_handler
-from Handlers.csv_handler import handle_csv_lessons, handle_csv_ai_test_tasks
+from Handlers.csv_handler import handle_csv_lessons, handle_csv_ai_test_tasks, handle_csv_ai_code_tasks, \
+    handle_csv_ai_lesson_tasks
 from Handlers.csv_handler import handle_csv_test_tasks
 from Handlers.csv_handler import handle_csv_code_tasks
 from Handlers.add_level_handler import add_level_function
@@ -110,12 +113,26 @@ class Bot:
         if message.text.find("/add_test_task") != -1:
             add_test_task_function(self.bot, message)
 
-    def add_ai_test_task_handler(self, message):
+    def add_ai_lesson_handler(self, message):
         """
-        This method adds tasks from the ai_test_task.csv file
+        This method adds lessons from the ai_lessons.csv file
+        """
+        if message.text.find("/add_ai_lesson_tasks") != -1:
+            add_ai_lessons_function(self.bot, message)
+
+    def add_ai_test_tasks_handler(self, message):
+        """
+        This method adds tasks from the ai_test_tasks.csv file
         """
         if message.text.find("/add_ai_test_tasks") != -1:
-            add_ai_test_task_function(self.bot, message)
+            add_ai_test_tasks_function(self.bot, message)
+
+    def add_ai_code_tasks_handler(self, message):
+        """
+        This method adds tasks from the ai_code_tasks.csv file
+        """
+        if message.text.find("/add_ai_code_tasks") != -1:
+            add_ai_code_tasks_function(self.bot, message)
 
     def add_test_task_by_level_handler(self, message):
         """
@@ -175,10 +192,14 @@ class Bot:
     def csv_tables_names_lessons(self, message):
         if message.document.file_name == 'lessons.csv':
             handle_csv_lessons(self.bot, message, message.document)
-        elif message.document.file_name == 'ai_test_tasks.csv':
+        elif message.document.file_name == 'test_tasks.csv':
             handle_csv_test_tasks(self.bot, message, message.document)
         elif message.document.file_name == 'ai_test_tasks.csv':
             handle_csv_ai_test_tasks(self.bot, message, message.document)
+        elif message.document.file_name == 'ai_code_tasks.csv':
+            handle_csv_ai_code_tasks(self.bot, message, message.document)
+        elif message.document.file_name == 'ai_lesson_tasks.csv':
+            handle_csv_ai_lesson_tasks(self.bot, message, message.document)
         elif message.document.file_name == 'code_tasks.csv':
             handle_csv_code_tasks(self.bot, message, message.document)
         elif message.document.file_name != 'lessons.csv' or 'ai_test_tasks.csv':
