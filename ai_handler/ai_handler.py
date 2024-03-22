@@ -10,88 +10,64 @@ This module generates educational content for the bot using chat gpt with the g4
 csv files. 
 '''
 
+# Глобальна змінна для зберігання списку доступних моделей
+available_models = []
 
-# Define a function named get_available_models that retrieves the available models.
+
+# Функція для отримання доступних моделей
 def get_available_models():
+    global available_models
     try:
-        # Attempt to retrieve all attributes of the 'g4f.models' module and return them.
-        return dir(g4f.models)  # Get all module attributes
+        # Отримання всіх атрибутів модуля 'g4f.models'
+        available_models = dir(g4f.models)
     except Exception as e:
-        # If an exception occurs during the retrieval, print an error message indicating the issue.
         print(f"Помилка при отриманні списку доступних моделей: {e}")
-        # Return an empty list to indicate failure.
-        return []
+        available_models = []
 
 
-# Define a function named ask_gpt that takes a prompt string as input and returns a string.
-def ask_gpt(promt: str) -> str:
-    # Set the default model to 'g4f.models.codellama_34b_instruct'
-    default_model = g4f.models.codellama_34b_instruct
-    # Check if the attribute 'last_model_success' is not present in the ask_gpt function object or is False
-    if not getattr(ask_gpt, "last_model_success", False):
-        try:
-            # Attempt to generate a response using the default model and the provided prompt
-            response = g4f.ChatCompletion.create(
-                model=default_model,
-                messages=[{"role": "user", "content": promt}]
-            )
-            # Indicate that the model has been successfully used by setting 'last_model_success' to True
-            ask_gpt.last_model_success = True
-            # Print a message indicating that the default model is working
-            print(f"Model {default_model} is working")
-            print(response)
-            # Return the generated response
-            return response
-        # Handle any exceptions that occur during the generation process
-        except Exception as e:
-            # Print an error message indicating the issue encountered while using the default model
-            print(f"Помилка при використанні моделі за замовчуванням {default_model}: {e}")
+# Функція для вибору і використання моделі
+def ask_gpt(prompt: str) -> str:
+    global available_models
+    # Перевірка наявності доступних моделей
+    if not available_models:
+        # Якщо список доступних моделей порожній, повертаємо None
+        print("Список доступних моделей порожній.")
+        return None
 
-    # Retrieve the available models by calling the get_available_models function
-    available_models = get_available_models()
-    # Iterate over each model name obtained from the available_models list
+    # Ітеруємось по доступних моделях
     for model_name in available_models:
-        # Skip the default model ('codellama_34b_instruct') as it has already been tried
-        if model_name == 'codellama_34b_instruct':  # Skip the default model, as we have already tried it
-            continue
         try:
-            # Get the model object using its name from the g4f.models module
+            # Отримуємо модель за її ім'ям
             model = getattr(g4f.models, model_name)
-            # Attempt to generate a response using the current model and the provided prompt
+            # Генерація відповіді за допомогою поточної моделі
             response = g4f.ChatCompletion.create(
                 model=model,
-                messages=[{"role": "user", "content": promt}]
+                messages=[{"role": "user", "content": prompt}]
             )
-            # Indicate that the model has been successfully used by setting 'last_model_success' to True
-            ask_gpt.last_model_success = True
-            # Print the name of the model being used
-            print(f"Model: {model}")
-            # Return the generated response
+            print(f"Модель {model} працює.")
+            # Повертаємо згенеровану відповідь
             return response
-        # Handle any exceptions that occur during the generation process
         except Exception as e:
-            # Print an error message indicating the issue encountered while using the current model
+            # Якщо виникає помилка, переходимо до наступної моделі
             print(f"Помилка при використанні моделі {model_name}: {e}")
-            # Continue to the next model in case of an error
             continue
 
-    # If none of the models works
+    # Якщо жодна з моделей не працює
     print("Не вдалося використати жодну з доступних моделей.")
-    # Mark that none of the models works
-    ask_gpt.last_model_success = False
     return None
 
 
-# Check if the script is being run directly
 if __name__ == '__main__':
-
 
     '''
     Create test tasks 
     '''
     # # uncomment to create test tasks in ai_test_tasks_csv
 
-
+    # # Отримання списку доступних моделей
+    # get_available_models()
+    #
+    #
     # # Open the 'ai_test_tasks.csv' file in read mode and read its contents as lines
     # with open("ai_test_tasks.csv", "r") as test_task_file:
     #     test_tasks = test_task_file.read().splitlines()
