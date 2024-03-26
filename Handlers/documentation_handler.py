@@ -19,14 +19,16 @@ def search_documentation(message, telebot_instance):
     """
     try:
 
-        # Delete previous message
-        delete_previous_messages(message, telebot_instance)
+        # # # Delete previous message
+        # delete_previous_messages(message, telebot_instance)
 
         # A variable used to further process and search documentation for a user-entered keyword
         user_input = message.text.strip().lower()
 
         if "documentation" in user_input:
             user_input = user_input[len(DOCUMENTATION_COMMAND):].strip()
+
+
 
         if not user_input:
             text = "Please enter a keyword to search for documentation."
@@ -46,7 +48,6 @@ def search_documentation(message, telebot_instance):
                 log_message(message, DOCUMENTATION_COMMAND, user_input, text)
                 telebot_instance.send_message(message.chat.id, text=text)
                 return
-
             # Remove the content after (...)
             index = doc.find("(...)")
             if index != -1:
