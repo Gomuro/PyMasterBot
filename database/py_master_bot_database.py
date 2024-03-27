@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, func, Column, Integer, String, Date, JSON,
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from Handlers.csv_importer import (add_lessons_csv, add_test_tasks_csv, add_code_tasks_csv, add_ai_test_tasks_csv,
-                                   add_csv_to_database)
+                                   add_ai_code_tasks_csv, add_csv_to_database, add_ai_lessons_csv)
 from Handlers.static_variables import max_total_tasks, max_total_code_tasks
 
 Base = sqlalchemy.orm.declarative_base()
@@ -356,6 +356,18 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def add_ai_code_tasks_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def add_ai_lessons_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
+    def add_code_tasks_csv(self, csv_filename):
+        pass
+
+    @abstractmethod
     def get_all_tables(self):
         pass
 
@@ -464,6 +476,21 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
+
+    def get_all_tables(self):
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+        table_names = metadata.tables.keys()
+        return table_names
+
+    def get_table_by_name(self, table_name):
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect()
+
+        if table_name in metadata.tables:
+            return metadata.tables[table_name]
+        else:
+            return None
 
     def add_lesson(self, lesson_id, topic, item, description, text, status):
         new_lesson = Lesson(
@@ -779,26 +806,20 @@ class PyMasterBotDatabase(AbstractDatabase, ABC):
     def add_test_tasks_csv(self, csv_filename):
         add_test_tasks_csv(self.session, csv_filename, TestTask)
 
+    # def add_ai_test_tasks_csv(self, csv_filename):
+    #     add_ai_test_tasks_csv(self.session, csv_filename, AITestTask)
+    #
     def add_ai_test_tasks_csv(self, csv_filename):
-        add_ai_test_tasks_csv(self.session, csv_filename, AITestTask)
+        add_ai_test_tasks_csv(self.session, csv_filename, TestTask)
+
+    def add_ai_code_tasks_csv(self, csv_filename):
+        add_ai_code_tasks_csv(self.session, csv_filename, CodeTask)
+
+    def add_ai_lessons_csv(self, csv_filename):
+        add_ai_lessons_csv(self.session, csv_filename, Lesson)
 
     def add_code_tasks_csv(self, csv_filename):
         add_code_tasks_csv(self.session, csv_filename, CodeTask)
-
-    def get_all_tables(self):
-        metadata = MetaData(bind=self.engine)
-        metadata.reflect()
-        table_names = metadata.tables.keys()
-        return table_names
-
-    def get_table_by_name(self, table_name):
-        metadata = MetaData(bind=self.engine)
-        metadata.reflect()
-
-        if table_name in metadata.tables:
-            return metadata.tables[table_name]
-        else:
-            return None
 
     def get_test_tasks_by_level(self, level):
         test_tasks = self.session.query(TestTask).join(Level).filter(Level.level_name == level).all()

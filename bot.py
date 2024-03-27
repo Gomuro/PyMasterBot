@@ -27,10 +27,12 @@ telebot_instance = bot.get_bot()
 
 telebot_instance.message_handler(commands=['start'])(bot.start_handler)
 telebot_instance.message_handler(commands=['add_lesson'])(bot.add_lesson_handler)
+telebot_instance.message_handler(commands=['add_ai_lesson_tasks'])(bot.add_ai_lesson_handler)
 telebot_instance.message_handler(commands=['add_admin'])(bot.add_admin_handler)
 telebot_instance.message_handler(commands=['add_test_task'])(bot.add_test_task_handler)
-telebot_instance.message_handler(commands=['add_ai_test_tasks'])(bot.add_ai_test_task_handler)
+telebot_instance.message_handler(commands=['add_ai_test_tasks'])(bot.add_ai_test_tasks_handler)
 telebot_instance.message_handler(commands=['add_code_task'])(bot.add_code_task_handler)
+telebot_instance.message_handler(commands=['add_ai_code_tasks'])(bot.add_ai_code_tasks_handler)
 telebot_instance.message_handler(commands=['add_easy_test_task', 'add_middle_test_task',
                                            'add_hard_test_task'])(bot.add_test_task_by_level_handler)
 telebot_instance.message_handler(commands=['add_easy_code_task', 'add_middle_code_task',
