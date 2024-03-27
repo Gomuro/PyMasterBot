@@ -19,7 +19,9 @@ def search_documentation(message, telebot_instance):
     """
     try:
 
+
         # # # Delete previous message
+
         # delete_previous_messages(message, telebot_instance)
 
         # A variable used to further process and search documentation for a user-entered keyword
